@@ -7,7 +7,7 @@ export const formConfig = {
 		maxLength: 16,
 		minLength: 1,
 		/** Regex used on the server for validation. */
-		pattern: /^[A-Za-z_]+$/,
+		pattern: /^[a-z_]+$/i,
 		/** HTML-safe version of the pattern (no anchors) for the `pattern` attribute. */
 		patternHtml: '[A-Za-z_]+',
 		placeholder: 'q2_launch'
