@@ -9,12 +9,12 @@ export const formConfig = {
 		/** Regex used on the server for validation. */
 		pattern: /^[A-Za-z_]+$/,
 		/** HTML-safe version of the pattern (no anchors) for the `pattern` attribute. */
-		patternHtml: "[A-Za-z_]+",
-		placeholder: "q2_launch",
+		patternHtml: '[A-Za-z_]+',
+		placeholder: 'q2_launch'
 	},
 	range: {
 		/** Maximum interval between start and end date, in days. */
-		maxDays: 30,
+		maxDays: 30
 	},
 	topics: {
 		/** Maximum number of topics allowed per campaign. */
@@ -23,9 +23,9 @@ export const formConfig = {
 		min: 1,
 		topic: {
 			maxLength: 15,
-			minLength: 1,
-		},
-	},
+			minLength: 1
+		}
+	}
 } as const;
 
 export type FormConfig = typeof formConfig;

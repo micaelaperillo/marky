@@ -103,8 +103,7 @@
 								{fmt(start)} → {fmt(end)}
 							</span>
 							<span class="inline-flex items-center gap-1.5">
-								<span
-									class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"
+								<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"
 								></span>
 								{running ? $t('campaign.statusActive') : $t('campaign.statusEnded')}
 							</span>

@@ -57,9 +57,7 @@
 					{$t('list.title')}
 				</h1>
 				<p class="mt-2 text-slate-600 dark:text-slate-400">
-					{items.length === 0
-						? $t('list.emptyLead')
-						: $t('list.summary', { count: items.length })}
+					{items.length === 0 ? $t('list.emptyLead') : $t('list.summary', { count: items.length })}
 				</p>
 			</div>
 			<a

@@ -97,7 +97,10 @@
 		>
 			<!-- Name -->
 			<div>
-				<label for="campaign" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+				<label
+					for="campaign"
+					class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+				>
 					{$t('create.nameLabel')}
 				</label>
 				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
@@ -112,13 +115,16 @@
 					maxlength={campaignCfg.maxLength}
 					pattern={campaignCfg.patternHtml}
 					placeholder={campaignCfg.placeholder}
-					class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500 dark:[color-scheme:dark]"
+					class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:[color-scheme:dark] dark:placeholder:text-slate-500"
 				/>
 			</div>
 
 			<!-- Topics (tag input) -->
 			<div>
-				<label for="topic-input" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+				<label
+					for="topic-input"
+					class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+				>
 					{$t('create.topicsLabel')}
 				</label>
 				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
