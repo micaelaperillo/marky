@@ -1,16 +1,14 @@
-import type { PageServerLoad, Actions } from './$types';
-
-import { putCampaign, putTask } from '$lib/server/dynamo';
-
-import dayjs from 'dayjs';
-
-import { error, redirect } from '@sveltejs/kit';
+import { error, redirect } from "@sveltejs/kit";
+import dayjs from "dayjs";
+import { formConfig } from "$lib/config";
+import { putCampaign, putTask } from "$lib/server/dynamo";
+import type { Actions, PageServerLoad } from "./$types";
 
 export const load = (async ({ cookies }) => {
-	const user = cookies.get('user_id');
+	const user = cookies.get("user_id");
 
 	if (!user) {
-		redirect(303, '/login');
+		redirect(303, "/login");
 	}
 
 	return { user };
@@ -20,43 +18,91 @@ export const actions = {
 	default: async ({ request, cookies }) => {
 		//#region Params
 
-		const user = cookies.get('user_id');
+		const user = cookies.get("user_id");
 		if (!user) {
-			redirect(303, '/login');
+			redirect(303, "/login");
 		}
 
 		const form = await request.formData();
 
-		const campaign = form.get('campaign') as string;
-		const topics = form.getAll('topic') as string[];
-		const start = dayjs(form.get('start') as string).startOf('day');
-		const end = dayjs(form.get('end') as string).startOf('day');
+		const campaignRaw = form.get("campaign");
+		const startRaw = form.get("start");
+		const endRaw = form.get("end");
+		const topicsRaw = form.getAll("topic");
 
-		const today = dayjs().startOf('day');
-		const tomorrow = today.add(1, 'day');
+		if (typeof campaignRaw !== "string") {
+			error(400, "missing campaign name");
+		}
+		if (typeof startRaw !== "string" || typeof endRaw !== "string") {
+			error(400, "missing date range");
+		}
+
+		const campaign = campaignRaw;
+		const topics = topicsRaw.filter((t): t is string => typeof t === "string");
+		const start = dayjs(startRaw).startOf("day");
+		const end = dayjs(endRaw).startOf("day");
+
+		if (!start.isValid() || !end.isValid()) {
+			error(400, "invalid date");
+		}
+
+		const today = dayjs().startOf("day");
+		const tomorrow = today.add(1, "day");
 
 		//#endregion
 
 		//#region Validations
 
-		if (campaign.length > 16) {
-			error(400, 'campaign name may only have 16 letters');
+		const {
+			campaign: campaignCfg,
+			topics: topicsCfg,
+			range: rangeCfg,
+		} = formConfig;
+
+		if (
+			campaign.length < campaignCfg.minLength ||
+			campaign.length > campaignCfg.maxLength
+		) {
+			error(
+				400,
+				`campaign name must be ${campaignCfg.minLength}-${campaignCfg.maxLength} characters`,
+			);
 		}
 
-		if (!/[a-z_]+/i.test(campaign)) {
-			error(400, 'campaign name may only have ASCII letters and _');
+		if (!campaignCfg.pattern.test(campaign)) {
+			error(400, "campaign name may only have ASCII letters and _");
 		}
 
-		if (topics.some((t) => t.length > 10)) {
-			error(400, 'some topics exceed 10 chars');
+		if (topics.length < topicsCfg.min || topics.length > topicsCfg.max) {
+			error(
+				400,
+				`topics count must be between ${topicsCfg.min} and ${topicsCfg.max}`,
+			);
+		}
+
+		if (new Set(topics).size !== topics.length) {
+			error(400, "duplicate topics are not allowed");
+		}
+
+		if (
+			topics.some(
+				(t) =>
+					t.length < topicsCfg.topic.minLength ||
+					t.length > topicsCfg.topic.maxLength,
+			)
+		) {
+			error(
+				400,
+				`each topic must be ${topicsCfg.topic.minLength}-${topicsCfg.topic.maxLength} characters`,
+			);
 		}
 
 		if (end.isBefore(start)) {
 			error(400, "end can't come before the start");
 		}
 
-		if (start.diff(end, 'days') > 30) {
-			error(400, "the interval can't be greater than 30 days");
+		if (end.diff(start, "day") > rangeCfg.maxDays) {
+			error(400, `the interval can't be greater than ${rangeCfg.maxDays} days`);
 		}
 
 		//#endregion
@@ -67,20 +113,25 @@ export const actions = {
 
 		let iterator = dayjs(start);
 		while (iterator.isBefore(end)) {
-			const when = iterator.isBefore(today) ? tomorrow : iterator.add(1, 'day');
+			const when = iterator.isBefore(today) ? tomorrow : iterator.add(1, "day");
 
 			for (const topic of topics) {
 				promises.push(putTask(when, topic, iterator));
 			}
 
-			iterator = iterator.add(1, 'day');
+			iterator = iterator.add(1, "day");
 		}
 
-		await Promise.allSettled(promises);
+		const results = await Promise.allSettled(promises);
+		const failed = results.filter((r) => r.status === "rejected");
+		if (failed.length > 0) {
+			console.error("putTask rejections", failed);
+			error(500, "failed to schedule tasks");
+		}
 		await putCampaign(user, campaign, topics, start, end);
 
 		//#endregion
 
 		redirect(303, `/list/${campaign}`);
-	}
+	},
 } satisfies Actions;
