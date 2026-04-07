@@ -118,7 +118,7 @@
 				class="mt-10 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-800 dark:bg-slate-900"
 			>
 				<div
-					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-100 to-violet-100 dark:from-brand-950/60 dark:to-violet-950/60"
+					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-brand-100 to-violet-100 dark:from-brand-950/60 dark:to-violet-950/60"
 				>
 					<svg
 						class="h-8 w-8 text-brand-600 dark:text-brand-400"

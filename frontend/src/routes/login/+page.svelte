@@ -4,7 +4,7 @@
 
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">
 	<div
-		class="absolute inset-0 -z-10 bg-gradient-to-br from-brand-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
+		class="absolute inset-0 -z-10 bg-linear-to-br from-brand-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
 	></div>
 	<div
 		class="absolute -top-32 -left-32 -z-10 h-96 w-96 rounded-full bg-brand-200/40 blur-3xl dark:bg-brand-700/20"

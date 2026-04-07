@@ -14,19 +14,19 @@
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">
 	<!-- Background -->
 	<div
-		class="absolute inset-0 -z-10 bg-gradient-to-br from-slate-50 via-white to-brand-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
+		class="absolute inset-0 -z-10 bg-linear-to-br from-slate-50 via-white to-brand-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
 	></div>
 	<div
-		class="absolute -top-40 -left-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-brand-200/30 blur-3xl dark:bg-brand-700/15"
+		class="absolute -top-40 -left-40 -z-10 h-112 w-md rounded-full bg-brand-200/30 blur-3xl dark:bg-brand-700/15"
 	></div>
 	<div
-		class="absolute -right-40 -bottom-40 -z-10 h-[28rem] w-[28rem] rounded-full bg-violet-200/30 blur-3xl dark:bg-violet-700/15"
+		class="absolute -right-40 -bottom-40 -z-10 h-112 w-md rounded-full bg-violet-200/30 blur-3xl dark:bg-violet-700/15"
 	></div>
 
 	<!-- Card -->
 	<div class="w-full max-w-xl text-center">
 		<p
-			class="bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-[8rem] leading-none font-black tracking-tighter text-transparent select-none sm:text-[10rem] dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
+			class="bg-linear-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-[8rem] leading-none font-black tracking-tighter text-transparent select-none sm:text-[10rem] dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
 		>
 			{$t(`errors.${key}.code`)}
 		</p>

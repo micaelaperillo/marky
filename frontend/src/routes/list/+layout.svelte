@@ -53,7 +53,7 @@
 		>
 			<div class="flex items-center gap-3">
 				<div
-					class="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-400 to-violet-500 text-sm font-bold text-white"
+					class="flex h-9 w-9 items-center justify-center rounded-full bg-linear-to-br from-brand-400 to-violet-500 text-sm font-bold text-white"
 				>
 					{data.user?.slice(0, 2).toUpperCase() ?? '··'}
 				</div>

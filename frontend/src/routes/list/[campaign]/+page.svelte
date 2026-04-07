@@ -72,7 +72,7 @@
 		{:else}
 			<!-- Header card -->
 			<div
-				class="relative mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
+				class="relative mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-linear-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
 			>
 				<div
 					class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-brand-200/30 blur-3xl dark:bg-brand-700/15"
@@ -126,7 +126,7 @@
 						>
 							<div class="flex items-center gap-3">
 								<div
-									class="flex h-10 w-10 items-center justify-center rounded-lg bg-gradient-to-br from-brand-100 to-violet-100 text-brand-700 dark:from-brand-950/60 dark:to-violet-950/60 dark:text-brand-300"
+									class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-brand-100 to-violet-100 text-brand-700 dark:from-brand-950/60 dark:to-violet-950/60 dark:text-brand-300"
 								>
 									<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
 										<path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
