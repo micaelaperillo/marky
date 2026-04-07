@@ -8,7 +8,7 @@
 </script>
 
 <svelte:head>
-	<title>{$t(`errors.${key}.code`)} · Marky</title>
+	<title>{$t(`errors.${key}.code`)} - Marky</title>
 </svelte:head>
 
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">

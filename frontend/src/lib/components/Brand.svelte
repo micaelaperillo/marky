@@ -14,7 +14,7 @@
 	aria-label="Marky — home"
 >
 	<span
-		class="flex {box} items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-violet-600 font-black text-white shadow-md shadow-brand-500/30 transition group-hover:shadow-lg group-hover:shadow-brand-500/40"
+		class="flex {box} items-center justify-center rounded-xl bg-linear-to-br from-brand-500 to-violet-600 font-black text-white shadow-md shadow-brand-500/30 transition group-hover:shadow-lg group-hover:shadow-brand-500/40"
 	>
 		M
 	</span>
