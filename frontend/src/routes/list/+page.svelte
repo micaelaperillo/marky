@@ -2,6 +2,7 @@
 	import { resolve } from '$app/paths';
 	import type { PageProps } from './$types';
 	import { t } from '$lib/i18n';
+	import dayjs from 'dayjs';
 
 	let { data }: PageProps = $props();
 
@@ -19,29 +20,34 @@
 	function campaignName(i: RawItem) {
 		return i.CampaignName?.S ?? i.Name?.S ?? 'Untitled';
 	}
+
 	function topics(i: RawItem): string[] {
 		if (i.Topics?.L) return i.Topics.L.map((x) => x?.S).filter((s): s is string => !!s);
 		if (i.Topics?.SS) return i.Topics.SS;
 		return [];
 	}
+
 	function fmt(d?: string) {
-		if (!d) return '—';
-		const parsed = new Date(d);
-		if (Number.isNaN(parsed.getTime())) return d;
-		return parsed.toLocaleDateString(undefined, {
+		if (!d) return '-';
+
+		const parsed = dayjs(d);
+		if (!parsed.isValid()) return d;
+
+		return parsed.toDate().toLocaleDateString(undefined, {
 			month: 'short',
 			day: 'numeric',
 			year: 'numeric'
 		});
 	}
+
 	function daysLeft(end?: string) {
 		if (!end) return null;
-		const parsed = new Date(end);
-		if (Number.isNaN(parsed.getTime())) return null;
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		parsed.setHours(0, 0, 0, 0);
-		return Math.round((parsed.getTime() - today.getTime()) / 86_400_000);
+
+		const parsed = dayjs(end);
+		if (!parsed.isValid()) return null;
+
+		const today = dayjs().startOf('day');
+		return Math.round(parsed.diff(today, 'days'));
 	}
 </script>
 
