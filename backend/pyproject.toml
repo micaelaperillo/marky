@@ -10,7 +10,7 @@ dependencies = [
     "pydantic>=2.6",
     "pydantic-settings>=2.2",
     "tenacity>=8.2",
-    "textblob",
+    "textblob>=0.18",
 ]
 
 [project.optional-dependencies]
