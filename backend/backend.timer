@@ -1,0 +1,10 @@
+[Unit]
+Description=Run backend at the night
+
+[Timer]
+OnCalendar=*-*-* 23:00:00
+Persistent=true
+Unit=backend.service
+
+[Install]
+WantedBy=timers.target
