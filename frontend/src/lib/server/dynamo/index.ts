@@ -5,7 +5,7 @@ import { PutCommand, DynamoDBDocumentClient, GetCommand } from '@aws-sdk/lib-dyn
 
 import iso from '$lib/modules/iso';
 
-const client = new DynamoDBClient({});
+const client = new DynamoDBClient({region: 'us-east-1'});
 const docClient = DynamoDBDocumentClient.from(client);
 
 //#region Tasks
