@@ -25,7 +25,7 @@
 			<form method="post" class="mt-6 space-y-4">
 				<div>
 					<label for="id" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
-						{m.login_userIdLabel}
+						{m.login_userIdLabel()}
 					</label>
 					<input
 						type="text"
