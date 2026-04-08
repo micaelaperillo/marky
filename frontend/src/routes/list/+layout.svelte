@@ -6,8 +6,8 @@
 	let { data, children } = $props();
 
 	const nav = [
-		{ href: '/list', key: 'nav_campaigns', icon: 'grid' },
-		{ href: '/create', key: 'nav_newCampaign', icon: 'plus' }
+		{ href: '/list', label: m.nav_campaigns, icon: 'grid' },
+		{ href: '/create', label: m.nav_newCampaign, icon: 'plus' }
 	] as const;
 </script>
 
@@ -41,7 +41,7 @@
 							/>
 						{/if}
 					</svg>
-					{m[item.key]}
+					{item.label()}
 				</a>
 			{/each}
 		</nav>
@@ -57,7 +57,7 @@
 				</div>
 				<div class="min-w-0">
 					<p class="truncate text-sm font-medium text-slate-900 dark:text-white">{data.user}</p>
-					<p class="text-xs text-slate-500 dark:text-slate-400">{m.common_signedIn}</p>
+					<p class="text-xs text-slate-500 dark:text-slate-400">{m.common_signedIn()}</p>
 				</div>
 			</div>
 		</div>

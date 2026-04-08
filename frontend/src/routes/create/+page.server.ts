@@ -47,7 +47,6 @@ export const actions = {
 		}
 
 		const today = dayjs().startOf('day');
-		const tomorrow = today.add(1, 'day');
 
 		//#endregion
 
@@ -105,10 +104,8 @@ export const actions = {
 
 		let iterator = dayjs(start);
 		while (iterator.isBefore(end)) {
-			const when = iterator.isBefore(today) ? tomorrow : iterator.add(1, 'day');
-
 			for (const topic of topics) {
-				promises.push(putTask(when, topic, iterator));
+				promises.push(putTask(today, topic, iterator));
 			}
 
 			iterator = iterator.add(1, 'day');

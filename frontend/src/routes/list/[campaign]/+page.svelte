@@ -7,21 +7,21 @@
 	let { data }: PageProps = $props();
 
 	type RawItem = {
-		Hash?: { S: string };
-		Sort?: { S: string };
+		PK?: { S: string };
+		SK?: { S: string };
 		Topics?: { L?: { S: string }[]; SS?: string[] };
 		Start?: { S: string };
 		End?: { S: string };
 	};
 
 	const item = $derived((data.Item ?? {}) as RawItem);
-	const name = $derived(item.Sort ?? 'Campaign');
+	const name = $derived(item.SK ?? 'Campaign');
 	const topics = $derived<string[]>(
 		item.Topics?.L?.map((x) => x?.S).filter((s): s is string => !!s) ?? item.Topics?.SS ?? []
 	);
 	const start = $derived(item.Start?.S);
 	const end = $derived(item.End?.S);
-	const exists = $derived(!!item.Sort);
+	const exists = $derived(!!item.SK);
 
 	const daysLeft = $derived.by(() => {
 		if (!end) return null;
