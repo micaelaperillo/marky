@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { t } from '$lib/i18n';
+	import { m } from '$lib/paraglide/messages';
 </script>
 
 <main class="relative isolate flex-1 overflow-hidden">
@@ -21,27 +21,27 @@
 			class="inline-flex items-center gap-2 rounded-full border border-brand-200 bg-white/60 px-3 py-1 text-xs font-medium text-brand-700 backdrop-blur dark:border-brand-800 dark:bg-slate-900/60 dark:text-brand-300"
 		>
 			<span class="h-1.5 w-1.5 rounded-full bg-brand-500"></span>
-			{$t('home.badge')}
+			{m.home_badge()}
 		</span>
 		<h1
 			class="mt-6 text-5xl font-black tracking-tight text-slate-900 sm:text-6xl md:text-7xl dark:text-white"
 		>
-			{$t('home.titleLine1')} <br />
+			{m.home_titleLine1()} <br />
 			<span
 				class="bg-linear-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
 			>
-				{$t('home.titleLine2')}
+				{m.home_titleLine2()}
 			</span>
 		</h1>
 		<p class="mx-auto mt-6 max-w-2xl text-lg text-slate-600 dark:text-slate-400">
-			{$t('home.subtitle')}
+			{m.home_subtitle()}
 		</p>
 		<div class="mt-10 flex items-center justify-center gap-3">
 			<a
 				href={resolve('/list')}
 				class="group inline-flex items-center gap-2 rounded-xl bg-slate-900 px-6 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:shadow-black/30 dark:hover:bg-slate-200"
 			>
-				{$t('home.openDashboard')}
+				{m.home_openDashboard()}
 				<svg
 					class="h-4 w-4 transition group-hover:translate-x-0.5"
 					viewBox="0 0 20 20"
@@ -58,7 +58,7 @@
 				href={resolve('/create')}
 				class="rounded-xl border border-slate-200 bg-white/80 px-6 py-3 text-sm font-semibold text-slate-700 backdrop-blur transition hover:bg-white focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-900/60 dark:text-slate-200 dark:hover:bg-slate-900"
 			>
-				{$t('home.createCampaign')}
+				{m.home_createCampaign()}
 			</a>
 		</div>
 	</section>

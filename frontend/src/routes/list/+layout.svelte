@@ -1,13 +1,13 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
-	import { t } from '$lib/i18n';
+	import { m } from '$lib/paraglide/messages.js';
 
 	let { data, children } = $props();
 
 	const nav = [
-		{ href: '/list', key: 'nav.campaigns', icon: 'grid' },
-		{ href: '/create', key: 'nav.newCampaign', icon: 'plus' }
+		{ href: '/list', key: 'nav_campaigns', icon: 'grid' },
+		{ href: '/create', key: 'nav_newCampaign', icon: 'plus' }
 	] as const;
 </script>
 
@@ -28,22 +28,20 @@
 						? 'bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-300'
 						: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}"
 				>
-					{#if item.icon === 'grid'}
-						<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+					<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+						{#if item.icon === 'grid'}
 							<path
 								d="M3 4a1 1 0 011-1h5a1 1 0 011 1v5a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 12a1 1 0 011-1h5a1 1 0 011 1v4a1 1 0 01-1 1H4a1 1 0 01-1-1v-4zM12 4a1 1 0 011-1h3a1 1 0 011 1v4a1 1 0 01-1 1h-3a1 1 0 01-1-1V4zM12 11a1 1 0 011-1h3a1 1 0 011 1v5a1 1 0 01-1 1h-3a1 1 0 01-1-1v-5z"
 							/>
-						</svg>
-					{:else}
-						<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+						{:else}
 							<path
 								fill-rule="evenodd"
 								d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
 								clip-rule="evenodd"
 							/>
-						</svg>
-					{/if}
-					{$t(item.key)}
+						{/if}
+					</svg>
+					{m[item.key]}
 				</a>
 			{/each}
 		</nav>
@@ -59,7 +57,7 @@
 				</div>
 				<div class="min-w-0">
 					<p class="truncate text-sm font-medium text-slate-900 dark:text-white">{data.user}</p>
-					<p class="text-xs text-slate-500 dark:text-slate-400">{$t('common.signedIn')}</p>
+					<p class="text-xs text-slate-500 dark:text-slate-400">{m.common_signedIn}</p>
 				</div>
 			</div>
 		</div>

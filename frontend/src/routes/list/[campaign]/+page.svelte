@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import type { PageProps } from './$types';
-	import { t } from '$lib/i18n';
+
+	import { resolve } from '$app/paths';
+	import { m } from '$lib/paraglide/messages';
 
 	let { data }: PageProps = $props();
 
@@ -50,7 +51,7 @@
 		<!-- Breadcrumb -->
 		<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
 			<a href={resolve('/list')} class="hover:text-slate-900 dark:hover:text-white">
-				{$t('campaign.breadcrumb')}
+				{m.campaign_breadcrumb()}
 			</a>
 			<span>/</span>
 			<span class="font-medium text-slate-900 dark:text-white">{name}</span>
@@ -60,13 +61,13 @@
 			<div
 				class="mt-10 rounded-2xl border border-amber-200 bg-amber-50 p-6 text-amber-900 dark:border-amber-900/50 dark:bg-amber-950/30 dark:text-amber-200"
 			>
-				<h2 class="text-lg font-bold">{$t('campaign.notFoundTitle')}</h2>
-				<p class="mt-1 text-sm">{$t('campaign.notFoundBody')}</p>
+				<h2 class="text-lg font-bold">{m.campaign_notFoundTitle()}</h2>
+				<p class="mt-1 text-sm">{m.campaign_notFoundBody()}</p>
 				<a
 					href={resolve('/list')}
 					class="mt-4 inline-flex rounded-lg bg-amber-900 px-4 py-2 text-sm font-semibold text-white hover:bg-amber-950 focus-visible:ring-2 focus-visible:ring-amber-500/40 focus-visible:outline-none dark:bg-amber-200 dark:text-amber-950 dark:hover:bg-amber-100"
 				>
-					{$t('campaign.notFoundCta')}
+					{m.campaign_notFoundCta()}
 				</a>
 			</div>
 		{:else}
@@ -82,7 +83,7 @@
 						<p
 							class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400"
 						>
-							{$t('campaign.eyebrow')}
+							{m.campaign_eyebrow()}
 						</p>
 						<h1
 							class="mt-1 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white"
@@ -105,7 +106,7 @@
 							<span class="inline-flex items-center gap-1.5">
 								<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"
 								></span>
-								{running ? $t('campaign.statusActive') : $t('campaign.statusEnded')}
+								{running ? m.campaign_statusActive() : m.campaign_statusEnded()}
 							</span>
 						</div>
 					</div>
@@ -117,7 +118,7 @@
 				<h2
 					class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
 				>
-					{$t('campaign.topicsHeading')}
+					{m.campaign_topicsHeading()}
 				</h2>
 				<div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 					{#each topics as topic (topic)}
@@ -136,7 +137,7 @@
 								<div>
 									<p class="font-semibold text-slate-900 dark:text-white">{topic}</p>
 									<p class="text-xs text-slate-500 dark:text-slate-400">
-										{$t('campaign.topicSubtitle')}
+										{m.campaign_topicSubtitle()}
 									</p>
 								</div>
 							</div>
@@ -147,7 +148,7 @@
 							</span>
 						</div>
 					{:else}
-						<p class="text-sm text-slate-500 dark:text-slate-400">{$t('campaign.noTopics')}</p>
+						<p class="text-sm text-slate-500 dark:text-slate-400">{m.campaign_noTopics()}</p>
 					{/each}
 				</div>
 			</section>
@@ -157,12 +158,12 @@
 				<h2
 					class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
 				>
-					{$t('campaign.reportsHeading')}
+					{m.campaign_reportsHeading()}
 				</h2>
 				<div
 					class="mt-4 flex h-64 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
 				>
-					{$t('campaign.reportsPlaceholder')}
+					{m.campaign_reportsPlaceholder()}
 				</div>
 			</section>
 		{/if}

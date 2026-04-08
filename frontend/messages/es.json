@@ -1,0 +1,136 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"campaign_breadcrumb": "Campañas",
+	"campaign_eyebrow": "Campaña",
+	"campaign_noTopics": "Esta campaña no tiene temas cargados.",
+	"campaign_notFoundBody": "No la pudimos ubicar. Capaz la borraste o el nombre está mal escrito.",
+	"campaign_notFoundCta": "Volver a campañas",
+	"campaign_notFoundTitle": "No encontramos esta campaña",
+	"campaign_reportsHeading": "Reportes",
+	"campaign_reportsPlaceholder": "Acá van a aparecer los reportes cuando corra la ingesta.",
+	"campaign_statusActive": "Activa",
+	"campaign_statusEnded": "Terminó",
+	"campaign_topicSubtitle": "Sentimiento medido todos los días",
+	"campaign_topicsHeading": "Temas en seguimiento",
+	"common_back": "Volver",
+	"common_cancel": "Cancelar",
+	"common_dashboard": "Abrir el panel",
+	"common_home": "Volver al inicio",
+	"common_signedIn": "Sesión activa",
+	"common_signIn": "Ingresar",
+	"common_view": "Ver",
+	"create_breadcrumbCampaigns": "Campañas",
+	"create_breadcrumbNew": "Nueva",
+	"create_endLabel": "Hasta",
+	"create_errorDuplicate": "\"{topic}\" ya lo cargaste, che",
+	"create_errorMax": "Pará, el máximo son {max} temas",
+	"create_errorMinLen": [
+		{
+			"match": {
+				"minLen=1": "El tema tiene que tener al menos 1 letra",
+				"minLen=*": "El tema tiene que tener al menos {minLen} letras"
+			}
+		}
+	],
+	"create_intervalHint": [
+		{
+			"match": {
+				"max=1": "El intervalo no puede mayor a 1 día.",
+				"max=*": "El intervalo no puede mayor a {max} días."
+			}
+		}
+	],
+	"create_nameHint": "Hasta {max} caracteres. Solo letras y guión bajo, nada raro.",
+	"create_nameLabel": "Nombre de la campaña",
+	"create_removeTopic": "Sacar {topic}",
+	"create_startLabel": "Desde",
+	"create_submit": "Crear campaña",
+	"create_subtitle": "Ponele un nombre, cargá los temas que querés seguir y elegí el rango de fechas.",
+	"create_title": "Armar una campaña",
+	"create_topicCounter": "{count} / {max}",
+	"create_topicPlaceholder": "Escribí un tema y dale Enter...",
+	"create_topicsHint": "Apretá Enter o coma para sumar un tema. Hasta {max}, de {minLen} a {maxLen} caracteres cada uno.",
+	"create_topicsLabel": "Temas",
+	"home_badge": "Marketing con pulso de mercado",
+	"home_createCampaign": "Armar campaña",
+	"home_openDashboard": "Abrir el panel",
+	"home_subtitle": "Armá campañas, metele señales de los mercados de predicción y mirá cómo se mueve el sentimiento — todo desde un mismo panel, tranqui.",
+	"home_titleLine1": "Tomale el pulso",
+	"home_titleLine2": "a tus mercados.",
+	"login_footer": "Al ingresar te comprometés a usar esta data con cabeza.",
+	"login_submit": "Ingresar",
+	"login_subtitle": "Metete con tu ID de usuario y arrancamos.",
+	"login_title": "¡Qué bueno verte de nuevo!",
+	"login_userIdLabel": "ID de usuario",
+	"login_userIdPlaceholder": "tu_id",
+	"nav_campaigns": "Campañas",
+	"nav_newCampaign": "Nueva campaña",
+	"theme_toDark": "Cambiar a modo oscuro",
+	"theme_toLight": "Cambiar a modo claro",
+	"list_badgeDaysLeft": [
+		{
+			"match": {
+				"days=0": "Último día",
+				"days=1": "Queda 1 día",
+				"days=*": "Quedan {days} días"
+			}
+		}
+	],
+	"list_badgeEnded": "Terminó",
+	"list_badgeEndsToday": "Termina hoy",
+	"list_emptyBody": "Con las campañas podés seguir temas en el tiempo y ver cómo se mueve el sentimiento en los mercados de predicción.",
+	"list_emptyCta": "Armá tu primera campaña",
+	"list_emptyLead": "Todavía no armaste ninguna. Dale, arrancá una para ver cómo viene el sentimiento.",
+	"list_emptyTitle": "Acá no hay nada todavía",
+	"list_eyebrow": "Panel",
+	"list_newCampaign": "Nueva campaña",
+	"list_statCampaigns": "Campañas",
+	"list_statRunning": "Corriendo ahora",
+	"list_statTopics": "Temas en seguimiento",
+	"list_title": "Tus campañas",
+	"list_summary": [
+		{
+			"match": {
+				"count=0": "Sin campañas activas en la mira.",
+				"count=1": "1 campaña activa en la mira.",
+				"count=*": "{count} campañas activas en la mira."
+			}
+		}
+	],
+	"list_topicCount": [
+		{
+			"match": {
+				"count=1": "1 tema",
+				"count=*": "{count} temas"
+			}
+		}
+	],
+	"errors_detail": "Detalle",
+	"errors_title": [
+		{
+			"match": {
+				"code=404": "Página no encontrada",
+				"code=500": "Uh, algo se rompió",
+				"code=*": "Error inesperado"
+			}
+		}
+	],
+	"errors_body": [
+		{
+			"match": {
+				"code=404": "No pudimos encontrar la página que buscás. Capaz la movieron o nunca existió.",
+				"code=500": "Algo se cortó del lado nuestro. Ya estamos viendo qué pasó — probá en un rato.",
+				"code=*": "Pasó algo raro. Probá de nuevo en un toque."
+			}
+		}
+	],
+	"errors_code": [
+		{
+			"match": {
+				"code=404": "404",
+				"code=500": "500",
+				"code=*": "Error"
+			}
+		}
+	]
+}

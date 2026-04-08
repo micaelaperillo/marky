@@ -1,8 +1,10 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
 	import type { PageProps } from './$types';
-	import { t } from '$lib/i18n';
+
 	import dayjs from 'dayjs';
+
+	import { resolve } from '$app/paths';
+	import { m } from '$lib/paraglide/messages';
 
 	let { data }: PageProps = $props();
 
@@ -56,14 +58,14 @@
 		<!-- Header -->
 		<div class="flex flex-wrap items-end justify-between gap-4">
 			<div>
-				<p class="text-sm font-medium text-brand-600 dark:text-brand-400">{$t('list.eyebrow')}</p>
+				<p class="text-sm font-medium text-brand-600 dark:text-brand-400">{m.list_eyebrow()}</p>
 				<h1
 					class="mt-1 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white"
 				>
-					{$t('list.title')}
+					{m.list_title()}
 				</h1>
 				<p class="mt-2 text-slate-600 dark:text-slate-400">
-					{items.length === 0 ? $t('list.emptyLead') : $t('list.summary', { count: items.length })}
+					{items.length === 0 ? m.list_emptyLead() : m.list_summary({ count: items.length })}
 				</p>
 			</div>
 			<a
@@ -77,7 +79,7 @@
 						clip-rule="evenodd"
 					/>
 				</svg>
-				{$t('list.newCampaign')}
+				{m.list_newCampaign()}
 			</a>
 		</div>
 
@@ -88,7 +90,7 @@
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 				>
 					<p class="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">
-						{$t('list.statCampaigns')}
+						{m.list_statCampaigns()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">{items.length}</p>
 				</div>
@@ -96,7 +98,7 @@
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 				>
 					<p class="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">
-						{$t('list.statTopics')}
+						{m.list_statTopics()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
 						{items.reduce((n, i) => n + topics(i).length, 0)}
@@ -106,7 +108,7 @@
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 				>
 					<p class="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">
-						{$t('list.statRunning')}
+						{m.list_statRunning()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
 						{items.filter((i) => {
@@ -140,16 +142,16 @@
 					</svg>
 				</div>
 				<h2 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">
-					{$t('list.emptyTitle')}
+					{m.list_emptyTitle()}
 				</h2>
 				<p class="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
-					{$t('list.emptyBody')}
+					{m.list_emptyBody()}
 				</p>
 				<a
 					href={resolve('/create')}
 					class="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-brand-500 dark:hover:bg-brand-400"
 				>
-					{$t('list.emptyCta')}
+					{m.list_emptyCta()}
 				</a>
 			</div>
 		{:else}
@@ -179,11 +181,7 @@
 									? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
 									: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}"
 							>
-								{running
-									? left === 0
-										? $t('list.badgeEndsToday')
-										: $t('list.badgeDaysLeft', { days: left ?? 0 })
-									: $t('list.badgeEnded')}
+								{running ? m.list_badgeDaysLeft({ days: left ?? 0 }) : m.list_badgeEnded()}
 							</span>
 						</div>
 
@@ -209,11 +207,11 @@
 						<div
 							class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400"
 						>
-							<span>{$t('list.topicCount', { count: ts.length })}</span>
+							<span>{m.list_topicCount({ count: ts.length })}</span>
 							<span
 								class="font-medium text-brand-600 opacity-0 transition group-hover:opacity-100 dark:text-brand-400"
 							>
-								{$t('common.view')} →
+								{m.common_view()} →
 							</span>
 						</div>
 					</a>

@@ -1,14 +1,15 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
-	import { t } from '$lib/i18n';
 
-	const key = $derived(page.status === 404 ? '404' : page.status >= 500 ? '500' : 'generic');
+	import { m } from '$lib/paraglide/messages';
+
+	const code = $derived(page.status === 404 ? '404' : page.status >= 500 ? '500' : 'generic');
 	const isNotFound = $derived(page.status === 404);
 </script>
 
 <svelte:head>
-	<title>{$t(`errors.${key}.code`)} - Marky</title>
+	<title>{m.errors_code({ code })} - Marky</title>
 </svelte:head>
 
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">
@@ -28,20 +29,20 @@
 		<p
 			class="bg-linear-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-[8rem] leading-none font-black tracking-tighter text-transparent select-none sm:text-[10rem] dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
 		>
-			{$t(`errors.${key}.code`)}
+			{m.errors_code({ code })}
 		</p>
 		<h1 class="mt-2 text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-			{$t(`errors.${key}.title`)}
+			{m.errors_title({ code })}
 		</h1>
 		<p class="mx-auto mt-4 max-w-md text-slate-600 dark:text-slate-400">
-			{$t(`errors.${key}.body`)}
+			{m.errors_body({ code })}
 		</p>
 
 		{#if page.error?.message && !isNotFound}
 			<div
 				class="mx-auto mt-6 max-w-md rounded-lg border border-rose-200 bg-rose-50 px-4 py-2 text-left text-xs text-rose-800 dark:border-rose-900/60 dark:bg-rose-950/40 dark:text-rose-300"
 			>
-				<span class="font-semibold">{$t('errors.detail')}:</span>
+				<span class="font-semibold">{m.errors_detail()}:</span>
 				{page.error.message}
 			</div>
 		{/if}
@@ -58,14 +59,14 @@
 						clip-rule="evenodd"
 					/>
 				</svg>
-				{$t('common.home')}
+				{m.common_home()}
 			</a>
 			<button
 				type="button"
 				onclick={() => history.back()}
 				class="rounded-xl border border-slate-200 bg-white px-5 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-50 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:border-slate-700 dark:bg-slate-900 dark:text-slate-200 dark:hover:bg-slate-800"
 			>
-				{$t('common.back')}
+				{m.common_back()}
 			</button>
 		</div>
 	</div>

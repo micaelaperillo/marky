@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { t } from '$lib/i18n';
+	import { m } from '$lib/paraglide/messages';
 </script>
 
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">
@@ -18,21 +18,21 @@
 			class="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/30"
 		>
 			<h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-				{$t('login.title')}
+				{m.login_title()}
 			</h1>
-			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{$t('login.subtitle')}</p>
+			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{m.login_subtitle()}</p>
 
 			<form method="post" class="mt-6 space-y-4">
 				<div>
 					<label for="id" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
-						{$t('login.userIdLabel')}
+						{m.login_userIdLabel}
 					</label>
 					<input
 						type="text"
 						name="id"
 						id="id"
 						required
-						placeholder={$t('login.userIdPlaceholder')}
+						placeholder={m.login_userIdPlaceholder()}
 						class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
 					/>
 				</div>
@@ -40,11 +40,11 @@
 					type="submit"
 					class="w-full rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 				>
-					{$t('login.submit')}
+					{m.login_submit()}
 				</button>
 			</form>
 		</div>
 
-		<p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">{$t('login.footer')}</p>
+		<p class="mt-6 text-center text-xs text-slate-500 dark:text-slate-400">{m.login_footer()}</p>
 	</div>
 </div>
