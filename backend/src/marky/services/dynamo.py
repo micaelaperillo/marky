@@ -40,13 +40,13 @@ class DynamoClient:
 
 
 class TasksRepository:
-    """Business adapter for the Tasks#... entity in `marky-data`.
+    """Business adapter for the TASKS#... entity in `marky-data`.
 
-    Owns the `"Tasks#"` partition-key prefix so the rest of the codebase
+    Owns the `"TASKS#"` partition-key prefix so the rest of the codebase
     can stay agnostic of the single-table layout.
     """
 
-    HASH_PREFIX = "Tasks#"
+    HASH_PREFIX = "TASKS#"
 
     def __init__(self, client: DynamoClient, table_name: str) -> None:
         self._client = client

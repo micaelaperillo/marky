@@ -65,10 +65,10 @@ def aws_setup():
         ddb.get_waiter("table_exists").wait(TableName=TABLE)
         table = boto3.resource("dynamodb", region_name="us-east-1").Table(TABLE)
         table.put_item(
-            Item={"Hash": "Tasks#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
+            Item={"Hash": "TASKS#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
         )
         table.put_item(
-            Item={"Hash": "Tasks#2026-04-07", "Sort": "Tesla robotaxi#2026-04-06"}
+            Item={"Hash": "TASKS#2026-04-07", "Sort": "Tesla robotaxi#2026-04-06"}
         )
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=BUCKET)

@@ -29,14 +29,14 @@ def dynamo_table():
         resource = boto3.resource("dynamodb", region_name="us-east-1")
         table = resource.Table(TABLE)
         table.put_item(
-            Item={"Hash": "Tasks#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
+            Item={"Hash": "TASKS#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
         )
         table.put_item(
-            Item={"Hash": "Tasks#2026-04-07", "Sort": "Tesla robotaxi#2026-04-05"}
+            Item={"Hash": "TASKS#2026-04-07", "Sort": "Tesla robotaxi#2026-04-05"}
         )
         # Different day — should not be returned for 2026-04-07.
         table.put_item(
-            Item={"Hash": "Tasks#2026-04-08", "Sort": "Other#2026-04-07"}
+            Item={"Hash": "TASKS#2026-04-08", "Sort": "Other#2026-04-07"}
         )
         # Different entity type — should not be returned even on the same day.
         table.put_item(
@@ -62,4 +62,4 @@ def test_tasks_repository_does_not_leak_other_entities(dynamo_table) -> None:
     """Reports#2026-04-07 must not appear when querying tasks for that date."""
     repo = TasksRepository(client=DynamoClient(region="us-east-1"), table_name=TABLE)
     tasks = repo.list_tasks_for_date(date(2026, 4, 7))
-    assert all(t.raw_item["Hash"].startswith("Tasks#") for t in tasks)
+    assert all(t.raw_item["Hash"].startswith("TASKS#") for t in tasks)

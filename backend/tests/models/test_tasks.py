@@ -14,7 +14,7 @@ from marky.models.tasks import (
 
 def test_task_from_dynamo_item_simple() -> None:
     item = {
-        "Hash": "Tasks#2026-04-07",
+        "Hash": "TASKS#2026-04-07",
         "Sort": "OpenAI GPT-5#2026-04-06",
     }
     t = Task.from_dynamo_item(item)
@@ -27,7 +27,7 @@ def test_task_from_dynamo_item_simple() -> None:
 
 def test_task_from_dynamo_item_topic_with_hash() -> None:
     item = {
-        "Hash": "Tasks#2026-04-07",
+        "Hash": "TASKS#2026-04-07",
         "Sort": "C#  vs  F##2026-04-06",
     }
     t = Task.from_dynamo_item(item)
@@ -38,7 +38,7 @@ def test_task_from_dynamo_item_topic_with_hash() -> None:
 
 def test_task_from_dynamo_item_invalid_sort_raises() -> None:
     with pytest.raises(ValueError, match="Sort"):
-        Task.from_dynamo_item({"Hash": "Tasks#2026-04-07", "Sort": "no-hash"})
+        Task.from_dynamo_item({"Hash": "TASKS#2026-04-07", "Sort": "no-hash"})
 
 
 def test_task_from_dynamo_item_invalid_hash_raises() -> None:

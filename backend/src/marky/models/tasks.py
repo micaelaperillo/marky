@@ -30,7 +30,7 @@ class Task(BaseModel):
     search_date: date
     raw_item: dict[str, Any] = Field(repr=False, exclude=True)
 
-    HASH_PREFIX: ClassVar[str] = "Tasks#"
+    HASH_PREFIX: ClassVar[str] = "TASKS#"
 
     @computed_field
     @property
