@@ -1,12 +1,31 @@
 [project]
 name = "marky"
 version = "0.1.0"
-description = "Add your description here"
+description = "Marky backend — Polymarket ingest pipeline"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "requests",
+    "requests>=2.31",
+    "boto3>=1.34",
+    "pydantic>=2.6",
+    "pydantic-settings>=2.2",
+    "tenacity>=8.2",
     "textblob",
-    "fastapi",
-    "uvicorn",
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "responses>=0.25",
+    "moto[dynamodb,s3]>=5.0",
+]
+
+[project.scripts]
+marky-ingest = "marky.jobs.daily_ingest:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/marky"]
