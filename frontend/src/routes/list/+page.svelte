@@ -9,9 +9,8 @@
 	let { data }: PageProps = $props();
 
 	type RawItem = {
-		UserId: { S: string };
-		CampaignName?: { S: string };
-		Name?: { S: string };
+		Hash: { S: string };
+		Sort?: { S: string };
 		Topics?: { L?: { S: string }[]; SS?: string[] };
 		Start?: { S: string };
 		End?: { S: string };
@@ -20,7 +19,7 @@
 	const items = $derived((data.Items ?? []) as RawItem[]);
 
 	function campaignName(i: RawItem) {
-		return i.CampaignName?.S ?? i.Name?.S ?? 'Untitled';
+		return i.Sort?.S ?? 'Untitled';
 	}
 
 	function topics(i: RawItem): string[] {
@@ -156,7 +155,7 @@
 			</div>
 		{:else}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each items as item (`${item.UserId.S}::${campaignName(item)}`)}
+				{#each items as item (`${item.Hash.S}::${campaignName(item)}`)}
 					{@const name = campaignName(item)}
 					{@const ts = topics(item)}
 					{@const left = daysLeft(item.End?.S)}
