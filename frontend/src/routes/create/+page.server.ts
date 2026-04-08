@@ -85,6 +85,10 @@ export const actions = {
 			);
 		}
 
+		if (topics.some((t) => !topicsCfg.pattern.test(t))) {
+			error(400, 'topics may only have ASCII letters, spaces and _');
+		}
+
 		if (end.isBefore(start)) {
 			error(400, "end can't come before the start");
 		}

@@ -24,7 +24,8 @@ export const formConfig = {
 		topic: {
 			maxLength: 15,
 			minLength: 1
-		}
+		},
+		pattern: /^[a-z _]+$/i
 	}
 } as const;
 
