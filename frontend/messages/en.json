@@ -1,0 +1,136 @@
+{
+	"$schema": "https://inlang.com/schema/inlang-message-format",
+	"campaign_breadcrumb": "Campaigns",
+	"campaign_eyebrow": "Campaign",
+	"campaign_noTopics": "No topics in this campaign.",
+	"campaign_notFoundBody": "We couldn't locate this campaign. It may have been deleted or the name is incorrect.",
+	"campaign_notFoundCta": "Back to campaigns",
+	"campaign_notFoundTitle": "Campaign not found",
+	"campaign_reportsHeading": "Reports",
+	"campaign_reportsPlaceholder": "Sentiment reports will appear here once ingestion runs.",
+	"campaign_statusActive": "Active",
+	"campaign_statusEnded": "Ended",
+	"campaign_topicSubtitle": "Sentiment tracked daily",
+	"campaign_topicsHeading": "Tracked topics",
+	"common_back": "Go back",
+	"common_cancel": "Cancel",
+	"common_dashboard": "Open dashboard",
+	"common_home": "Back to home",
+	"common_signedIn": "Signed in",
+	"common_signIn": "Sign in",
+	"common_view": "View",
+	"create_breadcrumbCampaigns": "Campaigns",
+	"create_breadcrumbNew": "New",
+	"create_endLabel": "End date",
+	"create_errorDuplicate": "\"{topic}\" already added",
+	"create_errorMax": "Maximum {max} topics",
+	"create_errorMinLen": [
+		{
+			"match": {
+				"minLen=1": "Topic must be at least 1 character",
+				"minLen=*": "Topic must be at least {minLen} characters"
+			}
+		}
+	],
+	"create_intervalHint": [
+		{
+			"match": {
+				"max=1": "Maximum interval: 1 day.",
+				"max=*": "Maximum interval: {max} days."
+			}
+		}
+	],
+	"create_nameHint": "Up to {max} characters. Letters and underscores only.",
+	"create_nameLabel": "Campaign name",
+	"create_removeTopic": "Remove {topic}",
+	"create_startLabel": "Start date",
+	"create_submit": "Create campaign",
+	"create_subtitle": "Pick a name, list the topics you want to track, and set the date range.",
+	"create_title": "Create a campaign",
+	"create_topicCounter": "{count} / {max}",
+	"create_topicPlaceholder": "Type a topic and press Enter...",
+	"create_topicsHint": "Press Enter or comma to add a topic. Up to {max}, {minLen}-{maxLen} characters each.",
+	"create_topicsLabel": "Topics",
+	"home_badge": "Sentiment-driven marketing intelligence",
+	"home_createCampaign": "Create campaign",
+	"home_openDashboard": "Open dashboard",
+	"home_subtitle": "Spin up campaigns, ingest signals from prediction markets, and watch sentiment unfold — all in one calm dashboard.",
+	"home_titleLine1": "Track the pulse of",
+	"home_titleLine2": "your markets.",
+	"login_footer": "By signing in you agree to track sentiment responsibly.",
+	"login_submit": "Sign in",
+	"login_subtitle": "Sign in with your user ID to continue.",
+	"login_title": "Welcome back",
+	"login_userIdLabel": "User ID",
+	"login_userIdPlaceholder": "your_user_id",
+	"nav_campaigns": "Campaigns",
+	"nav_newCampaign": "New campaign",
+	"theme_toDark": "Switch to dark mode",
+	"theme_toLight": "Switch to light mode",
+	"list_badgeDaysLeft": [
+		{
+			"match": {
+				"days=0": "Last day",
+				"days=1": "1 day left",
+				"days=*": "{days} days left"
+			}
+		}
+	],
+	"list_badgeEnded": "Ended",
+	"list_badgeEndsToday": "Ends today",
+	"list_emptyBody": "Campaigns let you track topics over time and measure sentiment across prediction markets.",
+	"list_emptyCta": "Create your first campaign",
+	"list_emptyLead": "No campaigns yet - kick one off to start tracking sentiment.",
+	"list_emptyTitle": "No campaigns yet",
+	"list_eyebrow": "Dashboard",
+	"list_newCampaign": "New campaign",
+	"list_statCampaigns": "Campaigns",
+	"list_statRunning": "Running now",
+	"list_statTopics": "Topics tracked",
+	"list_title": "Your campaigns",
+	"list_summary": [
+		{
+			"match": {
+				"count=0": "No active campaigns being monitored.",
+				"count=1": "1 active campaign being monitored.",
+				"count=*": "{count} active campaigns being monitored."
+			}
+		}
+	],
+	"list_topicCount": [
+		{
+			"match": {
+				"count=1": "1 topic",
+				"count=*": "{count} topics"
+			}
+		}
+	],
+	"errors_detail": "Detail",
+	"errors_title": [
+		{
+			"match": {
+				"code=404": "Page not found",
+				"code=500": "Something went wrong",
+				"code=*": "Unexpected error"
+			}
+		}
+	],
+	"errors_body": [
+		{
+			"match": {
+				"code=404": "We couldn't find the page you were looking for. It may have been moved or never existed.",
+				"code=500": "Our servers tripped over a wire. The team has been notified — try again in a moment.",
+				"code=*": "An unexpected error occurred. Please try again."
+			}
+		}
+	],
+	"errors_code": [
+		{
+			"match": {
+				"code=404": "404",
+				"code=500": "500",
+				"code=*": "Error"
+			}
+		}
+	]
+}
