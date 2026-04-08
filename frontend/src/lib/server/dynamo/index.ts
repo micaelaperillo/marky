@@ -11,19 +11,19 @@ const docClient = DynamoDBDocumentClient.from(client);
 //#region Tasks
 
 export type Task = {
-	// Hash
-	TaskDate: string;
-	// Sort
-	Topic: string;
+	// TaskDate
+	Hash: string;
+	// Topic
+	Sort: string;
 	ReportDate: string;
 };
 
 export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 	const command = new PutCommand({
-		TableName: 'marky-tasks',
+		TableName: 'marky-data',
 		Item: {
-			TaskDate: iso(schedule),
-			Topic: topic,
+			Hash: `TASKS#${iso(schedule)}`,
+			Sort: topic,
 			ReportDate: iso(date)
 		}
 	});
@@ -36,20 +36,21 @@ export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 //#region Reports
 
 export type Report = {
-	// Hash
-	Topic: string;
-	// Sort
-	Date: string;
+	/** Topic */
+	Hash: string;
+	/** Date */
+	Sort: string;
+
 	// TODO: decide what to store in the report
 	[x: string]: string | number;
 };
 
 export function getReport(topic: string, date: Dayjs) {
 	const command = new GetCommand({
-		TableName: 'marky-reports',
+		TableName: 'marky-data',
 		Key: {
-			Topic: topic,
-			Date: date.unix()
+			Hash: `TOPIC#${topic}`,
+			Sort: date.unix()
 		}
 	});
 
@@ -58,13 +59,13 @@ export function getReport(topic: string, date: Dayjs) {
 
 export function getReports(topic: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
-		TableName: 'marky-reports',
-		KeyConditionExpression: 'Topic = :topic AND #date BETWEEN :start AND :end',
+		TableName: 'marky-data',
+		KeyConditionExpression: 'Hash = :topic AND #date BETWEEN :start AND :end',
 		ExpressionAttributeNames: {
-			'#date': 'Date'
+			'#date': 'Sort'
 		},
 		ExpressionAttributeValues: {
-			':topic': { S: topic },
+			':topic': { S: `TOPIC#${topic}` },
 			':start': { N: start.unix().toString() },
 			':end': { N: end.unix().toString() }
 		}
@@ -78,10 +79,10 @@ export function getReports(topic: string, start: Dayjs, end: Dayjs) {
 //#region Campaigns
 
 export type Campaign = {
-	// Hash
-	UserId: string;
-	// Sort
-	CampaignName: string;
+	/** UserId */
+	Hash: string;
+	/** CampaignName */
+	Sort: string;
 	Topics: string[];
 	Start: string;
 	End: string;
@@ -95,10 +96,10 @@ export function putCampaign(
 	end: Dayjs
 ) {
 	const command = new PutCommand({
-		TableName: 'marky-campaign',
+		TableName: 'marky-data',
 		Item: {
-			UserId: user,
-			CampaignName: name,
+			Hash: user,
+			Sort: name,
 			Topics: topics,
 			Start: iso(start),
 			End: iso(end)
@@ -110,10 +111,10 @@ export function putCampaign(
 
 export function getCampaign(user: string, name: string) {
 	const command = new GetCommand({
-		TableName: 'marky-campaigns',
+		TableName: 'marky-data',
 		Key: {
-			UserId: user,
-			CampaignName: name
+			Hash: user,
+			Sort: name
 		}
 	});
 
@@ -122,8 +123,8 @@ export function getCampaign(user: string, name: string) {
 
 export function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
-		TableName: 'marky-campaigns',
-		KeyConditionExpression: 'UserId = :user AND #date BETWEEN :start AND :END',
+		TableName: 'marky-data',
+		KeyConditionExpression: 'Hash = :user AND #date BETWEEN :start AND :END',
 		ExpressionAttributeNames: {
 			'#date': 'Date'
 		},
@@ -139,8 +140,8 @@ export function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
 
 export function getAllCampaigns(user: string) {
 	const command = new QueryCommand({
-		TableName: 'marky-campaigns',
-		KeyConditionExpression: 'UserId = :user',
+		TableName: 'marky-data',
+		KeyConditionExpression: 'Hash = :user',
 		ExpressionAttributeValues: {
 			':user': { S: user }
 		}
