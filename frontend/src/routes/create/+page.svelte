@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { resolve } from '$app/paths';
-	import { t } from '$lib/i18n';
 	import { formConfig } from '$lib/config';
+	import { m } from '$lib/paraglide/messages';
 
 	type ErrorState = { key: string; vars?: Record<string, string | number> } | null;
 
@@ -13,24 +13,25 @@
 	let topics = $state<string[]>([]);
 	let pending = $state('');
 	let errorState = $state<ErrorState>(null);
-	const errorMsg = $derived(errorState ? $t(errorState.key, errorState.vars) : '');
+	// @ts-expect-error It just works
+	const errorMsg = $derived(errorState ? m[errorState.key](errorState.vars) : '');
 
 	function commit(raw: string) {
 		const value = raw.trim().slice(0, MAX_LEN);
 		if (!value) return;
 		if (value.length < MIN_LEN) {
 			errorState = {
-				key: 'create.errorMinLen',
-				vars: { minLen: MIN_LEN, plural: MIN_LEN === 1 ? '' : 's' }
+				key: 'create_errorMinLen',
+				vars: { minLen: MIN_LEN }
 			};
 			return;
 		}
 		if (topics.includes(value)) {
-			errorState = { key: 'create.errorDuplicate', vars: { topic: value } };
+			errorState = { key: 'create_errorDuplicate', vars: { topic: value } };
 			return;
 		}
 		if (topics.length >= MAX_TOPICS) {
-			errorState = { key: 'create.errorMax', vars: { max: MAX_TOPICS } };
+			errorState = { key: 'create_errorMax', vars: { max: MAX_TOPICS } };
 			return;
 		}
 		topics = [...topics, value];
@@ -77,17 +78,17 @@
 	<div class="mx-auto max-w-3xl px-6 py-10 sm:py-14">
 		<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
 			<a href={resolve('/list')} class="hover:text-slate-900 dark:hover:text-white">
-				{$t('create.breadcrumbCampaigns')}
+				{m.create_breadcrumbCampaigns()}
 			</a>
 			<span>/</span>
-			<span class="font-medium text-slate-900 dark:text-white">{$t('create.breadcrumbNew')}</span>
+			<span class="font-medium text-slate-900 dark:text-white">{m.create_breadcrumbNew()}</span>
 		</nav>
 
 		<header class="mt-4">
 			<h1 class="text-3xl font-black tracking-tight text-slate-900 sm:text-4xl dark:text-white">
-				{$t('create.title')}
+				{m.create_title()}
 			</h1>
-			<p class="mt-2 text-slate-600 dark:text-slate-400">{$t('create.subtitle')}</p>
+			<p class="mt-2 text-slate-600 dark:text-slate-400">{m.create_subtitle()}</p>
 		</header>
 
 		<form
@@ -101,10 +102,10 @@
 					for="campaign"
 					class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
 				>
-					{$t('create.nameLabel')}
+					{m.create_nameLabel()}
 				</label>
 				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-					{$t('create.nameHint', { max: campaignCfg.maxLength })}
+					{m.create_nameHint({ max: campaignCfg.maxLength })}
 				</p>
 				<input
 					type="text"
@@ -125,10 +126,10 @@
 					for="topic-input"
 					class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
 				>
-					{$t('create.topicsLabel')}
+					{m.create_topicsLabel()}
 				</label>
 				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
-					{$t('create.topicsHint', { max: MAX_TOPICS, minLen: MIN_LEN, maxLen: MAX_LEN })}
+					{m.create_topicsHint({ max: MAX_TOPICS, minLen: MIN_LEN, maxLen: MAX_LEN })}
 				</p>
 
 				<!-- Hidden inputs to keep form action working unchanged -->
@@ -151,7 +152,7 @@
 									e.stopPropagation();
 									remove(i);
 								}}
-								aria-label={$t('create.removeTopic', { topic })}
+								aria-label={m.create_removeTopic({ topic })}
 								class="flex h-4 w-4 items-center justify-center rounded text-brand-500 transition hover:bg-brand-200 hover:text-brand-800 dark:text-brand-400 dark:hover:bg-brand-900 dark:hover:text-brand-100"
 							>
 								<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
@@ -172,7 +173,7 @@
 						id="topic-input"
 						type="text"
 						maxlength={MAX_LEN}
-						placeholder={topics.length === 0 ? $t('create.topicPlaceholder') : ''}
+						placeholder={topics.length === 0 ? m.create_topicPlaceholder() : ''}
 						required={topics.length === 0}
 						class="min-w-32 flex-1 border-0 bg-transparent px-1.5 py-0.5 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
 					/>
@@ -183,7 +184,7 @@
 						{errorMsg}
 					</span>
 					<span class="text-slate-400 dark:text-slate-500">
-						{$t('create.topicCounter', { count: topics.length, max: MAX_TOPICS })}
+						{m.create_topicCounter({ count: topics.length, max: MAX_TOPICS })}
 					</span>
 				</div>
 			</div>
@@ -192,7 +193,7 @@
 			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<div>
 					<label for="start" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
-						{$t('create.startLabel')}
+						{m.create_startLabel()}
 					</label>
 					<input
 						type="date"
@@ -204,7 +205,7 @@
 				</div>
 				<div>
 					<label for="end" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
-						{$t('create.endLabel')}
+						{m.create_endLabel()}
 					</label>
 					<input
 						type="date"
@@ -216,7 +217,7 @@
 				</div>
 			</div>
 			<p class="text-xs text-slate-500 dark:text-slate-400">
-				{$t('create.intervalHint', { max: rangeCfg.maxDays })}
+				{m.create_intervalHint({ max: rangeCfg.maxDays })}
 			</p>
 
 			<!-- Actions -->
@@ -227,13 +228,13 @@
 					href={resolve('/list')}
 					class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
 				>
-					{$t('common.cancel')}
+					{m.common_cancel()}
 				</a>
 				<button
 					type="submit"
 					class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 				>
-					{$t('create.submit')}
+					{m.create_submit()}
 				</button>
 			</div>
 		</form>
