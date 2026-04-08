@@ -1,5 +1,6 @@
-import { error } from '@sveltejs/kit';
 import type { Actions } from './$types';
+
+import { error, redirect } from '@sveltejs/kit';
 
 export const actions = {
 	default: async ({ request, cookies }) => {
@@ -11,5 +12,7 @@ export const actions = {
 		}
 
 		cookies.set('user_id', user, { path: '/' });
+
+		redirect(303, '/');
 	}
 } satisfies Actions;
