@@ -41,7 +41,7 @@
 							/>
 						{/if}
 					</svg>
-					{m[item.key]}
+					{m[item.key]()}
 				</a>
 			{/each}
 		</nav>
