@@ -13,9 +13,8 @@ const docClient = DynamoDBDocumentClient.from(client);
 export type Task = {
 	// TaskDate
 	Hash: string;
-	// Topic
+	// Topic#ReportDate
 	Sort: string;
-	ReportDate: string;
 };
 
 export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
@@ -23,8 +22,7 @@ export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 		TableName: 'marky-data',
 		Item: {
 			Hash: `TASKS#${iso(schedule)}`,
-			Sort: topic,
-			ReportDate: iso(date)
+			Sort: `${topic}#${iso(date)}`
 		}
 	});
 
