@@ -22,7 +22,7 @@ def test_task_from_dynamo_item_simple() -> None:
     assert t.topic == "OpenAI GPT-5"
     assert t.search_date == date(2026, 4, 6)
     assert t.topic_slug == "openai-gpt-5"
-    assert t.raw_item is item
+    assert t.raw_item == item
 
 
 def test_task_from_dynamo_item_topic_with_hash() -> None:
@@ -50,7 +50,6 @@ def test_task_window_is_half_open_utc() -> None:
     t = Task(
         task_date=date(2026, 4, 7),
         topic="OpenAI GPT-5",
-        topic_slug="openai-gpt-5",
         search_date=date(2026, 4, 6),
         raw_item={},
     )
@@ -63,7 +62,6 @@ def test_raw_data_payload_serializes_with_lists() -> None:
     task = Task(
         task_date=date(2026, 4, 7),
         topic="X",
-        topic_slug="x",
         search_date=date(2026, 4, 6),
         raw_item={},
     )
@@ -97,13 +95,18 @@ def test_run_result_summary_line_and_exit_code() -> None:
     task = Task(
         task_date=date(2026, 4, 7),
         topic="X",
-        topic_slug="x",
         search_date=date(2026, 4, 6),
         raw_item={},
     )
     failed = FailedTask(task=task, error="boom", error_type="RuntimeError")
-    rr = RunResult(run_date=date(2026, 4, 7), succeeded=[("k1",)], failed=[failed])
+    rr = RunResult(run_date=date(2026, 4, 7), succeeded=["k1"], failed=[failed])
     line = rr.summary_line()
     assert "2026-04-07" in line
     assert "succeeded=1" in line
     assert "failed=1" in line
+    assert rr.exit_code() == 1
+
+
+def test_run_result_exit_code_zero_when_no_failures() -> None:
+    rr = RunResult(run_date=date(2026, 4, 7), succeeded=["k1"], failed=[])
+    assert rr.exit_code() == 0

@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import date, datetime, time, timedelta, timezone
 from typing import Any, ClassVar
 
-from pydantic import BaseModel, ConfigDict, Field, field_serializer
+from pydantic import BaseModel, Field, computed_field, field_serializer
 
 from marky.models.polymarket import PolymarketComment, PolymarketEvent
 from marky.services.slugify import slugify
@@ -24,15 +24,18 @@ class TaskWindow(BaseModel):
 
 class Task(BaseModel):
     """A single ingest task derived from one DynamoDB item."""
-    model_config = ConfigDict(arbitrary_types_allowed=True)
 
     task_date: date
     topic: str
-    topic_slug: str
     search_date: date
-    raw_item: dict[str, Any]
+    raw_item: dict[str, Any] = Field(repr=False, exclude=True)
 
     HASH_PREFIX: ClassVar[str] = "Tasks#"
+
+    @computed_field
+    @property
+    def topic_slug(self) -> str:
+        return slugify(self.topic)
 
     @classmethod
     def from_dynamo_item(cls, item: dict[str, Any]) -> "Task":
@@ -57,16 +60,12 @@ class Task(BaseModel):
         topic = sort_value[:idx]
         search_date_str = sort_value[idx + 1 :]
 
-        instance = cls(
+        return cls(
             task_date=date.fromisoformat(task_date_str),
             topic=topic,
-            topic_slug=slugify(topic),
             search_date=date.fromisoformat(search_date_str),
             raw_item=item,
         )
-        # Preserve identity of the original DynamoDB item (Pydantic copies dicts).
-        object.__setattr__(instance, "raw_item", item)
-        return instance
 
     def window(self) -> TaskWindow:
         start = datetime.combine(self.search_date, time.min, tzinfo=timezone.utc)
@@ -131,16 +130,14 @@ class RawDataPayload(BaseModel):
 
 
 class FailedTask(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
     task: Task
     error: str
     error_type: str
 
 
 class RunResult(BaseModel):
-    model_config = ConfigDict(arbitrary_types_allowed=True)
     run_date: date
-    succeeded: list[Any] = Field(default_factory=list)
+    succeeded: list[str] = Field(default_factory=list)
     failed: list[FailedTask] = Field(default_factory=list)
 
     def summary_line(self) -> str:
