@@ -57,14 +57,14 @@ export function getReport(topic: string, date: Dayjs) {
 export function getReports(topic: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
 		ExpressionAttributeNames: {
-			'#date': 'Sort'
+			'#date': 'SK'
 		},
 		ExpressionAttributeValues: {
 			':end': { N: end.unix().toString() },
 			':start': { N: start.unix().toString() },
 			':topic': { S: `TOPIC#${topic}` }
 		},
-		KeyConditionExpression: 'Hash = :topic AND #date BETWEEN :start AND :end',
+		KeyConditionExpression: 'PK = :topic AND #date BETWEEN :start AND :end',
 		TableName: 'marky-data'
 	});
 
@@ -128,7 +128,7 @@ export function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
 			':start': { N: start.unix().toString() },
 			':user': { S: `CAMPAIGNS#${user}` }
 		},
-		KeyConditionExpression: 'Hash = :user AND #date BETWEEN :start AND :END',
+		KeyConditionExpression: 'PK = :user AND #date BETWEEN :start AND :END',
 		TableName: 'marky-data'
 	});
 
@@ -140,7 +140,7 @@ export function getAllCampaigns(user: string) {
 		ExpressionAttributeValues: {
 			':user': { S: `CAMPAIGNS#${user}` }
 		},
-		KeyConditionExpression: 'Hash = :user',
+		KeyConditionExpression: 'PK = :user',
 		TableName: 'marky-data'
 	});
 
