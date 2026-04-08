@@ -1,0 +1,16 @@
+[Unit]
+Description=Frontend SSR App
+After=network.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=$APP_DIR
+Environment=NODE_ENV=production
+Environment=PORT=$APP_PORT
+ExecStart=/usr/bin/node build/index.js
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
