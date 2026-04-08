@@ -1,6 +1,8 @@
 #!/bin/bash
 export APP_DIR="/app/frontend"
 export APP_PORT="3000"
+export HOME=/root
+export NVM_DIR="$HOME/.nvm"
 TMP_DIR="/tmp/marky"
 
 set -euxo pipefail
@@ -14,7 +16,9 @@ sudo dnf install -y nginx git libatomic
 
 echo "=== Installing Node.js ==="
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-source ~/.bashrc
+set +u
+. "$NVM_DIR/nvm.sh"
+set -u
 nvm install --lts
 
 node -v
