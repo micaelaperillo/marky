@@ -10,13 +10,8 @@ exec > >(tee /tmp/user-data.log | logger -t user-data ) 2>&1
 sudo dnf update -y
 sudo dnf install -y nginx git python3.13
 
-# TODO: fix UV installation
-if [[ $(arch) -eq "x86_64" ]]
-then
-    curl https://releases.astral.sh/github/uv/releases/download/0.11.4/uv-i686-unknown-linux-gnu.tar.gz
-else
-    curl https://releases.astral.sh/github/uv/releases/download/0.11.4/uv-aarch64-unknown-linux-gnu.tar.gz
-fi
+curl -LsSf https://astral.sh/uv/install.sh | sh
+#source $HOME/.local/bin/env
 
 # Python
 
