@@ -17,7 +17,7 @@ sudo dnf install -y nginx git libatomic
 echo "=== Installing Node.js ==="
 curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 set +u
-sudo -u ec2-user "$NVM_DIR/nvm.sh"
+sudo -u ec2-user sh "$NVM_DIR/nvm.sh"
 set -u
 nvm install --lts
 
