@@ -11,16 +11,16 @@ const docClient = DynamoDBDocumentClient.from(client);
 
 export type Task = {
 	// TaskDate
-	Hash: string;
+	PK: string;
 	// Topic#ReportDate
-	Sort: string;
+	SK: string;
 };
 
 export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 	const command = new PutCommand({
 		Item: {
-			Hash: `TASKS#${iso(schedule)}`,
-			Sort: `${topic}#${iso(date)}`
+			PK: `TASKS#${iso(schedule)}`,
+			SK: `${topic}#${iso(date)}`
 		},
 		TableName: 'marky-data'
 	});
@@ -34,9 +34,9 @@ export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 
 export type Report = {
 	/** Topic */
-	Hash: string;
+	PK: string;
 	/** Date */
-	Sort: string;
+	SK: string;
 
 	// TODO: decide what to store in the report
 	[x: string]: string | number;
@@ -45,8 +45,8 @@ export type Report = {
 export function getReport(topic: string, date: Dayjs) {
 	const command = new GetCommand({
 		Key: {
-			Hash: `TOPIC#${topic}`,
-			Sort: date.unix()
+			PK: `TOPIC#${topic}`,
+			SK: date.unix()
 		},
 		TableName: 'marky-data'
 	});
@@ -77,9 +77,9 @@ export function getReports(topic: string, start: Dayjs, end: Dayjs) {
 
 export type Campaign = {
 	/** UserId */
-	Hash: string;
+	PK: string;
 	/** CampaignName */
-	Sort: string;
+	SK: string;
 	Topics: string[];
 	Start: string;
 	End: string;
@@ -95,8 +95,8 @@ export function putCampaign(
 	const command = new PutCommand({
 		Item: {
 			End: iso(end),
-			Hash: `CAMPAIGNS#${user}`,
-			Sort: name,
+			PK: `CAMPAIGNS#${user}`,
+			SK: name,
 			Start: iso(start),
 			Topics: topics
 		},
@@ -109,8 +109,8 @@ export function putCampaign(
 export function getCampaign(user: string, name: string) {
 	const command = new GetCommand({
 		Key: {
-			Hash: `CAMPAIGNS#${user}`,
-			Sort: name
+			PK: `CAMPAIGNS#${user}`,
+			SK: name
 		},
 		TableName: 'marky-data'
 	});
