@@ -1,8 +1,6 @@
 #!/bin/bash
 export APP_DIR="/app/frontend"
 export APP_PORT="3000"
-export HOME=/home/ec2-user
-export NVM_DIR="$HOME/.nvm"
 TMP_DIR="/tmp/marky"
 
 set -euxo pipefail
@@ -10,16 +8,9 @@ set -euxo pipefail
 exec > >(tee /tmp/user-data.log | logger -t user-data ) 2>&1
 
 sudo dnf update -y
-sudo dnf install -y nginx git libatomic
+sudo dnf install -y nginx git libatomic nodejs24
 
 # Node
-
-echo "=== Installing Node.js ==="
-curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
-set +u
-sudo -u ec2-user sh "$NVM_DIR/nvm.sh"
-set -u
-nvm install --lts
 
 node -v
 npm -v
