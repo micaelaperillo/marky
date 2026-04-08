@@ -6,7 +6,7 @@
 <main class="relative isolate flex-1 overflow-hidden">
 	<!-- Background gradient -->
 	<div
-		class="absolute inset-0 -z-10 bg-gradient-to-br from-brand-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
+		class="absolute inset-0 -z-10 bg-linear-to-br from-brand-50 via-white to-violet-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950"
 	></div>
 	<div
 		class="absolute -top-32 -right-32 -z-10 h-96 w-96 rounded-full bg-brand-200/40 blur-3xl dark:bg-brand-700/20"
@@ -28,7 +28,7 @@
 		>
 			{$t('home.titleLine1')} <br />
 			<span
-				class="bg-gradient-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
+				class="bg-linear-to-r from-brand-600 via-violet-600 to-fuchsia-600 bg-clip-text text-transparent dark:from-brand-400 dark:via-violet-400 dark:to-fuchsia-400"
 			>
 				{$t('home.titleLine2')}
 			</span>
