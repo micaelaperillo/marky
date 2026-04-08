@@ -11,7 +11,7 @@ export const actions = {
 			error(400);
 		}
 
-		cookies.set('user_id', user, { path: '/' });
+		cookies.set('user_id', user, { path: '/', secure: false });
 
 		redirect(303, '/');
 	}
