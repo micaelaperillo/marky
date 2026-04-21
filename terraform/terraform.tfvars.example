@@ -1,0 +1,11 @@
+# Required — unique suffix for globally-scoped AWS resources (S3 bucket, ALB target group).
+# Each team member should use their own suffix.
+suffix = "your-unique-suffix"
+
+# Optional overrides (defaults shown):
+# region                    = "us-east-1"
+# project                   = "marky"
+# vpc_cidr                  = "172.16.0.0/16"
+# create_key_pairs          = true
+# repo_url                  = "https://github.com/micaelaperillo/marky.git"
+# iam_instance_profile_name = "LabInstanceProfile"  # AWS Academy default

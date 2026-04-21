@@ -7,3 +7,13 @@ backend/data/
 **/docs/superpowers/
 .worktrees/
 worktrees/
+
+# Terraform
+terraform/.terraform/
+terraform/*.tfstate
+terraform/*.tfstate.*
+terraform/*.tfvars
+!terraform/terraform.tfvars.example
+
+# SSH keys
+*.pem

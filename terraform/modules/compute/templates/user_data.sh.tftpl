@@ -1,0 +1,17 @@
+#!/bin/bash
+SERVER_TYPE="${server_type}"
+TMP_DIR="/tmp/marky"
+REPO_URL="${repo_url}"
+
+set -euxo pipefail
+
+sudo dnf update -y
+sudo dnf install -y git
+
+sudo rm -rf "$TMP_DIR"
+
+git clone "$REPO_URL" "$TMP_DIR"
+sudo chown -R ec2-user:ec2-user "$TMP_DIR"
+
+cd "$TMP_DIR/$SERVER_TYPE"
+. ./setup.sh
