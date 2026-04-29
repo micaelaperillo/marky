@@ -4,13 +4,18 @@
 
 Log into AWS Academy Learner Lab → "AWS Details" → copy the credentials block:
 
-```bash
-export AWS_ACCESS_KEY_ID=...
-export AWS_SECRET_ACCESS_KEY=...
-export AWS_SESSION_TOKEN=...
+```
+[default]
+aws_access_key_id=...
+aws_secret_access_key=...
+aws_session_token=...
 ```
 
-Paste into terminal. These expire every ~4 hours.
+Run `./scripts/aws-creds.sh` and paste the whole block, and copy and paste the export commands, OR run the following command:
+
+```sh
+source <(xclip -selection clipboard -o | ./scripts/aws-creds.sh)
+```
 
 ### 2. Create your tfvars file
 

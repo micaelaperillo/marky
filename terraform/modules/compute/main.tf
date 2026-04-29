@@ -40,7 +40,7 @@ resource "local_sensitive_file" "backend_key" {
   count           = var.create_key_pair ? 1 : 0
   content         = tls_private_key.backend[0].private_key_pem
   filename        = "${path.root}/${var.project}-backend-ec2-kp.pem"
-  file_permission = "0400"
+  file_permission = "0600"
 }
 
 # ============================================================
