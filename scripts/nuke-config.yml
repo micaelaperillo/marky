@@ -1,0 +1,81 @@
+regions:
+  - us-east-1
+  - global
+
+blocklist:
+  - "000000000000"
+
+bypass-alias-check-accounts:
+  - "{{ ACCOUNT_ID }}"
+
+# Only scan resource types that marky uses — skip everything else
+resource-types:
+  includes:
+    # EC2 / VPC
+    - EC2Instance
+    - EC2SecurityGroup
+    - EC2KeyPair
+    - EC2LaunchTemplate
+    - EC2VPC
+    - EC2Subnet
+    - EC2RouteTable
+    - EC2InternetGateway
+    - EC2InternetGatewayAttachment
+    - EC2VPCEndpoint
+    - EC2NetworkInterface
+    # Auto Scaling
+    - AutoScalingGroup
+    - AutoScalingLaunchConfiguration
+    # Lambda
+    - LambdaFunction
+    - LambdaEventSourceMapping
+    # API Gateway
+    - APIGatewayRestAPI
+    - APIGatewayV2API
+    # S3
+    - S3Bucket
+    - S3Object
+    # DynamoDB
+    - DynamoDBTable
+
+accounts:
+  "{{ ACCOUNT_ID }}":
+    filters:
+      __global__:
+        # Protect everything EXCEPT marky resources
+        - property: "tag:Project"
+          value: "marky"
+          invert: true
+        - property: "tag:Name"
+          type: "contains"
+          value: "marky"
+          invert: true
+      # Always keep Lab IAM resources
+      IAMRole:
+        - type: "contains"
+          value: "Lab"
+        - type: "contains"
+          value: "AWS"
+        - type: "contains"
+          value: "OrganizationAccountAccessRole"
+      IAMRolePolicy:
+        - type: "contains"
+          value: "Lab"
+        - type: "contains"
+          value: "AWS"
+      IAMRolePolicyAttachment:
+        - type: "contains"
+          value: "Lab"
+        - type: "contains"
+          value: "AWS"
+      IAMInstanceProfile:
+        - type: "contains"
+          value: "Lab"
+      IAMInstanceProfileRole:
+        - type: "contains"
+          value: "Lab"
+      IAMPolicy:
+        - type: "contains"
+          value: "Lab"
+        - type: "contains"
+          value: "AWS"
