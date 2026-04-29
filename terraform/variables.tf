@@ -10,11 +10,11 @@ variable "project" {
 
 variable "suffix" {
   type        = string
-  description = "Unique suffix for globally-scoped resources (S3 bucket, ALB target group). Max 13 chars."
+  description = "Unique suffix for globally-scoped resources (S3 buckets). Max 13 chars."
 
   validation {
     condition     = length(var.suffix) <= 13
-    error_message = "Suffix must be 13 characters or fewer (AWS target group name 32-char limit)."
+    error_message = "Suffix must be 13 characters or fewer."
   }
 }
 
@@ -23,10 +23,10 @@ variable "vpc_cidr" {
   default = "172.16.0.0/16"
 }
 
-variable "create_key_pairs" {
+variable "create_key_pair" {
   type        = bool
   default     = true
-  description = "Generate new EC2 key pairs and save .pem files locally. Set false if keys already exist in AWS."
+  description = "Generate EC2 key pair for backend and save .pem locally."
 }
 
 variable "repo_url" {
@@ -37,5 +37,5 @@ variable "repo_url" {
 variable "iam_instance_profile_name" {
   type        = string
   default     = "LabInstanceProfile"
-  description = "Pre-existing IAM instance profile to attach to EC2 instances (AWS Academy: LabInstanceProfile)."
+  description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
 }

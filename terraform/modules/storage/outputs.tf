@@ -13,3 +13,11 @@ output "dynamodb_table_name" {
 output "dynamodb_table_arn" {
   value = aws_dynamodb_table.data.arn
 }
+
+output "frontend_bucket_name" {
+  value = aws_s3_bucket.frontend.bucket
+}
+
+output "frontend_bucket_arn" {
+  value = aws_s3_bucket.frontend.arn
+}
