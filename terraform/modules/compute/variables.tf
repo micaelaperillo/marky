@@ -2,35 +2,15 @@ variable "project" {
   type = string
 }
 
-variable "suffix" {
-  type = string
-}
-
-variable "vpc_id" {
-  type = string
-}
-
-variable "frontend_subnet_ids" {
-  type = list(string)
-}
-
 variable "backend_subnet_ids" {
   type = list(string)
-}
-
-variable "frontend_sg_id" {
-  type = string
 }
 
 variable "backend_sg_id" {
   type = string
 }
 
-variable "alb_sg_id" {
-  type = string
-}
-
-variable "create_key_pairs" {
+variable "create_key_pair" {
   type    = bool
   default = true
 }
