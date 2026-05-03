@@ -1,44 +1,14 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
-	import dayjs from 'dayjs';
-
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import type { Campaign } from '$lib/types';
+	import { daysLeft, fmt } from '$lib/utils/date';
 
 	let { data }: PageProps = $props();
 
-	interface Campaign {
-		name: string;
-		topics: string[];
-		start: string;
-		end: string;
-	}
-
 	const campaigns = $derived((data.campaigns ?? []) as Campaign[]);
-
-	function fmt(d?: string) {
-		if (!d) return '-';
-
-		const parsed = dayjs(d);
-		if (!parsed.isValid()) return d;
-
-		return parsed.toDate().toLocaleDateString(undefined, {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
-
-	function daysLeft(end?: string) {
-		if (!end) return null;
-
-		const parsed = dayjs(end);
-		if (!parsed.isValid()) return null;
-
-		const today = dayjs().startOf('day');
-		return Math.round(parsed.diff(today, 'days'));
-	}
 </script>
 
 <div class="flex-1">
@@ -62,7 +32,7 @@
 				href={resolve('/create')}
 				class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 			>
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 					<path
 						fill-rule="evenodd"
 						d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
@@ -187,6 +157,7 @@
 								{#if item.topics.length > 5}
 									<span
 										class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+										aria-label="{item.topics.length - 5} more topics"
 									>
 										+{item.topics.length - 5}
 									</span>

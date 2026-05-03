@@ -27,16 +27,18 @@
 	"create_errorMinLen": [
 		{
 			"match": {
-				"minLen=1": "El tema tiene que tener al menos 1 letra",
-				"minLen=*": "El tema tiene que tener al menos {minLen} letras"
+				"minLen=*": "El tema tiene que tener al menos {minLen} letras",
+				"minLen=1": "El tema tiene que tener al menos 1 letra"
 			}
 		}
 	],
+	"create_errorNetwork": "Error de red — revisá tu conexión.",
+	"create_errorUnknown": "Algo salió mal. Probá de nuevo.",
 	"create_intervalHint": [
 		{
 			"match": {
-				"max=1": "El intervalo no puede mayor a 1 día.",
-				"max=*": "El intervalo no puede mayor a {max} días."
+				"max=*": "El intervalo no puede mayor a {max} días.",
+				"max=1": "El intervalo no puede mayor a 1 día."
 			}
 		}
 	],
@@ -45,34 +47,53 @@
 	"create_removeTopic": "Sacar {topic}",
 	"create_startLabel": "Desde",
 	"create_submit": "Crear campaña",
+	"create_submitting": "Creando...",
 	"create_subtitle": "Ponele un nombre, cargá los temas que querés seguir y elegí el rango de fechas.",
 	"create_title": "Armar una campaña",
 	"create_topicCounter": "{count} / {max}",
 	"create_topicPlaceholder": "Escribí un tema y dale Enter...",
 	"create_topicsHint": "Apretá Enter o coma para sumar un tema. Hasta {max}, de {minLen} a {maxLen} caracteres cada uno.",
 	"create_topicsLabel": "Temas",
+	"errors_body": [
+		{
+			"match": {
+				"code=*": "Pasó algo raro. Probá de nuevo en un toque.",
+				"code=404": "No pudimos encontrar la página que buscás. Capaz la movieron o nunca existió.",
+				"code=500": "Algo se cortó del lado nuestro. Ya estamos viendo qué pasó — probá en un rato."
+			}
+		}
+	],
+	"errors_code": [
+		{
+			"match": {
+				"code=*": "Error",
+				"code=404": "404",
+				"code=500": "500"
+			}
+		}
+	],
+	"errors_detail": "Detalle",
+	"errors_title": [
+		{
+			"match": {
+				"code=*": "Error inesperado",
+				"code=404": "Página no encontrada",
+				"code=500": "Uh, algo se rompió"
+			}
+		}
+	],
 	"home_badge": "Marketing con pulso de mercado",
 	"home_createCampaign": "Armar campaña",
 	"home_openDashboard": "Abrir el panel",
 	"home_subtitle": "Armá campañas, metele señales de los mercados de predicción y mirá cómo se mueve el sentimiento — todo desde un mismo panel, tranqui.",
 	"home_titleLine1": "Tomale el pulso",
 	"home_titleLine2": "a tus mercados.",
-	"login_footer": "Al ingresar te comprometés a usar esta data con cabeza.",
-	"login_submit": "Ingresar",
-	"login_subtitle": "Metete con tu ID de usuario y arrancamos.",
-	"login_title": "¡Qué bueno verte de nuevo!",
-	"login_userIdLabel": "ID de usuario",
-	"login_userIdPlaceholder": "tu_id",
-	"nav_campaigns": "Campañas",
-	"nav_newCampaign": "Nueva campaña",
-	"theme_toDark": "Cambiar a modo oscuro",
-	"theme_toLight": "Cambiar a modo claro",
 	"list_badgeDaysLeft": [
 		{
 			"match": {
+				"days=*": "Quedan {days} días",
 				"days=0": "Último día",
-				"days=1": "Queda 1 día",
-				"days=*": "Quedan {days} días"
+				"days=1": "Queda 1 día"
 			}
 		}
 	],
@@ -87,50 +108,35 @@
 	"list_statCampaigns": "Campañas",
 	"list_statRunning": "Corriendo ahora",
 	"list_statTopics": "Temas en seguimiento",
-	"list_title": "Tus campañas",
 	"list_summary": [
 		{
 			"match": {
+				"count=*": "{count} campañas activas en la mira.",
 				"count=0": "Sin campañas activas en la mira.",
-				"count=1": "1 campaña activa en la mira.",
-				"count=*": "{count} campañas activas en la mira."
+				"count=1": "1 campaña activa en la mira."
 			}
 		}
 	],
+	"list_title": "Tus campañas",
 	"list_topicCount": [
 		{
 			"match": {
-				"count=1": "1 tema",
-				"count=*": "{count} temas"
+				"count=*": "{count} temas",
+				"count=1": "1 tema"
 			}
 		}
 	],
-	"errors_detail": "Detalle",
-	"errors_title": [
-		{
-			"match": {
-				"code=404": "Página no encontrada",
-				"code=500": "Uh, algo se rompió",
-				"code=*": "Error inesperado"
-			}
-		}
-	],
-	"errors_body": [
-		{
-			"match": {
-				"code=404": "No pudimos encontrar la página que buscás. Capaz la movieron o nunca existió.",
-				"code=500": "Algo se cortó del lado nuestro. Ya estamos viendo qué pasó — probá en un rato.",
-				"code=*": "Pasó algo raro. Probá de nuevo en un toque."
-			}
-		}
-	],
-	"errors_code": [
-		{
-			"match": {
-				"code=404": "404",
-				"code=500": "500",
-				"code=*": "Error"
-			}
-		}
-	]
+	"login_errorNetwork": "Error de red — revisá tu conexión.",
+	"login_errorUnknown": "No se pudo ingresar. Probá de nuevo.",
+	"login_footer": "Al ingresar te comprometés a usar esta data con cabeza.",
+	"login_submit": "Ingresar",
+	"login_submitting": "Ingresando...",
+	"login_subtitle": "Metete con tu ID de usuario y arrancamos.",
+	"login_title": "¡Qué bueno verte de nuevo!",
+	"login_userIdLabel": "ID de usuario",
+	"login_userIdPlaceholder": "tu_id",
+	"nav_campaigns": "Campañas",
+	"nav_newCampaign": "Nueva campaña",
+	"theme_toDark": "Cambiar a modo oscuro",
+	"theme_toLight": "Cambiar a modo claro"
 }

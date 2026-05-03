@@ -3,6 +3,7 @@
 
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import { daysLeft as computeDaysLeft, fmt } from '$lib/utils/date';
 
 	let { data }: PageProps = $props();
 
@@ -11,34 +12,21 @@
 	const start = $derived(data.campaign?.start);
 	const end = $derived(data.campaign?.end);
 
-	const daysLeft = $derived.by(() => {
-		if (!end) return null;
-		const parsed = new Date(end);
-		if (Number.isNaN(parsed.getTime())) return null;
-		const today = new Date();
-		today.setHours(0, 0, 0, 0);
-		parsed.setHours(0, 0, 0, 0);
-		return Math.round((parsed.getTime() - today.getTime()) / 86_400_000);
-	});
-	const running = $derived(daysLeft !== null && daysLeft >= 0);
-
-	function fmt(d?: string) {
-		if (!d) return '—';
-		const parsed = new Date(d);
-		if (Number.isNaN(parsed.getTime())) return d;
-		return parsed.toLocaleDateString(undefined, {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
+	const remaining = $derived(computeDaysLeft(end));
+	const running = $derived(remaining !== null && remaining >= 0);
 </script>
 
 <div class="flex-1">
 	<div class="mx-auto max-w-6xl px-6 py-10 sm:px-10 sm:py-14">
 		<!-- Breadcrumb -->
-		<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-			<a href={resolve('/list')} class="hover:text-slate-900 dark:hover:text-white">
+		<nav
+			aria-label="Breadcrumb"
+			class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"
+		>
+			<a
+				href={resolve('/list')}
+				class="-mx-1 rounded px-1 py-2 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:hover:text-white"
+			>
 				{m.campaign_breadcrumb()}
 			</a>
 			<span>/</span>
@@ -54,9 +42,7 @@
 			></div>
 			<div class="relative flex flex-wrap items-start justify-between gap-4">
 				<div>
-					<p
-						class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400"
-					>
+					<p class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400">
 						{m.campaign_eyebrow()}
 					</p>
 					<h1
@@ -68,7 +54,7 @@
 						class="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400"
 					>
 						<span class="inline-flex items-center gap-1.5">
-							<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+							<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 								<path
 									fill-rule="evenodd"
 									d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
@@ -89,9 +75,7 @@
 
 		<!-- Topics -->
 		<section class="mt-8">
-			<h2
-				class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-			>
+			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
 				{m.campaign_topicsHeading()}
 			</h2>
 			<div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
@@ -103,7 +87,7 @@
 							<div
 								class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-brand-100 to-violet-100 text-brand-700 dark:from-brand-950/60 dark:to-violet-950/60 dark:text-brand-300"
 							>
-								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 									<path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
 									<path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
 								</svg>
@@ -129,9 +113,7 @@
 
 		<!-- Placeholder analytics -->
 		<section class="mt-10">
-			<h2
-				class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-			>
+			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
 				{m.campaign_reportsHeading()}
 			</h2>
 			<div

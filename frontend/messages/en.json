@@ -27,16 +27,18 @@
 	"create_errorMinLen": [
 		{
 			"match": {
-				"minLen=1": "Topic must be at least 1 character",
-				"minLen=*": "Topic must be at least {minLen} characters"
+				"minLen=*": "Topic must be at least {minLen} characters",
+				"minLen=1": "Topic must be at least 1 character"
 			}
 		}
 	],
+	"create_errorNetwork": "Network error — please check your connection.",
+	"create_errorUnknown": "Something went wrong. Please try again.",
 	"create_intervalHint": [
 		{
 			"match": {
-				"max=1": "Maximum interval: 1 day.",
-				"max=*": "Maximum interval: {max} days."
+				"max=*": "Maximum interval: {max} days.",
+				"max=1": "Maximum interval: 1 day."
 			}
 		}
 	],
@@ -45,34 +47,53 @@
 	"create_removeTopic": "Remove {topic}",
 	"create_startLabel": "Start date",
 	"create_submit": "Create campaign",
+	"create_submitting": "Creating...",
 	"create_subtitle": "Pick a name, list the topics you want to track, and set the date range.",
 	"create_title": "Create a campaign",
 	"create_topicCounter": "{count} / {max}",
 	"create_topicPlaceholder": "Type a topic and press Enter...",
 	"create_topicsHint": "Press Enter or comma to add a topic. Up to {max}, {minLen}-{maxLen} characters each.",
 	"create_topicsLabel": "Topics",
+	"errors_body": [
+		{
+			"match": {
+				"code=*": "An unexpected error occurred. Please try again.",
+				"code=404": "We couldn't find the page you were looking for. It may have been moved or never existed.",
+				"code=500": "Our servers tripped over a wire. The team has been notified — try again in a moment."
+			}
+		}
+	],
+	"errors_code": [
+		{
+			"match": {
+				"code=*": "Error",
+				"code=404": "404",
+				"code=500": "500"
+			}
+		}
+	],
+	"errors_detail": "Detail",
+	"errors_title": [
+		{
+			"match": {
+				"code=*": "Unexpected error",
+				"code=404": "Page not found",
+				"code=500": "Something went wrong"
+			}
+		}
+	],
 	"home_badge": "Sentiment-driven marketing intelligence",
 	"home_createCampaign": "Create campaign",
 	"home_openDashboard": "Open dashboard",
 	"home_subtitle": "Spin up campaigns, ingest signals from prediction markets, and watch sentiment unfold — all in one calm dashboard.",
 	"home_titleLine1": "Track the pulse of",
 	"home_titleLine2": "your markets.",
-	"login_footer": "By signing in you agree to track sentiment responsibly.",
-	"login_submit": "Sign in",
-	"login_subtitle": "Sign in with your user ID to continue.",
-	"login_title": "Welcome back",
-	"login_userIdLabel": "User ID",
-	"login_userIdPlaceholder": "your_user_id",
-	"nav_campaigns": "Campaigns",
-	"nav_newCampaign": "New campaign",
-	"theme_toDark": "Switch to dark mode",
-	"theme_toLight": "Switch to light mode",
 	"list_badgeDaysLeft": [
 		{
 			"match": {
+				"days=*": "{days} days left",
 				"days=0": "Last day",
-				"days=1": "1 day left",
-				"days=*": "{days} days left"
+				"days=1": "1 day left"
 			}
 		}
 	],
@@ -87,50 +108,35 @@
 	"list_statCampaigns": "Campaigns",
 	"list_statRunning": "Running now",
 	"list_statTopics": "Topics tracked",
-	"list_title": "Your campaigns",
 	"list_summary": [
 		{
 			"match": {
+				"count=*": "{count} active campaigns being monitored.",
 				"count=0": "No active campaigns being monitored.",
-				"count=1": "1 active campaign being monitored.",
-				"count=*": "{count} active campaigns being monitored."
+				"count=1": "1 active campaign being monitored."
 			}
 		}
 	],
+	"list_title": "Your campaigns",
 	"list_topicCount": [
 		{
 			"match": {
-				"count=1": "1 topic",
-				"count=*": "{count} topics"
+				"count=*": "{count} topics",
+				"count=1": "1 topic"
 			}
 		}
 	],
-	"errors_detail": "Detail",
-	"errors_title": [
-		{
-			"match": {
-				"code=404": "Page not found",
-				"code=500": "Something went wrong",
-				"code=*": "Unexpected error"
-			}
-		}
-	],
-	"errors_body": [
-		{
-			"match": {
-				"code=404": "We couldn't find the page you were looking for. It may have been moved or never existed.",
-				"code=500": "Our servers tripped over a wire. The team has been notified — try again in a moment.",
-				"code=*": "An unexpected error occurred. Please try again."
-			}
-		}
-	],
-	"errors_code": [
-		{
-			"match": {
-				"code=404": "404",
-				"code=500": "500",
-				"code=*": "Error"
-			}
-		}
-	]
+	"login_errorNetwork": "Network error — please check your connection.",
+	"login_errorUnknown": "Login failed. Please try again.",
+	"login_footer": "By signing in you agree to track sentiment responsibly.",
+	"login_submit": "Sign in",
+	"login_submitting": "Signing in...",
+	"login_subtitle": "Sign in with your user ID to continue.",
+	"login_title": "Welcome back",
+	"login_userIdLabel": "User ID",
+	"login_userIdPlaceholder": "your_user_id",
+	"nav_campaigns": "Campaigns",
+	"nav_newCampaign": "New campaign",
+	"theme_toDark": "Switch to dark mode",
+	"theme_toLight": "Switch to light mode"
 }
