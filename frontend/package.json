@@ -38,8 +38,6 @@
 		"vite-plugin-devtools-json": "^1.0.0"
 	},
 	"dependencies": {
-		"@aws-sdk/client-dynamodb": "^3.1024.0",
-		"@aws-sdk/lib-dynamodb": "^3.1024.0",
 		"@sveltejs/adapter-static": "^3.0.10",
 		"dayjs": "^1.11.20"
 	}

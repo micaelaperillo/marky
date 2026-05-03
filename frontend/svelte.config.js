@@ -1,5 +1,5 @@
-import { relative, sep } from "node:path";
-import adapter from "@sveltejs/adapter-static";
+import { relative, sep } from 'node:path';
+import adapter from '@sveltejs/adapter-static';
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -8,20 +8,20 @@ const config = {
 		runes: ({ filename }) => {
 			const relativePath = relative(import.meta.dirname, filename);
 			const pathSegments = relativePath.toLowerCase().split(sep);
-			const isExternalLibrary = pathSegments.includes("node_modules");
+			const isExternalLibrary = pathSegments.includes('node_modules');
 
 			return isExternalLibrary ? undefined : true;
-		},
+		}
 	},
 	kit: {
 		adapter: adapter({
-			fallback: "index.html", // SPA mode — all routes serve index.html
+			fallback: 'index.html' // SPA mode — all routes serve index.html
 		}),
-		csrf: { checkOrigin: false },
+		csrf: { trustedOrigins: [] },
 		paths: {
-			base: process.env.BASE_PATH || "", // Set to "/prod" for API GW deployment
-		},
-	},
+			base: process.env.BASE_PATH || '' // Set to "/prod" for API GW deployment
+		}
+	}
 };
 
 export default config;
