@@ -1,47 +1,37 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import type { Dayjs } from 'dayjs';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+	DynamoDBDocumentClient,
+	GetCommand,
+	PutCommand,
+	QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
+import type { Dayjs } from "dayjs";
+import { env } from "$env/dynamic/private";
 
-import iso from '$lib/modules/iso';
+import iso from "$lib/modules/iso";
 
-const client = new DynamoDBClient({ region: 'us-east-1' });
+const TABLE_NAME = env.MARKY_DYNAMO_DATA_TABLE ?? "marky-data";
+
+const client = new DynamoDBClient({ region: env.AWS_REGION ?? "us-east-1" });
 const docClient = DynamoDBDocumentClient.from(client);
-
-// In-memory store for local MVP
-const memoryStore = new Map<string, any>();
-
-function getMemoryKey(hash: string, sort: string | number) {
-	return `${hash}##${sort}`;
-}
 
 //#region Tasks
 
 export type Task = {
-	// TaskDate
-	Hash: string;
-	// Topic#ReportDate
-	Sort: string;
+	PK: string;
+	SK: string;
 };
 
 export async function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
-	const item = {
-		Hash: `TASKS#${iso(schedule)}`,
-		Sort: `${topic}#${iso(date)}`
-	};
-	
-	memoryStore.set(getMemoryKey(item.Hash, item.Sort), item);
-
 	const command = new PutCommand({
-		Item: item,
-		TableName: 'marky-data'
+		Item: {
+			PK: `TASKS#${iso(schedule)}`,
+			SK: `${topic}#${iso(date)}`,
+		},
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB putTask failed, using memory fallback');
-		return { $metadata: { httpStatusCode: 200 } };
-	}
+	return docClient.send(command);
 }
 
 //#endregion
@@ -49,57 +39,38 @@ export async function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 //#region Reports
 
 export type Report = {
-	/** Topic */
-	Hash: string;
-	/** Date */
-	Sort: string;
-
-	// TODO: decide what to store in the report
+	PK: string;
+	SK: string;
 	[x: string]: string | number;
 };
 
 export async function getReport(topic: string, date: Dayjs) {
-	const hash = `TOPIC#${topic}`;
-	const sort = date.unix();
-	
 	const command = new GetCommand({
 		Key: {
-			Hash: hash,
-			Sort: sort
+			PK: `TOPIC#${topic}`,
+			SK: String(date.unix()),
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB getReport failed, using memory fallback');
-		return { Item: memoryStore.get(getMemoryKey(hash, sort)) };
-	}
+	return docClient.send(command);
 }
 
 export async function getReports(topic: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
 		ExpressionAttributeNames: {
-			'#date': 'Sort'
+			"#sk": "SK",
 		},
 		ExpressionAttributeValues: {
-			':end': { N: end.unix().toString() },
-			':start': { N: start.unix().toString() },
-			':topic': { S: `TOPIC#${topic}` }
+			":end": String(end.unix()),
+			":start": String(start.unix()),
+			":topic": `TOPIC#${topic}`,
 		},
-		KeyConditionExpression: 'Hash = :topic AND #date BETWEEN :start AND :end',
-		TableName: 'marky-data'
+		KeyConditionExpression: "PK = :topic AND #sk BETWEEN :start AND :end",
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB getReports failed, using memory fallback');
-		const hash = `TOPIC#${topic}`;
-		const items = Array.from(memoryStore.values()).filter(i => i.Hash === hash && i.Sort >= start.unix() && i.Sort <= end.unix());
-		return { Items: items };
-	}
+	return docClient.send(command);
 }
 
 //#endregion
@@ -107,10 +78,8 @@ export async function getReports(topic: string, start: Dayjs, end: Dayjs) {
 //#region Campaigns
 
 export type Campaign = {
-	/** UserId */
-	Hash: string;
-	/** CampaignName */
-	Sort: string;
+	PK: string;
+	SK: string;
 	Topics: string[];
 	Start: string;
 	End: string;
@@ -121,93 +90,63 @@ export async function putCampaign(
 	name: string,
 	topics: string[],
 	start: Dayjs,
-	end: Dayjs
+	end: Dayjs,
 ) {
-	const item = {
-		End: iso(end),
-		Hash: `CAMPAIGNS#${user}`,
-		Sort: name,
-		Start: iso(start),
-		Topics: topics
-	};
-
-	memoryStore.set(getMemoryKey(item.Hash, item.Sort), item);
-
 	const command = new PutCommand({
-		Item: item,
-		TableName: 'marky-data'
+		Item: {
+			End: iso(end),
+			PK: `CAMPAIGNS#${user}`,
+			SK: name,
+			Start: iso(start),
+			Topics: topics,
+		},
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB putCampaign failed, using memory fallback');
-		return { $metadata: { httpStatusCode: 200 } };
-	}
+	return docClient.send(command);
 }
 
 export async function getCampaign(user: string, name: string) {
-	const hash = `CAMPAIGNS#${user}`;
-	const sort = name;
-
 	const command = new GetCommand({
 		Key: {
-			Hash: hash,
-			Sort: sort
+			PK: `CAMPAIGNS#${user}`,
+			SK: name,
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB getCampaign failed, using memory fallback');
-		return { Item: memoryStore.get(getMemoryKey(hash, sort)) };
-	}
+	return docClient.send(command);
 }
 
 export async function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
 		ExpressionAttributeNames: {
-			'#date': 'Date'
+			"#end": "End",
+			"#start": "Start",
 		},
 		ExpressionAttributeValues: {
-			':end': { N: end.unix().toString() },
-			':start': { N: start.unix().toString() },
-			':user': { S: `CAMPAIGNS#${user}` }
+			":end": iso(end),
+			":start": iso(start),
+			":user": `CAMPAIGNS#${user}`,
 		},
-		KeyConditionExpression: 'Hash = :user AND #date BETWEEN :start AND :END',
-		TableName: 'marky-data'
+		FilterExpression: "#start >= :start AND #end <= :end",
+		KeyConditionExpression: "PK = :user",
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB getCampaigns failed, using memory fallback');
-		const hash = `CAMPAIGNS#${user}`;
-		// This is a rough filter for the local mock
-		const items = Array.from(memoryStore.values()).filter(i => i.Hash === hash);
-		return { Items: items };
-	}
+	return docClient.send(command);
 }
 
 export async function getAllCampaigns(user: string) {
 	const command = new QueryCommand({
 		ExpressionAttributeValues: {
-			':user': { S: `CAMPAIGNS#${user}` }
+			":user": `CAMPAIGNS#${user}`,
 		},
-		KeyConditionExpression: 'Hash = :user',
-		TableName: 'marky-data'
+		KeyConditionExpression: "PK = :user",
+		TableName: TABLE_NAME,
 	});
 
-	try {
-		return await docClient.send(command);
-	} catch (e) {
-		console.warn('DynamoDB getAllCampaigns failed, using memory fallback');
-		const hash = `CAMPAIGNS#${user}`;
-		const items = Array.from(memoryStore.values()).filter(i => i.Hash === hash);
-		return { Items: items };
-	}
+	return docClient.send(command);
 }
 
 //#endregion
