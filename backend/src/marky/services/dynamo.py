@@ -58,7 +58,7 @@ class TasksRepository:
     def list_tasks_for_date(self, task_date: date) -> list[Task]:
         items = self._client.query(
             self._table_name,
-            KeyConditionExpression=Key("Hash").eq(self._hash_for_date(task_date)),
+            KeyConditionExpression=Key("PK").eq(self._hash_for_date(task_date)),
         )
         out: list[Task] = []
         for item in items:

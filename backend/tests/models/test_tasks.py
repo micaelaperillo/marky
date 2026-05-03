@@ -14,8 +14,8 @@ from marky.models.tasks import (
 
 def test_task_from_dynamo_item_simple() -> None:
     item = {
-        "Hash": "TASKS#2026-04-07",
-        "Sort": "OpenAI GPT-5#2026-04-06",
+        "PK": "TASKS#2026-04-07",
+        "SK": "OpenAI GPT-5#2026-04-06",
     }
     t = Task.from_dynamo_item(item)
     assert t.task_date == date(2026, 4, 7)
@@ -27,8 +27,8 @@ def test_task_from_dynamo_item_simple() -> None:
 
 def test_task_from_dynamo_item_topic_with_hash() -> None:
     item = {
-        "Hash": "TASKS#2026-04-07",
-        "Sort": "C#  vs  F##2026-04-06",
+        "PK": "TASKS#2026-04-07",
+        "SK": "C#  vs  F##2026-04-06",
     }
     t = Task.from_dynamo_item(item)
     assert t.topic == "C#  vs  F#"
@@ -37,13 +37,13 @@ def test_task_from_dynamo_item_topic_with_hash() -> None:
 
 
 def test_task_from_dynamo_item_invalid_sort_raises() -> None:
-    with pytest.raises(ValueError, match="Sort"):
-        Task.from_dynamo_item({"Hash": "TASKS#2026-04-07", "Sort": "no-hash"})
+    with pytest.raises(ValueError, match="SK"):
+        Task.from_dynamo_item({"PK": "TASKS#2026-04-07", "SK": "no-hash"})
 
 
 def test_task_from_dynamo_item_invalid_hash_raises() -> None:
-    with pytest.raises(ValueError, match="Hash"):
-        Task.from_dynamo_item({"Hash": "Reports#2026-04-07", "Sort": "x#2026-04-06"})
+    with pytest.raises(ValueError, match="PK"):
+        Task.from_dynamo_item({"PK": "Reports#2026-04-07", "SK": "x#2026-04-06"})
 
 
 def test_task_window_is_half_open_utc() -> None:
