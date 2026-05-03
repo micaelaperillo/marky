@@ -1,30 +1,36 @@
 <script lang="ts">
 	import type { PageProps, ActionData } from './$types';
 
+	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { enhance } from '$app/forms';
+	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
 	let { data, form }: PageProps & { form: ActionData } = $props();
 
 	let loading = $state(false);
-	const renderedReport = $derived(form?.report ? marked.parse(form.report) : '');
+	const renderedReport = $derived(
+		form?.report && browser
+			? DOMPurify.sanitize(marked.parse(form.report, { async: false }) as string)
+			: ''
+	);
 
 	type RawItem = {
-		Hash?: string;
-		Sort?: string;
+		PK?: string;
+		SK?: string;
 		Topics?: string[];
 		Start?: string;
 		End?: string;
 	};
 
 	const item = $derived((data.Item ?? {}) as RawItem);
-	const name = $derived(item.Sort ?? 'Campaign');
+	const name = $derived(item.SK ?? 'Campaign');
 	const topics = $derived<string[]>(item.Topics ?? []);
 	const start = $derived(item.Start);
 	const end = $derived(item.End);
-	const exists = $derived(!!item.Sort);
+	const exists = $derived(!!item.SK);
 
 	const daysLeft = $derived.by(() => {
 		if (!end) return null;
@@ -167,8 +173,11 @@
 					<form method="POST" action="?/analyze" use:enhance={() => {
 						loading = true;
 						return async ({ update }) => {
-							await update();
-							loading = false;
+							try {
+								await update();
+							} finally {
+								loading = false;
+							}
 						};
 					}}>
 						<button
@@ -186,7 +195,7 @@
 								<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
 									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
 								</svg>
-								Generate AI Analysis
+								{m.campaign_generateAnalysis()}
 							{/if}
 						</button>
 					</form>
