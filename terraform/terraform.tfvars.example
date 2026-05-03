@@ -1,4 +1,5 @@
-suffix = "yourname"  # Required. Unique per team member, max 13 chars.
+suffix        = "yourname"  # Required. Unique per team member, max 13 chars.
+cookie_secret = "change-me"  # Required. Secret for signing session cookies.
 
 # Optional overrides:
 # region                    = "us-east-1"

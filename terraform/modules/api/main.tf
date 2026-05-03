@@ -22,6 +22,21 @@ resource "aws_lambda_function" "api" {
   runtime          = "nodejs20.x"
   filename         = data.archive_file.lambda.output_path
   source_code_hash = data.archive_file.lambda.output_base64sha256
+  timeout          = 29
+
+  environment {
+    variables = {
+      BACKEND_URL    = var.backend_url
+      COOKIE_SECRET  = var.cookie_secret
+      DYNAMODB_TABLE = "${var.project}-data"
+      NODE_ENV       = "production"
+    }
+  }
+
+  vpc_config {
+    subnet_ids         = var.lambda_subnet_ids
+    security_group_ids = [var.lambda_sg_id]
+  }
 
   tags = { Name = "${var.project}-api-lambda" }
 }

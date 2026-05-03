@@ -39,3 +39,9 @@ variable "iam_instance_profile_name" {
   default     = "LabInstanceProfile"
   description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
 }
+
+variable "cookie_secret" {
+  type        = string
+  sensitive   = true
+  description = "Secret used to sign session cookies in the Express API."
+}

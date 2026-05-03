@@ -10,6 +10,10 @@ variable "backend_sg_id" {
   type = string
 }
 
+variable "vpc_id" {
+  type = string
+}
+
 variable "create_key_pair" {
   type    = bool
   default = true
