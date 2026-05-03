@@ -18,7 +18,7 @@ class Settings(BaseSettings):
     )
 
     aws_region: str = Field(default="us-east-1", validation_alias="AWS_REGION")
-    s3_bucket: str = Field(validation_alias="MARKY_POLYMARKET_RAW_DATA_S3_BUCKET")
+    s3_bucket: str | None = Field(default=None, validation_alias="MARKY_POLYMARKET_RAW_DATA_S3_BUCKET")
     dynamo_data_table: str = Field(
         default="marky-data", validation_alias="MARKY_DYNAMO_DATA_TABLE"
     )
@@ -31,3 +31,4 @@ class Settings(BaseSettings):
     )
     gamma_max_retries: int = Field(default=5, validation_alias="MARKY_GAMMA_MAX_RETRIES")
     log_level: str = Field(default="INFO", validation_alias="MARKY_LOG_LEVEL")
+    gemini_api_key: str | None = Field(default=None, validation_alias="GEMINI_API_KEY")

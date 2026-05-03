@@ -16,12 +16,12 @@ def dynamo_table():
         client.create_table(
             TableName=TABLE,
             AttributeDefinitions=[
-                {"AttributeName": "Hash", "AttributeType": "S"},
-                {"AttributeName": "Sort", "AttributeType": "S"},
+                {"AttributeName": "PK", "AttributeType": "S"},
+                {"AttributeName": "SK", "AttributeType": "S"},
             ],
             KeySchema=[
-                {"AttributeName": "Hash", "KeyType": "HASH"},
-                {"AttributeName": "Sort", "KeyType": "RANGE"},
+                {"AttributeName": "PK", "KeyType": "HASH"},
+                {"AttributeName": "SK", "KeyType": "RANGE"},
             ],
             BillingMode="PAY_PER_REQUEST",
         )
@@ -29,18 +29,18 @@ def dynamo_table():
         resource = boto3.resource("dynamodb", region_name="us-east-1")
         table = resource.Table(TABLE)
         table.put_item(
-            Item={"Hash": "TASKS#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
+            Item={"PK": "TASKS#2026-04-07", "SK": "OpenAI GPT-5#2026-04-06"}
         )
         table.put_item(
-            Item={"Hash": "TASKS#2026-04-07", "Sort": "Tesla robotaxi#2026-04-05"}
+            Item={"PK": "TASKS#2026-04-07", "SK": "Tesla robotaxi#2026-04-05"}
         )
         # Different day — should not be returned for 2026-04-07.
         table.put_item(
-            Item={"Hash": "TASKS#2026-04-08", "Sort": "Other#2026-04-07"}
+            Item={"PK": "TASKS#2026-04-08", "SK": "Other#2026-04-07"}
         )
         # Different entity type — should not be returned even on the same day.
         table.put_item(
-            Item={"Hash": "Reports#2026-04-07", "Sort": "anything#2026-04-06"}
+            Item={"PK": "Reports#2026-04-07", "SK": "anything#2026-04-06"}
         )
         yield table
 
@@ -62,4 +62,4 @@ def test_tasks_repository_does_not_leak_other_entities(dynamo_table) -> None:
     """Reports#2026-04-07 must not appear when querying tasks for that date."""
     repo = TasksRepository(client=DynamoClient(region="us-east-1"), table_name=TABLE)
     tasks = repo.list_tasks_for_date(date(2026, 4, 7))
-    assert all(t.raw_item["Hash"].startswith("TASKS#") for t in tasks)
+    assert all(t.raw_item["PK"].startswith("TASKS#") for t in tasks)

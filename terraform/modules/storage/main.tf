@@ -46,16 +46,16 @@ resource "aws_s3_bucket_ownership_controls" "raw_data" {
 resource "aws_dynamodb_table" "data" {
   name         = "${var.project}-data"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "Hash"
-  range_key    = "Sort"
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
-    name = "Hash"
+    name = "PK"
     type = "S"
   }
 
   attribute {
-    name = "Sort"
+    name = "SK"
     type = "S"
   }
 

@@ -9,23 +9,21 @@
 	let { data }: PageProps = $props();
 
 	type RawItem = {
-		PK: { S: string };
-		SK?: { S: string };
-		Topics?: { L?: { S: string }[]; SS?: string[] };
-		Start?: { S: string };
-		End?: { S: string };
+		PK: string;
+		SK?: string;
+		Topics?: string[];
+		Start?: string;
+		End?: string;
 	};
 
 	const items = $derived((data.Items ?? []) as RawItem[]);
 
 	function campaignName(i: RawItem) {
-		return i.SK?.S ?? 'Untitled';
+		return i.SK ?? 'Untitled';
 	}
 
 	function topics(i: RawItem): string[] {
-		if (i.Topics?.L) return i.Topics.L.map((x) => x?.S).filter((s): s is string => !!s);
-		if (i.Topics?.SS) return i.Topics.SS;
-		return [];
+		return i.Topics ?? [];
 	}
 
 	function fmt(d?: string) {
@@ -111,7 +109,7 @@
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
 						{items.filter((i) => {
-							const d = daysLeft(i.End?.S);
+							const d = daysLeft(i.End);
 							return d !== null && d >= 0;
 						}).length}
 					</p>
@@ -155,10 +153,10 @@
 			</div>
 		{:else}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each items as item (`${item.PK.S}::${campaignName(item)}`)}
+				{#each items as item (`${item.PK}::${campaignName(item)}`)}
 					{@const name = campaignName(item)}
 					{@const ts = topics(item)}
-					{@const left = daysLeft(item.End?.S)}
+					{@const left = daysLeft(item.End)}
 					{@const running = left !== null && left >= 0}
 					<a
 						href={resolve('/list/[campaign]', { campaign: name })}
@@ -172,7 +170,7 @@
 									{name}
 								</h3>
 								<p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-									{fmt(item.Start?.S)} → {fmt(item.End?.S)}
+									{fmt(item.Start)} → {fmt(item.End)}
 								</p>
 							</div>
 							<span

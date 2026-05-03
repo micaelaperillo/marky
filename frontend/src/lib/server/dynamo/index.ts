@@ -1,28 +1,34 @@
-import { DynamoDBClient, QueryCommand } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient, GetCommand, PutCommand } from '@aws-sdk/lib-dynamodb';
-import type { Dayjs } from 'dayjs';
+import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+	DynamoDBDocumentClient,
+	GetCommand,
+	PutCommand,
+	QueryCommand,
+} from "@aws-sdk/lib-dynamodb";
+import type { Dayjs } from "dayjs";
+import { env } from "$env/dynamic/private";
 
-import iso from '$lib/modules/iso';
+import iso from "$lib/modules/iso";
 
-const client = new DynamoDBClient({ region: 'us-east-1' });
+const TABLE_NAME = env.MARKY_DYNAMO_DATA_TABLE ?? "marky-data";
+
+const client = new DynamoDBClient({ region: env.AWS_REGION ?? "us-east-1" });
 const docClient = DynamoDBDocumentClient.from(client);
 
 //#region Tasks
 
 export type Task = {
-	// TaskDate
 	PK: string;
-	// Topic#ReportDate
 	SK: string;
 };
 
-export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
+export async function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 	const command = new PutCommand({
 		Item: {
 			PK: `TASKS#${iso(schedule)}`,
-			SK: `${topic}#${iso(date)}`
+			SK: `${topic}#${iso(date)}`,
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
@@ -33,39 +39,35 @@ export function putTask(schedule: Dayjs, topic: string, date: Dayjs) {
 //#region Reports
 
 export type Report = {
-	/** Topic */
 	PK: string;
-	/** Date */
 	SK: string;
-
-	// TODO: decide what to store in the report
 	[x: string]: string | number;
 };
 
-export function getReport(topic: string, date: Dayjs) {
+export async function getReport(topic: string, date: Dayjs) {
 	const command = new GetCommand({
 		Key: {
 			PK: `TOPIC#${topic}`,
-			SK: date.unix()
+			SK: String(date.unix()),
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
 }
 
-export function getReports(topic: string, start: Dayjs, end: Dayjs) {
+export async function getReports(topic: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
 		ExpressionAttributeNames: {
-			'#date': 'SK'
+			"#sk": "SK",
 		},
 		ExpressionAttributeValues: {
-			':end': { N: end.unix().toString() },
-			':start': { N: start.unix().toString() },
-			':topic': { S: `TOPIC#${topic}` }
+			":end": String(end.unix()),
+			":start": String(start.unix()),
+			":topic": `TOPIC#${topic}`,
 		},
-		KeyConditionExpression: 'PK = :topic AND #date BETWEEN :start AND :end',
-		TableName: 'marky-data'
+		KeyConditionExpression: "PK = :topic AND #sk BETWEEN :start AND :end",
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
@@ -76,21 +78,19 @@ export function getReports(topic: string, start: Dayjs, end: Dayjs) {
 //#region Campaigns
 
 export type Campaign = {
-	/** UserId */
 	PK: string;
-	/** CampaignName */
 	SK: string;
 	Topics: string[];
 	Start: string;
 	End: string;
 };
 
-export function putCampaign(
+export async function putCampaign(
 	user: string,
 	name: string,
 	topics: string[],
 	start: Dayjs,
-	end: Dayjs
+	end: Dayjs,
 ) {
 	const command = new PutCommand({
 		Item: {
@@ -98,50 +98,52 @@ export function putCampaign(
 			PK: `CAMPAIGNS#${user}`,
 			SK: name,
 			Start: iso(start),
-			Topics: topics
+			Topics: topics,
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
 }
 
-export function getCampaign(user: string, name: string) {
+export async function getCampaign(user: string, name: string) {
 	const command = new GetCommand({
 		Key: {
 			PK: `CAMPAIGNS#${user}`,
-			SK: name
+			SK: name,
 		},
-		TableName: 'marky-data'
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
 }
 
-export function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
+export async function getCampaigns(user: string, start: Dayjs, end: Dayjs) {
 	const command = new QueryCommand({
 		ExpressionAttributeNames: {
-			'#date': 'Date'
+			"#end": "End",
+			"#start": "Start",
 		},
 		ExpressionAttributeValues: {
-			':end': { N: end.unix().toString() },
-			':start': { N: start.unix().toString() },
-			':user': { S: `CAMPAIGNS#${user}` }
+			":end": iso(end),
+			":start": iso(start),
+			":user": `CAMPAIGNS#${user}`,
 		},
-		KeyConditionExpression: 'PK = :user AND #date BETWEEN :start AND :END',
-		TableName: 'marky-data'
+		FilterExpression: "#start >= :start AND #end <= :end",
+		KeyConditionExpression: "PK = :user",
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);
 }
 
-export function getAllCampaigns(user: string) {
+export async function getAllCampaigns(user: string) {
 	const command = new QueryCommand({
 		ExpressionAttributeValues: {
-			':user': { S: `CAMPAIGNS#${user}` }
+			":user": `CAMPAIGNS#${user}`,
 		},
-		KeyConditionExpression: 'PK = :user',
-		TableName: 'marky-data'
+		KeyConditionExpression: "PK = :user",
+		TableName: TABLE_NAME,
 	});
 
 	return docClient.send(command);

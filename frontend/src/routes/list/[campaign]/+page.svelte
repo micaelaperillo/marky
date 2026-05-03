@@ -1,26 +1,35 @@
 <script lang="ts">
-	import type { PageProps } from './$types';
+	import type { PageProps, ActionData } from './$types';
 
+	import { browser } from '$app/environment';
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import { enhance } from '$app/forms';
+	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
 
-	let { data }: PageProps = $props();
+	let { data, form }: PageProps & { form: ActionData } = $props();
+
+	let loading = $state(false);
+	const renderedReport = $derived(
+		form?.report && browser
+			? DOMPurify.sanitize(marked.parse(form.report, { async: false }) as string)
+			: ''
+	);
 
 	type RawItem = {
-		PK?: { S: string };
-		SK?: { S: string };
-		Topics?: { L?: { S: string }[]; SS?: string[] };
-		Start?: { S: string };
-		End?: { S: string };
+		PK?: string;
+		SK?: string;
+		Topics?: string[];
+		Start?: string;
+		End?: string;
 	};
 
 	const item = $derived((data.Item ?? {}) as RawItem);
 	const name = $derived(item.SK ?? 'Campaign');
-	const topics = $derived<string[]>(
-		item.Topics?.L?.map((x) => x?.S).filter((s): s is string => !!s) ?? item.Topics?.SS ?? []
-	);
-	const start = $derived(item.Start?.S);
-	const end = $derived(item.End?.S);
+	const topics = $derived<string[]>(item.Topics ?? []);
+	const start = $derived(item.Start);
+	const end = $derived(item.End);
 	const exists = $derived(!!item.SK);
 
 	const daysLeft = $derived.by(() => {
@@ -153,17 +162,59 @@
 				</div>
 			</section>
 
-			<!-- Placeholder analytics -->
+			<!-- Analytics -->
 			<section class="mt-10">
-				<h2
-					class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-				>
-					{m.campaign_reportsHeading()}
-				</h2>
-				<div
-					class="mt-4 flex h-64 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
-				>
-					{m.campaign_reportsPlaceholder()}
+				<div class="flex items-center justify-between">
+					<h2
+						class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
+					>
+						{m.campaign_reportsHeading()}
+					</h2>
+					<form method="POST" action="?/analyze" use:enhance={() => {
+						loading = true;
+						return async ({ update }) => {
+							try {
+								await update();
+							} finally {
+								loading = false;
+							}
+						};
+					}}>
+						<button
+							type="submit"
+							disabled={loading}
+							class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+						>
+							{#if loading}
+								<svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24">
+									<circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
+									<path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+								</svg>
+								{m.common_loading()}
+							{:else}
+								<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
+									<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-8.707l-3-3a1 1 0 00-1.414 0l-3 3a1 1 0 001.414 1.414L9 9.414V13a1 1 0 102 0V9.414l1.293 1.293a1 1 0 001.414-1.414z" clip-rule="evenodd" />
+								</svg>
+								{m.campaign_generateAnalysis()}
+							{/if}
+						</button>
+					</form>
+				</div>
+
+				<div class="mt-4 min-h-64 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+					{#if form?.error}
+						<div class="rounded-lg bg-rose-50 p-4 text-sm text-rose-700 dark:bg-rose-950/30 dark:text-rose-400">
+							{form.error}
+						</div>
+					{:else if renderedReport}
+						<div class="prose prose-sm max-w-none dark:prose-invert">
+							{@html renderedReport}
+						</div>
+					{:else}
+						<div class="flex h-full items-center justify-center text-sm text-slate-500 dark:text-slate-400">
+							{m.campaign_reportsPlaceholder()}
+						</div>
+					{/if}
 				</div>
 			</section>
 		{/if}
