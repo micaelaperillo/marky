@@ -94,7 +94,7 @@ export class ExpressCampaignController {
 			url.searchParams.set("topics", campaign.topics.join(","));
 
 			const controller = new AbortController();
-			const timeout = setTimeout(() => controller.abort(), 30_000);
+			const timeout = setTimeout(() => controller.abort(), 25_000);
 
 			const resp = await fetch(url, { signal: controller.signal }).finally(
 				() => clearTimeout(timeout),
