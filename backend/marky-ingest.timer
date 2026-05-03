@@ -1,10 +1,10 @@
 [Unit]
-Description=Run backend at the night
+Description=Run Marky ingest daily at 23:00 UTC
 
 [Timer]
 OnCalendar=*-*-* 23:00:00
 Persistent=true
-Unit=backend.service
+Unit=marky-ingest.service
 
 [Install]
 WantedBy=timers.target
