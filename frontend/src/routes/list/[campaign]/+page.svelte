@@ -1,12 +1,17 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
+	import { base } from '$app/paths';
+	import { page } from '$app/stores';
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import { daysLeft as computeDaysLeft, fmt } from '$lib/utils/date';
+	import DOMPurify from 'dompurify';
+	import { marked } from 'marked';
 
 	let { data }: PageProps = $props();
 
+	const slug = $derived($page.params.campaign);
 	const name = $derived(data.campaign?.name || 'Campaign');
 	const topics = $derived<string[]>(data.campaign?.topics ?? []);
 	const start = $derived(data.campaign?.start);
@@ -14,6 +19,41 @@
 
 	const remaining = $derived(computeDaysLeft(end));
 	const running = $derived(remaining !== null && remaining >= 0);
+
+	let loading = $state(false);
+	let report = $state('');
+	let error = $state('');
+
+	const renderedReport = $derived(
+		report ? DOMPurify.sanitize(marked.parse(report, { async: false }) as string) : ''
+	);
+
+	async function analyze() {
+		loading = true;
+		error = '';
+		try {
+			const res = await fetch(
+				`${base}/api/campaigns/${encodeURIComponent(slug)}/analyze`,
+				{ method: 'POST' }
+			);
+			let body;
+			try {
+				body = await res.json();
+			} catch {
+				error = 'Analysis service returned an invalid response.';
+				return;
+			}
+			if (!res.ok) {
+				error = body.error || 'Analysis failed.';
+			} else {
+				report = typeof body.report === 'string' ? body.report : '';
+			}
+		} catch {
+			error = 'Unable to connect to analysis service.';
+		} finally {
+			loading = false;
+		}
+	}
 </script>
 
 <div class="flex-1">
@@ -111,15 +151,65 @@
 			</div>
 		</section>
 
-		<!-- Placeholder analytics -->
+		<!-- Analytics -->
 		<section class="mt-10">
-			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-				{m.campaign_reportsHeading()}
-			</h2>
+			<div class="flex items-center justify-between">
+				<h2
+					class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
+				>
+					{m.campaign_reportsHeading()}
+				</h2>
+				<button
+					type="button"
+					onclick={analyze}
+					disabled={loading || !data.campaign}
+					class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
+				>
+					{#if loading}
+						<svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
+							<circle
+								class="opacity-25"
+								cx="12"
+								cy="12"
+								r="10"
+								stroke="currentColor"
+								stroke-width="4"
+								fill="none"
+							></circle>
+							<path
+								class="opacity-75"
+								fill="currentColor"
+								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+							></path>
+						</svg>
+						{m.common_loading()}
+					{:else}
+						{m.campaign_generateAnalysis()}
+					{/if}
+				</button>
+			</div>
+
 			<div
-				class="mt-4 flex h-64 items-center justify-center rounded-2xl border-2 border-dashed border-slate-200 bg-white text-sm text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400"
+				class="mt-4 min-h-64 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
 			>
-				{m.campaign_reportsPlaceholder()}
+				{#if error}
+					<div
+						role="alert"
+						class="rounded-lg bg-rose-50 p-4 text-sm text-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
+					>
+						{error}
+					</div>
+				{:else if renderedReport}
+					<div class="prose prose-sm max-w-none dark:prose-invert">
+						{@html renderedReport}
+					</div>
+				{:else}
+					<div
+						class="flex h-full min-h-52 items-center justify-center text-sm text-slate-500 dark:text-slate-400"
+					>
+						{m.campaign_reportsPlaceholder()}
+					</div>
+				{/if}
 			</div>
 		</section>
 	</div>
