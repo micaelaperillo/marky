@@ -53,22 +53,22 @@ def aws_setup():
         ddb.create_table(
             TableName=TABLE,
             AttributeDefinitions=[
-                {"AttributeName": "Hash", "AttributeType": "S"},
-                {"AttributeName": "Sort", "AttributeType": "S"},
+                {"AttributeName": "PK", "AttributeType": "S"},
+                {"AttributeName": "SK", "AttributeType": "S"},
             ],
             KeySchema=[
-                {"AttributeName": "Hash", "KeyType": "HASH"},
-                {"AttributeName": "Sort", "KeyType": "RANGE"},
+                {"AttributeName": "PK", "KeyType": "HASH"},
+                {"AttributeName": "SK", "KeyType": "RANGE"},
             ],
             BillingMode="PAY_PER_REQUEST",
         )
         ddb.get_waiter("table_exists").wait(TableName=TABLE)
         table = boto3.resource("dynamodb", region_name="us-east-1").Table(TABLE)
         table.put_item(
-            Item={"Hash": "TASKS#2026-04-07", "Sort": "OpenAI GPT-5#2026-04-06"}
+            Item={"PK": "TASKS#2026-04-07", "SK": "OpenAI GPT-5#2026-04-06"}
         )
         table.put_item(
-            Item={"Hash": "TASKS#2026-04-07", "Sort": "Tesla robotaxi#2026-04-06"}
+            Item={"PK": "TASKS#2026-04-07", "SK": "Tesla robotaxi#2026-04-06"}
         )
         s3 = boto3.client("s3", region_name="us-east-1")
         s3.create_bucket(Bucket=BUCKET)

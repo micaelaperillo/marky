@@ -40,14 +40,14 @@ class Task(BaseModel):
     @classmethod
     def from_dynamo_item(cls, item: dict[str, Any]) -> "Task":
         try:
-            hash_value: str = item["Hash"]
-            sort_value: str = item["Sort"]
+            hash_value: str = item["PK"]
+            sort_value: str = item["SK"]
         except KeyError as e:
             raise ValueError(f"missing required attribute: {e.args[0]}") from None
 
         if not hash_value.startswith(cls.HASH_PREFIX):
             raise ValueError(
-                f"Hash does not start with {cls.HASH_PREFIX!r}: {hash_value!r}"
+                f"PK does not start with {cls.HASH_PREFIX!r}: {hash_value!r}"
             )
         task_date_str = hash_value[len(cls.HASH_PREFIX) :]
 
@@ -55,7 +55,7 @@ class Task(BaseModel):
         idx = sort_value.rfind("#")
         if idx == -1:
             raise ValueError(
-                f"Sort is not a composite '<Topic>#<SearchDate>': {sort_value!r}"
+                f"SK is not a composite '<Topic>#<SearchDate>': {sort_value!r}"
             )
         topic = sort_value[:idx]
         search_date_str = sort_value[idx + 1 :]
