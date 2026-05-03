@@ -1,5 +1,5 @@
-import adapter from '@sveltejs/adapter-node';
-import { relative, sep } from 'node:path';
+import { relative, sep } from "node:path";
+import adapter from "@sveltejs/adapter-static";
 
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
@@ -8,19 +8,20 @@ const config = {
 		runes: ({ filename }) => {
 			const relativePath = relative(import.meta.dirname, filename);
 			const pathSegments = relativePath.toLowerCase().split(sep);
-			const isExternalLibrary = pathSegments.includes('node_modules');
+			const isExternalLibrary = pathSegments.includes("node_modules");
 
 			return isExternalLibrary ? undefined : true;
-		}
+		},
 	},
 	kit: {
-		// adapter-auto only supports some environments, see https://svelte.dev/docs/kit/adapter-auto for a list.
-		// If your environment is not supported, or you settled on a specific environment, switch out the adapter.
-		// See https://svelte.dev/docs/kit/adapters for more information about adapters.
-		adapter: adapter(),
-		// Due to the lack of static domains and IPs in AWS, ignore all rational security measures :)
-		csrf: { checkOrigin: false }
-	}
+		adapter: adapter({
+			fallback: "index.html", // SPA mode — all routes serve index.html
+		}),
+		csrf: { checkOrigin: false },
+		paths: {
+			base: process.env.BASE_PATH || "", // Set to "/prod" for API GW deployment
+		},
+	},
 };
 
 export default config;

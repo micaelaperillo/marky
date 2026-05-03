@@ -1,5 +1,30 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { base } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+
+	let submitting = $state(false);
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		const form = e.currentTarget as HTMLFormElement;
+		const id = new FormData(form).get('id') as string;
+		if (!id) return;
+
+		submitting = true;
+		try {
+			const res = await fetch(`${base}/api/auth/login`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ id })
+			});
+			if (res.ok) {
+				goto(`${base}/list`);
+			}
+		} finally {
+			submitting = false;
+		}
+	}
 </script>
 
 <div class="relative isolate flex flex-1 items-center justify-center overflow-hidden px-6 py-16">
@@ -22,7 +47,7 @@
 			</h1>
 			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">{m.login_subtitle()}</p>
 
-			<form method="post" class="mt-6 space-y-4">
+			<form onsubmit={handleSubmit} class="mt-6 space-y-4">
 				<div>
 					<label for="id" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
 						{m.login_userIdLabel()}
@@ -38,7 +63,8 @@
 				</div>
 				<button
 					type="submit"
-					class="w-full rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+					disabled={submitting}
+					class="w-full rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 				>
 					{m.login_submit()}
 				</button>

@@ -1,5 +1,6 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
+	import { base, resolve } from '$app/paths';
 	import { formConfig } from '$lib/config';
 	import { m } from '$lib/paraglide/messages';
 
@@ -13,6 +14,8 @@
 	let topics = $state<string[]>([]);
 	let pending = $state('');
 	let errorState = $state<ErrorState>(null);
+	let apiError = $state('');
+	let submitting = $state(false);
 	// @ts-expect-error It just works
 	const errorMsg = $derived(errorState ? m[errorState.key](errorState.vars) : '');
 
@@ -72,6 +75,39 @@
 			pending = '';
 		}
 	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		flushPending();
+
+		const form = e.currentTarget as HTMLFormElement;
+		const fd = new FormData(form);
+		const campaign = fd.get('campaign') as string;
+		const start = fd.get('start') as string;
+		const end = fd.get('end') as string;
+
+		if (!campaign || !start || !end || topics.length === 0) return;
+
+		apiError = '';
+		submitting = true;
+		try {
+			const res = await fetch(`${base}/api/campaigns`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ campaign, start, end, topics })
+			});
+			if (res.ok) {
+				goto(`${base}/list`);
+			} else {
+				const body = await res.json().catch(() => ({ error: 'Unknown error' }));
+				apiError = body.error || 'Unknown error';
+			}
+		} catch {
+			apiError = 'Network error';
+		} finally {
+			submitting = false;
+		}
+	}
 </script>
 
 <div class="flex-1">
@@ -92,10 +128,17 @@
 		</header>
 
 		<form
-			method="post"
-			onsubmit={flushPending}
+			onsubmit={handleSubmit}
 			class="mt-8 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8 dark:border-slate-800 dark:bg-slate-900"
 		>
+			{#if apiError}
+				<div
+					class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300"
+				>
+					{apiError}
+				</div>
+			{/if}
+
 			<!-- Name -->
 			<div>
 				<label
@@ -131,11 +174,6 @@
 				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
 					{m.create_topicsHint({ max: MAX_TOPICS, minLen: MIN_LEN, maxLen: MAX_LEN })}
 				</p>
-
-				<!-- Hidden inputs to keep form action working unchanged -->
-				{#each topics as topic (topic)}
-					<input type="hidden" name="topic" value={topic} />
-				{/each}
 
 				<label
 					for="topic-input"
@@ -232,7 +270,8 @@
 				</a>
 				<button
 					type="submit"
-					class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+					disabled={submitting}
+					class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 				>
 					{m.create_submit()}
 				</button>

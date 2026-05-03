@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { m } from '$lib/paraglide/messages.js';
 
@@ -9,6 +9,13 @@
 		{ href: '/list', label: m.nav_campaigns, icon: 'grid' },
 		{ href: '/create', label: m.nav_newCampaign, icon: 'plus' }
 	] as const;
+
+	const isActive = (href: string) => {
+		const fullHref = `${base}${href}`;
+		return fullHref === `${base}/list`
+			? page.url.pathname === fullHref
+			: page.url.pathname.startsWith(fullHref);
+	};
 </script>
 
 <div class="flex flex-1">
@@ -18,12 +25,9 @@
 	>
 		<nav class="flex flex-col gap-1">
 			{#each nav as item (item.href)}
-				{@const active =
-					item.href === '/list'
-						? page.url.pathname === '/list'
-						: page.url.pathname.startsWith(item.href)}
+				{@const active = isActive(item.href)}
 				<a
-					href={item.href === '/list' ? resolve('/list') : resolve('/create')}
+					href={resolve(item.href)}
 					class="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none {active
 						? 'bg-brand-50 text-brand-700 dark:bg-brand-950/50 dark:text-brand-300'
 						: 'text-slate-600 hover:bg-slate-50 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-white'}"
