@@ -3,6 +3,7 @@ import z from "zod";
 const EnvSchema = z
 	.object({
 		AWS_REGION: z.string().default("us-east-1"),
+		BACKEND_URL: z.string().url().default("http://127.0.0.1:8000"),
 		COOKIE_SECRET: z.string().min(1),
 		DYNAMODB_TABLE: z.string().default("marky-data"),
 		LAMBDA_TASK_ROOT: z.string().optional(),
@@ -15,6 +16,7 @@ const EnvSchema = z
 			lambdaTask: env.LAMBDA_TASK_ROOT,
 			region: env.AWS_REGION,
 		},
+		backendUrl: env.BACKEND_URL,
 		dev: {
 			port: env.PORT,
 		},
