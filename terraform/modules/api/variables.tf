@@ -23,7 +23,12 @@ variable "backend_url" {
   description = "Internal ALB URL for the Python analysis backend."
 }
 
-variable "cookie_secret" {
-  type      = string
-  sensitive = true
+variable "cognito_user_pool_id" {
+  type        = string
+  description = "Cognito User Pool ID for JWT validation."
+}
+
+variable "cognito_client_id" {
+  type        = string
+  description = "Cognito App Client ID for JWT audience validation."
 }

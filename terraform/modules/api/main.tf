@@ -26,10 +26,11 @@ resource "aws_lambda_function" "api" {
 
   environment {
     variables = {
-      BACKEND_URL    = var.backend_url
-      COOKIE_SECRET  = var.cookie_secret
-      DYNAMODB_TABLE = "${var.project}-data"
-      NODE_ENV       = "production"
+      BACKEND_URL          = var.backend_url
+      COGNITO_USER_POOL_ID = var.cognito_user_pool_id
+      COGNITO_CLIENT_ID    = var.cognito_client_id
+      DYNAMODB_TABLE       = "${var.project}-data"
+      NODE_ENV             = "production"
     }
   }
 

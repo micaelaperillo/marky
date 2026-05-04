@@ -1,5 +1,6 @@
-suffix        = "yourname"  # Required. Unique per team member, max 13 chars.
-cookie_secret = "change-me"  # Required. Secret for signing session cookies.
+suffix = "yourname"  # Required. Unique per team member, max 13 chars.
+
+# Cognito User Pool is auto-provisioned by the auth module. No manual secrets needed.
 
 # Optional overrides:
 # region                    = "us-east-1"

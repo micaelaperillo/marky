@@ -47,6 +47,11 @@ module "compute" {
   iam_instance_profile_name = var.iam_instance_profile_name
 }
 
+module "auth" {
+  source  = "./modules/auth"
+  project = var.project
+}
+
 module "api" {
   source               = "./modules/api"
   project              = var.project
@@ -55,5 +60,6 @@ module "api" {
   lambda_subnet_ids    = module.networking.backend_subnet_ids
   lambda_sg_id         = module.security.lambda_sg_id
   backend_url          = "http://${module.compute.backend_alb_dns}"
-  cookie_secret        = var.cookie_secret
+  cognito_user_pool_id = module.auth.user_pool_id
+  cognito_client_id    = module.auth.user_pool_client_id
 }
