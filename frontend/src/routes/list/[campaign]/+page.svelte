@@ -1,9 +1,9 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
-	import { base } from '$app/paths';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
+	import { apiFetch } from '$lib/api';
 	import { m } from '$lib/paraglide/messages';
 	import { daysLeft as computeDaysLeft, fmt } from '$lib/utils/date';
 	import DOMPurify from 'dompurify';
@@ -11,7 +11,7 @@
 
 	let { data }: PageProps = $props();
 
-	const slug = $derived($page.params.campaign);
+	const slug = $derived(page.params.campaign);
 	const name = $derived(data.campaign?.name || 'Campaign');
 	const topics = $derived<string[]>(data.campaign?.topics ?? []);
 	const start = $derived(data.campaign?.start);
@@ -32,8 +32,8 @@
 		loading = true;
 		error = '';
 		try {
-			const res = await fetch(
-				`${base}/api/campaigns/${encodeURIComponent(slug)}/analyze`,
+			const res = await apiFetch(
+				`/api/campaigns/${encodeURIComponent(slug)}/analyze`,
 				{ method: 'POST' }
 			);
 			let body;

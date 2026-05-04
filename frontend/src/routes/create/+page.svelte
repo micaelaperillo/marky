@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { base, resolve } from '$app/paths';
+	import { apiFetch } from '$lib/api';
 	import TagInput from '$lib/components/TagInput.svelte';
 	import { formConfig } from '$lib/config';
 	import { m } from '$lib/paraglide/messages';
@@ -30,7 +31,7 @@
 		apiError = '';
 		submitting = true;
 		try {
-			const res = await fetch(`${base}/api/campaigns`, {
+			const res = await apiFetch('/api/campaigns', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ campaign, start, end, topics })
