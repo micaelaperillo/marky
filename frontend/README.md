@@ -1,42 +1,57 @@
-# sv
+# Marky Frontend
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
+SvelteKit SPA (adapter-static) with Svelte 5, Tailwind CSS, and Paraglide i18n.
 
-## Creating a project
+## Prerequisites
 
-If you're seeing this, you've probably already done this step. Congrats!
+- Node.js 20+
+- pnpm
+
+## Environment Variables
+
+The frontend uses Cognito for authentication. Environment variables are **inlined at build time** by Vite (`import.meta.env.VITE_*`), so they must be set before running `pnpm build`.
+
+Copy the example and fill in values from Terraform output:
 
 ```sh
-# create a new project
-npx sv create my-app
+cp .env.example .env
 ```
 
-To recreate this project with the same configuration:
+Or populate automatically after `terraform apply`:
 
 ```sh
-# recreate this project
-pnpm dlx sv@0.14.0 create --template minimal --types ts --add prettier eslint tailwindcss="plugins:none" sveltekit-adapter="adapter:auto" devtools-json --install pnpm frontend
+echo "VITE_COGNITO_USER_POOL_ID=$(terraform -chdir=../terraform output -raw cognito_user_pool_id)" > .env
+echo "VITE_COGNITO_CLIENT_ID=$(terraform -chdir=../terraform output -raw cognito_client_id)" >> .env
 ```
+
+| Variable | Description |
+|----------|-------------|
+| `VITE_COGNITO_USER_POOL_ID` | Cognito User Pool ID (e.g., `us-east-1_AbC123`) |
+| `VITE_COGNITO_CLIENT_ID` | Cognito App Client ID (public, no secret) |
+
+These are public identifiers (not secrets) — safe to bake into the static bundle.
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
 ```sh
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+pnpm install
+pnpm dev
 ```
+
+The Vite dev server proxies `/api` requests to `http://localhost:3001` (the Express API).
 
 ## Building
 
-To create a production version of your app:
-
 ```sh
-npm run build
+pnpm build
 ```
 
-You can preview the production build with `npm run preview`.
+Output is written to `build/`. Upload to S3 for deployment.
 
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.
+## Deploying to S3
+
+After building, sync the static files to the frontend S3 bucket:
+
+```sh
+aws s3 sync build/ s3://$(terraform -chdir=../terraform output -raw frontend_bucket_name) --delete
+```
