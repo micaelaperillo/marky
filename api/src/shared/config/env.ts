@@ -4,7 +4,8 @@ const EnvSchema = z
 	.object({
 		AWS_REGION: z.string().default("us-east-1"),
 		BACKEND_URL: z.string().url().default("http://127.0.0.1:8000"),
-		COOKIE_SECRET: z.string().min(1),
+		COGNITO_CLIENT_ID: z.string().min(1),
+		COGNITO_USER_POOL_ID: z.string().min(1),
 		DYNAMODB_TABLE: z.string().default("marky-data"),
 		LAMBDA_TASK_ROOT: z.string().optional(),
 		NODE_ENV: z.enum(["development", "production"]).default("development"),
@@ -17,11 +18,12 @@ const EnvSchema = z
 			region: env.AWS_REGION,
 		},
 		backendUrl: env.BACKEND_URL,
+		cognito: {
+			clientId: env.COGNITO_CLIENT_ID,
+			userPoolId: env.COGNITO_USER_POOL_ID,
+		},
 		dev: {
 			port: env.PORT,
-		},
-		express: {
-			cookieSecret: env.COOKIE_SECRET,
 		},
 		isProduction: env.NODE_ENV === "production",
 	}));
