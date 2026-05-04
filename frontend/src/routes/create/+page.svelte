@@ -1,9 +1,9 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { goto } from '$app/navigation';
+	import { base, resolve } from '$app/paths';
+	import TagInput from '$lib/components/TagInput.svelte';
 	import { formConfig } from '$lib/config';
 	import { m } from '$lib/paraglide/messages';
-
-	type ErrorState = { key: string; vars?: Record<string, string | number> } | null;
 
 	const { campaign: campaignCfg, topics: topicsCfg, range: rangeCfg } = formConfig;
 	const MAX_TOPICS = topicsCfg.max;
@@ -11,73 +11,54 @@
 	const MAX_LEN = topicsCfg.topic.maxLength;
 
 	let topics = $state<string[]>([]);
-	let pending = $state('');
-	let errorState = $state<ErrorState>(null);
-	// @ts-expect-error It just works
-	const errorMsg = $derived(errorState ? m[errorState.key](errorState.vars) : '');
+	let apiError = $state('');
+	let submitting = $state(false);
+	let tagInput!: TagInput;
 
-	function commit(raw: string) {
-		const value = raw.trim().slice(0, MAX_LEN);
-		if (!value) return;
-		if (value.length < MIN_LEN) {
-			errorState = {
-				key: 'create_errorMinLen',
-				vars: { minLen: MIN_LEN }
-			};
-			return;
-		}
-		if (topics.includes(value)) {
-			errorState = { key: 'create_errorDuplicate', vars: { topic: value } };
-			return;
-		}
-		if (topics.length >= MAX_TOPICS) {
-			errorState = { key: 'create_errorMax', vars: { max: MAX_TOPICS } };
-			return;
-		}
-		topics = [...topics, value];
-		errorState = null;
-	}
-
-	function onKeydown(e: KeyboardEvent) {
-		if (e.key === 'Enter' || e.key === ',') {
-			e.preventDefault();
-			commit(pending);
-			pending = '';
-		} else if (e.key === 'Backspace' && pending === '' && topics.length > 0) {
-			topics = topics.slice(0, -1);
-			errorState = null;
-		}
-	}
-
-	function onPaste(e: ClipboardEvent) {
-		const text = e.clipboardData?.getData('text') ?? '';
-		if (!text.includes(',') && !text.includes('\n')) return;
+	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
-		text
-			.split(/[,\n]/)
-			.map((s) => s.trim())
-			.filter(Boolean)
-			.forEach(commit);
-		pending = '';
-	}
+		tagInput.flush();
 
-	function remove(i: number) {
-		topics = topics.filter((_, idx) => idx !== i);
-		errorState = null;
-	}
+		const form = e.currentTarget as HTMLFormElement;
+		const fd = new FormData(form);
+		const campaign = fd.get('campaign') as string;
+		const start = fd.get('start') as string;
+		const end = fd.get('end') as string;
 
-	function flushPending() {
-		if (pending.trim()) {
-			commit(pending);
-			pending = '';
+		if (!campaign || !start || !end || topics.length === 0) return;
+
+		apiError = '';
+		submitting = true;
+		try {
+			const res = await fetch(`${base}/api/campaigns`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ campaign, start, end, topics })
+			});
+			if (res.ok) {
+				goto(`${base}/list`);
+			} else {
+				const body = await res.json().catch(() => ({ error: m.create_errorUnknown() }));
+				apiError = body.error || m.create_errorUnknown();
+			}
+		} catch {
+			apiError = m.create_errorNetwork();
+		} finally {
+			submitting = false;
 		}
 	}
 </script>
 
 <div class="flex-1">
 	<div class="mx-auto max-w-3xl px-6 py-10 sm:py-14">
-		<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-			<a href={resolve('/list')} class="hover:text-slate-900 dark:hover:text-white">
+		<nav
+			aria-label="Breadcrumb"
+			class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"
+		>
+			<a
+				href={resolve('/list')}
+				class="-mx-1 rounded px-1 py-2 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:hover:text-white"
+			>
 				{m.create_breadcrumbCampaigns()}
 			</a>
 			<span>/</span>
@@ -92,10 +73,19 @@
 		</header>
 
 		<form
-			method="post"
-			onsubmit={flushPending}
+			onsubmit={handleSubmit}
 			class="mt-8 space-y-6 rounded-2xl border border-slate-200 bg-white p-6 shadow-xs sm:p-8 dark:border-slate-800 dark:bg-slate-900"
 		>
+			{#if apiError}
+				<div
+					role="alert"
+					aria-live="assertive"
+					class="rounded-lg border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700 dark:border-rose-900/50 dark:bg-rose-950/30 dark:text-rose-300"
+				>
+					{apiError}
+				</div>
+			{/if}
+
 			<!-- Name -->
 			<div>
 				<label
@@ -104,7 +94,7 @@
 				>
 					{m.create_nameLabel()}
 				</label>
-				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+				<p id="campaign-hint" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
 					{m.create_nameHint({ max: campaignCfg.maxLength })}
 				</p>
 				<input
@@ -112,6 +102,8 @@
 					name="campaign"
 					id="campaign"
 					required
+					aria-required="true"
+					aria-describedby="campaign-hint"
 					minlength={campaignCfg.minLength}
 					maxlength={campaignCfg.maxLength}
 					pattern={campaignCfg.patternHtml}
@@ -128,65 +120,18 @@
 				>
 					{m.create_topicsLabel()}
 				</label>
-				<p class="mt-1 text-xs text-slate-500 dark:text-slate-400">
+				<p id="topics-hint" class="mt-1 text-xs text-slate-500 dark:text-slate-400">
 					{m.create_topicsHint({ max: MAX_TOPICS, minLen: MIN_LEN, maxLen: MAX_LEN })}
 				</p>
 
-				<!-- Hidden inputs to keep form action working unchanged -->
-				{#each topics as topic (topic)}
-					<input type="hidden" name="topic" value={topic} />
-				{/each}
-
-				<label
-					for="topic-input"
-					class="mt-2 flex w-full cursor-text flex-wrap items-center gap-1.5 rounded-lg border border-slate-300 bg-white px-2 py-2 text-left shadow-xs transition focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-500/20 dark:border-slate-700 dark:bg-slate-950"
-				>
-					{#each topics as topic, i (topic)}
-						<span
-							class="group inline-flex items-center gap-1 rounded-md bg-brand-50 py-1 pr-1 pl-2 text-xs font-semibold text-brand-700 ring-1 ring-brand-200 ring-inset dark:bg-brand-950/50 dark:text-brand-300 dark:ring-brand-900"
-						>
-							{topic}
-							<button
-								type="button"
-								onclick={(e) => {
-									e.stopPropagation();
-									remove(i);
-								}}
-								aria-label={m.create_removeTopic({ topic })}
-								class="flex h-4 w-4 items-center justify-center rounded text-brand-500 transition hover:bg-brand-200 hover:text-brand-800 dark:text-brand-400 dark:hover:bg-brand-900 dark:hover:text-brand-100"
-							>
-								<svg class="h-3 w-3" viewBox="0 0 20 20" fill="currentColor">
-									<path
-										fill-rule="evenodd"
-										d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
-										clip-rule="evenodd"
-									/>
-								</svg>
-							</button>
-						</span>
-					{/each}
-					<input
-						bind:value={pending}
-						onkeydown={onKeydown}
-						onpaste={onPaste}
-						onblur={flushPending}
-						id="topic-input"
-						type="text"
-						maxlength={MAX_LEN}
-						placeholder={topics.length === 0 ? m.create_topicPlaceholder() : ''}
-						required={topics.length === 0}
-						class="min-w-32 flex-1 border-0 bg-transparent px-1.5 py-0.5 text-sm text-slate-900 placeholder:text-slate-400 focus:ring-0 focus:outline-none dark:text-slate-100 dark:placeholder:text-slate-500"
-					/>
-				</label>
-
-				<div class="mt-1.5 flex items-center justify-between text-xs">
-					<span role="alert" aria-live="polite" class="text-rose-600 dark:text-rose-400">
-						{errorMsg}
-					</span>
-					<span class="text-slate-400 dark:text-slate-500">
-						{m.create_topicCounter({ count: topics.length, max: MAX_TOPICS })}
-					</span>
-				</div>
+				<TagInput
+					bind:topics
+					maxTopics={MAX_TOPICS}
+					minLength={MIN_LEN}
+					maxLength={MAX_LEN}
+					hintId="topics-hint"
+					bind:this={tagInput}
+				/>
 			</div>
 
 			<!-- Dates -->
@@ -226,15 +171,16 @@
 			>
 				<a
 					href={resolve('/list')}
-					class="rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
+					class="rounded-lg px-4 py-3 text-sm font-semibold text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-white"
 				>
 					{m.common_cancel()}
 				</a>
 				<button
 					type="submit"
-					class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
+					disabled={submitting}
+					class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none disabled:opacity-50 dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 				>
-					{m.create_submit()}
+					{submitting ? m.create_submitting() : m.create_submit()}
 				</button>
 			</div>
 		</form>

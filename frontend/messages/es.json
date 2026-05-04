@@ -34,6 +34,8 @@
 			}
 		}
 	],
+	"create_errorNetwork": "Error de red — revisá tu conexión.",
+	"create_errorUnknown": "Algo salió mal. Probá de nuevo.",
 	"create_intervalHint": [
 		{
 			"match": {
@@ -47,6 +49,7 @@
 	"create_removeTopic": "Sacar {topic}",
 	"create_startLabel": "Desde",
 	"create_submit": "Crear campaña",
+	"create_submitting": "Creando...",
 	"create_subtitle": "Ponele un nombre, cargá los temas que querés seguir y elegí el rango de fechas.",
 	"create_title": "Armar una campaña",
 	"create_topicCounter": "{count} / {max}",
@@ -125,8 +128,11 @@
 			}
 		}
 	],
+	"login_errorNetwork": "Error de red — revisá tu conexión.",
+	"login_errorUnknown": "No se pudo ingresar. Probá de nuevo.",
 	"login_footer": "Al ingresar te comprometés a usar esta data con cabeza.",
 	"login_submit": "Ingresar",
+	"login_submitting": "Ingresando...",
 	"login_subtitle": "Metete con tu ID de usuario y arrancamos.",
 	"login_title": "¡Qué bueno verte de nuevo!",
 	"login_userIdLabel": "ID de usuario",

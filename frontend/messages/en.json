@@ -34,6 +34,8 @@
 			}
 		}
 	],
+	"create_errorNetwork": "Network error — please check your connection.",
+	"create_errorUnknown": "Something went wrong. Please try again.",
 	"create_intervalHint": [
 		{
 			"match": {
@@ -47,6 +49,7 @@
 	"create_removeTopic": "Remove {topic}",
 	"create_startLabel": "Start date",
 	"create_submit": "Create campaign",
+	"create_submitting": "Creating...",
 	"create_subtitle": "Pick a name, list the topics you want to track, and set the date range.",
 	"create_title": "Create a campaign",
 	"create_topicCounter": "{count} / {max}",
@@ -125,8 +128,11 @@
 			}
 		}
 	],
+	"login_errorNetwork": "Network error — please check your connection.",
+	"login_errorUnknown": "Login failed. Please try again.",
 	"login_footer": "By signing in you agree to track sentiment responsibly.",
 	"login_submit": "Sign in",
+	"login_submitting": "Signing in...",
 	"login_subtitle": "Sign in with your user ID to continue.",
 	"login_title": "Welcome back",
 	"login_userIdLabel": "User ID",
