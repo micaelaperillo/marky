@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "express": "^5.2.1",
+    "serverless-http": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "^8.10.161",
+    "@types/express": "^5.0.6",
+    "esbuild": "^0.28.0",
+    "tsx": "^4.22.2"
+  },
+  "scripts": {
+    "dev": "tsx watch src/local.ts",
+    "build": "esbuild --bundle --outfile=./dist/handler.js --platform=node --target=node20 ./src/handler.ts",
+    "start": "node dist/handler.js"
+  }
+}
