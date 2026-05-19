@@ -94,3 +94,18 @@ resource "aws_s3_bucket_ownership_controls" "posts" {
     object_ownership = "BucketOwnerEnforced"
   }
 }
+
+resource "aws_s3_bucket_lifecycle_configuration" "posts" {
+  bucket = aws_s3_bucket.posts.id
+
+  rule {
+    id     = "expire-noncurrent-versions"
+    status = "Enabled"
+
+    filter {}
+
+    noncurrent_version_expiration {
+      noncurrent_days = 30
+    }
+  }
+}
