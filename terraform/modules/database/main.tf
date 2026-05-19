@@ -37,8 +37,10 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "main" {
   identifier     = "${var.project}-db"
   engine         = "postgres"
-  engine_version = "16"
-  instance_class = var.db_instance_class
+  engine_version             = "16"
+  auto_minor_version_upgrade = false
+  instance_class             = var.db_instance_class
+  parameter_group_name       = aws_db_parameter_group.main.name
 
   allocated_storage = 20
   storage_type      = "gp3"
@@ -60,9 +62,48 @@ resource "aws_db_instance" "main" {
   backup_window           = "03:00-04:00"
   maintenance_window      = "sun:04:30-sun:05:30"
 
+  performance_insights_enabled          = true
+  performance_insights_retention_period = 7
+
   tags = {
     Name = "${var.project}-db"
   }
+
+  lifecycle {
+    ignore_changes = [engine_version]
+  }
+}
+
+resource "aws_db_parameter_group" "main" {
+  name   = "${var.project}-db-params"
+  family = "postgres16"
+
+  parameter {
+    name  = "log_connections"
+    value = "1"
+  }
+
+  parameter {
+    name  = "log_disconnections"
+    value = "1"
+  }
+
+  parameter {
+    name  = "log_statement"
+    value = "ddl"
+  }
+
+  parameter {
+    name  = "log_min_duration_statement"
+    value = "5000"
+  }
+
+  parameter {
+    name  = "statement_timeout"
+    value = "10000"
+  }
+
+  tags = { Name = "${var.project}-db-params" }
 }
 
 resource "aws_db_proxy" "main" {
