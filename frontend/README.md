@@ -24,10 +24,10 @@ echo "VITE_COGNITO_USER_POOL_ID=$(terraform -chdir=../terraform output -raw cogn
 echo "VITE_COGNITO_CLIENT_ID=$(terraform -chdir=../terraform output -raw cognito_client_id)" >> .env
 ```
 
-| Variable | Description |
-|----------|-------------|
+| Variable                    | Description                                     |
+| --------------------------- | ----------------------------------------------- |
 | `VITE_COGNITO_USER_POOL_ID` | Cognito User Pool ID (e.g., `us-east-1_AbC123`) |
-| `VITE_COGNITO_CLIENT_ID` | Cognito App Client ID (public, no secret) |
+| `VITE_COGNITO_CLIENT_ID`    | Cognito App Client ID (public, no secret)       |
 
 These are public identifiers (not secrets) — safe to bake into the static bundle.
 

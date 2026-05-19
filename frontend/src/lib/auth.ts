@@ -2,12 +2,12 @@ import {
 	AuthenticationDetails,
 	CognitoUser,
 	CognitoUserPool,
-	type CognitoUserSession,
-} from "amazon-cognito-identity-js";
+	type CognitoUserSession
+} from 'amazon-cognito-identity-js';
 
 const poolData = {
 	ClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
-	UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
+	UserPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID
 };
 
 const userPool = new CognitoUserPool(poolData);
@@ -35,21 +35,18 @@ export function confirmSignUp(email: string, code: string): Promise<void> {
 	});
 }
 
-export function signIn(
-	email: string,
-	password: string,
-): Promise<CognitoUserSession> {
+export function signIn(email: string, password: string): Promise<CognitoUserSession> {
 	const user = getCognitoUser(email);
 	const authDetails = new AuthenticationDetails({
 		Password: password,
-		Username: email,
+		Username: email
 	});
 
 	return new Promise((resolve, reject) => {
 		user.authenticateUser(authDetails, {
-			newPasswordRequired: () => reject(new Error("Password change required")),
+			newPasswordRequired: () => reject(new Error('Password change required')),
 			onFailure: (err) => reject(err),
-			onSuccess: (session) => resolve(session),
+			onSuccess: (session) => resolve(session)
 		});
 	});
 }
@@ -93,7 +90,7 @@ export function forgotPassword(email: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		user.forgotPassword({
 			onFailure: (err) => reject(err),
-			onSuccess: () => resolve(),
+			onSuccess: () => resolve()
 		});
 	});
 }
@@ -101,13 +98,13 @@ export function forgotPassword(email: string): Promise<void> {
 export function confirmForgotPassword(
 	email: string,
 	code: string,
-	newPassword: string,
+	newPassword: string
 ): Promise<void> {
 	const user = getCognitoUser(email);
 	return new Promise((resolve, reject) => {
 		user.confirmPassword(code, newPassword, {
 			onFailure: (err) => reject(err),
-			onSuccess: () => resolve(),
+			onSuccess: () => resolve()
 		});
 	});
 }

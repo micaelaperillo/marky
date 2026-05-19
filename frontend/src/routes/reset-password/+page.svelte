@@ -95,7 +95,10 @@
 			{#if step === 'request'}
 				<form onsubmit={handleRequest} class="mt-6 space-y-4">
 					<div>
-						<label for="reset-email" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="reset-email"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.reset_emailLabel()}
 						</label>
 						<input
@@ -114,14 +117,20 @@
 					>
 						{submitting ? m.reset_emailSubmitting() : m.reset_emailSubmit()}
 					</button>
-					<a href="{base}/login" class="block text-center text-sm text-brand-600 hover:underline dark:text-brand-400">
+					<a
+						href="{base}/login"
+						class="block text-center text-sm text-brand-600 hover:underline dark:text-brand-400"
+					>
 						{m.login_switchToSignin()}
 					</a>
 				</form>
 			{:else}
 				<form onsubmit={handleConfirm} class="mt-6 space-y-4">
 					<div>
-						<label for="reset-code" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="reset-code"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.reset_codeLabel()}
 						</label>
 						<input
@@ -134,7 +143,10 @@
 						/>
 					</div>
 					<div>
-						<label for="new-password" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="new-password"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.reset_newPasswordLabel()}
 						</label>
 						<input
@@ -148,7 +160,10 @@
 						/>
 					</div>
 					<div>
-						<label for="confirm-new-password" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="confirm-new-password"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.reset_confirmPasswordLabel()}
 						</label>
 						<input

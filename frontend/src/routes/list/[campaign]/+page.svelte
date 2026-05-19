@@ -32,10 +32,9 @@
 		loading = true;
 		error = '';
 		try {
-			const res = await apiFetch(
-				`/api/campaigns/${encodeURIComponent(slug)}/analyze`,
-				{ method: 'POST' }
-			);
+			const res = await apiFetch(`/api/campaigns/${encodeURIComponent(slug)}/analyze`, {
+				method: 'POST'
+			});
 			let body;
 			try {
 				body = await res.json();
@@ -200,7 +199,7 @@
 						{error}
 					</div>
 				{:else if renderedReport}
-					<div class="prose prose-sm max-w-none dark:prose-invert">
+					<div class="prose prose-sm dark:prose-invert max-w-none">
 						{@html renderedReport}
 					</div>
 				{:else}

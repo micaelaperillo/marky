@@ -18,7 +18,7 @@
 	},
 	"name": "marky-api",
 	"scripts": {
-		"build": "esbuild src/index.ts --bundle --minify --platform=node --target=node20 --outfile=dist/index.js --format=cjs --external:@aws-sdk/client-dynamodb --alias:@shared=./src/shared --alias:@domains=./src/domains",
+		"build": "node build.js",
 		"dev": "tsx watch --require tsconfig-paths/register src/app.ts",
 		"lint": "biome check src --fix",
 		"start": "node dist/index.js"

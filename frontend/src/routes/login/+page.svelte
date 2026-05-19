@@ -102,7 +102,11 @@
 			class="rounded-2xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-900/5 dark:border-slate-800 dark:bg-slate-900 dark:shadow-black/30"
 		>
 			<h1 class="text-2xl font-black tracking-tight text-slate-900 dark:text-white">
-				{mode === 'signup' ? m.login_signupTitle() : mode === 'confirm' ? m.login_confirmTitle() : m.login_title()}
+				{mode === 'signup'
+					? m.login_signupTitle()
+					: mode === 'confirm'
+						? m.login_confirmTitle()
+						: m.login_title()}
 			</h1>
 			<p class="mt-1 text-sm text-slate-600 dark:text-slate-400">
 				{mode === 'confirm' ? m.login_confirmSubtitle() : m.login_subtitle()}
@@ -130,7 +134,10 @@
 			{#if mode === 'signin'}
 				<form onsubmit={handleSignIn} class="mt-6 space-y-4">
 					<div>
-						<label for="email" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="email"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_emailLabel()}
 						</label>
 						<input
@@ -143,7 +150,10 @@
 						/>
 					</div>
 					<div>
-						<label for="password" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="password"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_passwordLabel()}
 						</label>
 						<input
@@ -163,10 +173,21 @@
 						{submitting ? m.login_submitting() : m.login_submit()}
 					</button>
 					<div class="flex items-center justify-between text-sm">
-						<button type="button" onclick={() => { mode = 'signup'; errorMsg = ''; successMsg = ''; }} class="text-brand-600 hover:underline dark:text-brand-400">
+						<button
+							type="button"
+							onclick={() => {
+								mode = 'signup';
+								errorMsg = '';
+								successMsg = '';
+							}}
+							class="text-brand-600 hover:underline dark:text-brand-400"
+						>
 							{m.login_switchToSignup()}
 						</button>
-						<a href="{base}/reset-password" class="text-slate-500 hover:underline dark:text-slate-400">
+						<a
+							href="{base}/reset-password"
+							class="text-slate-500 hover:underline dark:text-slate-400"
+						>
 							{m.login_forgotPassword()}
 						</a>
 					</div>
@@ -174,7 +195,10 @@
 			{:else if mode === 'signup'}
 				<form onsubmit={handleSignUp} class="mt-6 space-y-4">
 					<div>
-						<label for="signup-email" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="signup-email"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_emailLabel()}
 						</label>
 						<input
@@ -187,7 +211,10 @@
 						/>
 					</div>
 					<div>
-						<label for="signup-password" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="signup-password"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_passwordLabel()}
 						</label>
 						<input
@@ -201,7 +228,10 @@
 						/>
 					</div>
 					<div>
-						<label for="signup-confirm" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="signup-confirm"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_confirmPasswordLabel()}
 						</label>
 						<input
@@ -221,14 +251,24 @@
 					>
 						{submitting ? m.login_signupSubmitting() : m.login_signupSubmit()}
 					</button>
-					<button type="button" onclick={() => { mode = 'signin'; errorMsg = ''; }} class="w-full text-center text-sm text-brand-600 hover:underline dark:text-brand-400">
+					<button
+						type="button"
+						onclick={() => {
+							mode = 'signin';
+							errorMsg = '';
+						}}
+						class="w-full text-center text-sm text-brand-600 hover:underline dark:text-brand-400"
+					>
 						{m.login_switchToSignin()}
 					</button>
 				</form>
 			{:else}
 				<form onsubmit={handleConfirm} class="mt-6 space-y-4">
 					<div>
-						<label for="confirm-code" class="block text-sm font-semibold text-slate-900 dark:text-slate-100">
+						<label
+							for="confirm-code"
+							class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+						>
 							{m.login_confirmCodeLabel()}
 						</label>
 						<input
