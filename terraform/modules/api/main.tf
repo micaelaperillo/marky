@@ -170,8 +170,9 @@ resource "aws_lambda_permission" "reports" {
 # ============================================================
 
 resource "aws_api_gateway_rest_api" "main" {
-  name               = "${var.project}-api"
-  binary_media_types = ["image/*", "font/*", "application/wasm", "application/octet-stream"]
+  name                     = "${var.project}-api"
+  binary_media_types       = ["image/*", "font/*", "application/wasm", "application/octet-stream"]
+  minimum_compression_size = 1024
 
   endpoint_configuration {
     types = ["REGIONAL"]
@@ -208,7 +209,8 @@ resource "aws_api_gateway_method_response" "root_get_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = true
+    "method.response.header.Content-Type"  = true
+    "method.response.header.Cache-Control" = true
   }
 }
 
@@ -219,7 +221,8 @@ resource "aws_api_gateway_integration_response" "root_get_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+    "method.response.header.Content-Type"  = "integration.response.header.Content-Type"
+    "method.response.header.Cache-Control" = "'no-cache'"
   }
 
   depends_on = [aws_api_gateway_integration.root_get_s3]
@@ -304,7 +307,8 @@ resource "aws_api_gateway_method_response" "static_get_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = true
+    "method.response.header.Content-Type"  = true
+    "method.response.header.Cache-Control" = true
   }
 }
 
@@ -315,7 +319,8 @@ resource "aws_api_gateway_integration_response" "static_get_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+    "method.response.header.Content-Type"  = "integration.response.header.Content-Type"
+    "method.response.header.Cache-Control" = "'public, max-age=86400'"
   }
 
   depends_on = [aws_api_gateway_integration.static_get_s3]
@@ -400,7 +405,8 @@ resource "aws_api_gateway_method_response" "app_assets_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = true
+    "method.response.header.Content-Type"  = true
+    "method.response.header.Cache-Control" = true
   }
 }
 
@@ -411,7 +417,8 @@ resource "aws_api_gateway_integration_response" "app_assets_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = "integration.response.header.Content-Type"
+    "method.response.header.Content-Type"  = "integration.response.header.Content-Type"
+    "method.response.header.Cache-Control" = "'public, max-age=31536000, immutable'"
   }
 
   depends_on = [aws_api_gateway_integration.app_assets_s3]
@@ -481,7 +488,8 @@ resource "aws_api_gateway_method_response" "spa_fallback_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = true
+    "method.response.header.Content-Type"  = true
+    "method.response.header.Cache-Control" = true
   }
 }
 
@@ -492,7 +500,8 @@ resource "aws_api_gateway_integration_response" "spa_fallback_200" {
   status_code = "200"
 
   response_parameters = {
-    "method.response.header.Content-Type" = "'text/html'"
+    "method.response.header.Content-Type"  = "'text/html'"
+    "method.response.header.Cache-Control" = "'no-cache'"
   }
 
   depends_on = [aws_api_gateway_integration.spa_fallback_s3]
@@ -734,6 +743,9 @@ resource "aws_api_gateway_deployment" "main" {
       aws_api_gateway_method_response.spa_fallback_404,
       aws_api_gateway_integration_response.spa_fallback_200,
       aws_api_gateway_integration_response.spa_fallback_4xx,
+      # Gateway-level error responses
+      aws_api_gateway_gateway_response.default_4xx,
+      aws_api_gateway_gateway_response.default_5xx,
     ]))
   }
 
@@ -787,9 +799,23 @@ resource "aws_api_gateway_stage" "prod" {
 
 resource "aws_api_gateway_account" "main" {
   cloudwatch_role_arn = var.lab_role_arn
+}
 
-  lifecycle {
-    prevent_destroy = true
+resource "aws_api_gateway_gateway_response" "default_4xx" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  response_type = "DEFAULT_4XX"
+
+  response_templates = {
+    "application/json" = "{\"error\": \"Client error\"}"
+  }
+}
+
+resource "aws_api_gateway_gateway_response" "default_5xx" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  response_type = "DEFAULT_5XX"
+
+  response_templates = {
+    "application/json" = "{\"error\": \"Internal server error\"}"
   }
 }
 
