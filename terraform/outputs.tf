@@ -26,6 +26,7 @@ output "dynamodb_reports_table" {
 output "rds_proxy_endpoint" {
   description = "RDS Proxy endpoint"
   value       = module.database.rds_proxy_endpoint
+  sensitive   = true
 }
 
 output "cognito_user_pool_id" {
@@ -61,4 +62,5 @@ output "schedule_group_name" {
 output "gemini_secret_arn" {
   description = "Secrets Manager ARN for Gemini API key (set value manually)"
   value       = module.pipeline.gemini_secret_arn
+  sensitive   = true
 }
