@@ -2,8 +2,6 @@ import express from "express";
 
 import { errorMiddleware } from "@shared/express/errors";
 import { authenticated } from "@shared/service/cognito";
-import { ReportSchema } from "./report.validation";
-import * as validate from "@shared/express/validate";
 import { DynamoReportRepository } from "./repository";
 
 const repo = new DynamoReportRepository();
