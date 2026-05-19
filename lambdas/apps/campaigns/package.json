@@ -23,6 +23,7 @@
     "dependencies": {
         "express": "^5.2.1",
         "serverless-http": "^4.0.0",
-        "shared": "workspace:*"
+        "shared": "workspace:*",
+        "zod": "^4.4.3"
     }
 }

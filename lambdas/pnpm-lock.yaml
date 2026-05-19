@@ -41,6 +41,9 @@ importers:
       shared:
         specifier: workspace:*
         version: link:../shared
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -102,6 +105,9 @@ importers:
       shared:
         specifier: workspace:*
         version: link:../shared
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -133,6 +139,9 @@ importers:
       shared:
         specifier: workspace:*
         version: link:../shared
+      zod:
+        specifier: ^4.4.3
+        version: 4.4.3
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
