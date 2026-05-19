@@ -1,16 +1,8 @@
 // src/campaigns/repositories/rds-campaign.repository.ts
-import { Pool } from "pg";
+import { postgresPool as postgresClient} from "@shared/database/postgresproxy.client.js";
 import type { Campaign } from "./campaign.types.js";
 import type { ICampaignRepository, SaveCampaignInput } from "./interfaces/campaign.repository.js";
 
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT ?? 5432),
-  database: process.env.DB_NAME,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASSWORD,
-  max: 1, // importante en Lambda
-});
 
 type CampaignRow = {
   id: string;
@@ -23,7 +15,7 @@ type CampaignRow = {
 
 export class RdsCampaignRepository implements ICampaignRepository {
   async findAll(userId: string): Promise<Campaign[]> {
-    const result = await pool.query<CampaignRow>(
+    const result = await postgresClient.query<CampaignRow>(
       `
       SELECT id, user_sub, name, start_date, end_date, topics
       FROM campaigns
@@ -37,7 +29,7 @@ export class RdsCampaignRepository implements ICampaignRepository {
   }
 
   async findOne(userId: string, name: string): Promise<Campaign | null> {
-    const result = await pool.query<CampaignRow>(
+    const result = await postgresClient.query<CampaignRow>(
       `
       SELECT id, user_sub, name, start_date, end_date, topics
       FROM campaigns
@@ -53,7 +45,7 @@ export class RdsCampaignRepository implements ICampaignRepository {
   }
 
   async save(input: SaveCampaignInput): Promise<void> {
-    await pool.query(
+    await postgresClient.query(
       `
       INSERT INTO campaigns (
         user_sub,
