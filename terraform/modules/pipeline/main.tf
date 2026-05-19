@@ -52,6 +52,7 @@ resource "aws_sqs_queue" "reports_dlq" {
 resource "aws_sqs_queue" "campaign_events" {
   name                       = "${var.project}-campaign-events"
   visibility_timeout_seconds = 360
+  message_retention_seconds  = 1209600
   sqs_managed_sse_enabled    = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.campaign_events_dlq.arn
@@ -67,6 +68,7 @@ resource "aws_sqs_queue" "campaign_topics" {
   deduplication_scope         = "messageGroup"
   fifo_throughput_limit       = "perMessageGroupId"
   visibility_timeout_seconds  = 720
+  message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.campaign_topics_dlq.arn
@@ -80,6 +82,7 @@ resource "aws_sqs_queue" "posts_to_s3" {
   fifo_queue                  = true
   content_based_deduplication = true
   visibility_timeout_seconds  = 360
+  message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.posts_to_s3_dlq.arn
@@ -93,6 +96,7 @@ resource "aws_sqs_queue" "posts_to_analyze" {
   fifo_queue                  = true
   content_based_deduplication = true
   visibility_timeout_seconds  = 1800
+  message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.posts_to_analyze_dlq.arn
@@ -106,6 +110,7 @@ resource "aws_sqs_queue" "reports" {
   fifo_queue                  = true
   content_based_deduplication = true
   visibility_timeout_seconds  = 360
+  message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.reports_dlq.arn
