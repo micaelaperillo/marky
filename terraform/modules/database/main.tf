@@ -2,6 +2,10 @@ resource "random_password" "rds_master" {
   length           = 32
   special          = true
   override_special = "!#$%&*-_=+?"
+
+  lifecycle {
+    ignore_changes = all
+  }
 }
 
 resource "aws_secretsmanager_secret" "rds_credentials" {
@@ -17,7 +21,7 @@ resource "aws_secretsmanager_secret_version" "rds_credentials" {
     dbname   = var.db_name
     engine   = "postgres"
     port     = 5432
-    host     = aws_db_instance.main.address
+    host     = aws_db_proxy.main.endpoint
   })
 }
 
@@ -69,7 +73,7 @@ resource "aws_db_proxy" "main" {
 
   auth {
     auth_scheme = "SECRETS"
-    iam_auth    = "REQUIRED"
+    iam_auth    = "DISABLED"
     secret_arn  = aws_secretsmanager_secret.rds_credentials.arn
   }
 
