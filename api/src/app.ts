@@ -2,8 +2,6 @@ import { ExpressAuthController } from "@domains/auth/auth.controller.express.js"
 import { ExpressCampaignController } from "@domains/campaigns/campaign.controller.express.js";
 import { CampaignService } from "@domains/campaigns/campaign.service.js";
 import { DynamoCampaignRepository } from "@domains/campaigns/dynamo.repository.js";
-import { DynamoTaskRepository } from "@domains/tasks/dynamo.repository.js";
-import { TaskService } from "@domains/tasks/task.service.js";
 import { env } from "@shared/config/env.js";
 import { logger } from "@shared/logger.js";
 import { errorMiddleware } from "@shared/middleware/error.js";
@@ -20,10 +18,8 @@ app.use(express.json());
 
 const authController = new ExpressAuthController();
 
-const taskRepo = new DynamoTaskRepository();
-const taskService = new TaskService(taskRepo);
 const campaignRepo = new DynamoCampaignRepository();
-const campaignService = new CampaignService(campaignRepo, taskService);
+const campaignService = new CampaignService(campaignRepo);
 const campaignController = new ExpressCampaignController(campaignService);
 
 app.use("/api/auth", authController.router);
