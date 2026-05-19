@@ -118,6 +118,15 @@ resource "aws_vpc_security_group_ingress_rule" "endpoint_from_lambda" {
   referenced_security_group_id = aws_security_group.lambda.id
 }
 
+resource "aws_vpc_security_group_ingress_rule" "endpoint_from_rds" {
+  security_group_id            = aws_security_group.endpoint.id
+  description                  = "HTTPS from RDS Proxy (Secrets Manager credential retrieval)"
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.rds.id
+}
+
 # --- VPC Gateway Endpoints (free) ---
 
 resource "aws_vpc_endpoint" "s3" {
@@ -153,7 +162,7 @@ resource "aws_vpc_endpoint" "sqs" {
   service_name        = "com.amazonaws.${var.region}.sqs"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id, aws_subnet.this["backend-az2"].id]
+  subnet_ids          = [aws_subnet.this["backend-az1"].id]
   security_group_ids  = [aws_security_group.endpoint.id]
   tags                = { Name = "${var.project}-sqs-endpoint" }
 }
@@ -163,7 +172,7 @@ resource "aws_vpc_endpoint" "secretsmanager" {
   service_name        = "com.amazonaws.${var.region}.secretsmanager"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id, aws_subnet.this["backend-az2"].id]
+  subnet_ids          = [aws_subnet.this["backend-az1"].id]
   security_group_ids  = [aws_security_group.endpoint.id]
   tags                = { Name = "${var.project}-secretsmanager-endpoint" }
 }
@@ -173,17 +182,7 @@ resource "aws_vpc_endpoint" "logs" {
   service_name        = "com.amazonaws.${var.region}.logs"
   vpc_endpoint_type   = "Interface"
   private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id, aws_subnet.this["backend-az2"].id]
+  subnet_ids          = [aws_subnet.this["backend-az1"].id]
   security_group_ids  = [aws_security_group.endpoint.id]
   tags                = { Name = "${var.project}-logs-endpoint" }
-}
-
-resource "aws_vpc_endpoint" "sts" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.region}.sts"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id, aws_subnet.this["backend-az2"].id]
-  security_group_ids  = [aws_security_group.endpoint.id]
-  tags                = { Name = "${var.project}-sts-endpoint" }
 }
