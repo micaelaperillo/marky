@@ -7,6 +7,7 @@ export default /** @type {const} */ ({
     platform: "node",
     target: "node24",
     tsconfig: "./tsconfig.json",
+    external: /** @type {string[]} */ (['@aws-sdk/client-dynamodb']),
     alias: {
         "@shared": "shared/src",
     }
