@@ -31,6 +31,10 @@ importers:
         version: 8.59.4(eslint@10.4.0)(typescript@6.0.3)
 
   apps/campaigns:
+    dependencies:
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -50,7 +54,20 @@ importers:
 
   apps/golang: {}
 
+  apps/shared:
+    devDependencies:
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   apps/template-js:
+    dependencies:
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161

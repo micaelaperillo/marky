@@ -1,10 +1,9 @@
 {
-    "name": "template",
+    "name": "shared",
     "version": "1.0.0",
     "description": "",
     "type": "module",
     "scripts": {
-        "build": "node ./build.js",
         "lint": "prettier --check . && eslint .",
         "format": "prettier --write ."
     },
@@ -13,13 +12,7 @@
     "license": "MIT",
     "packageManager": "pnpm@10.30.3",
     "devDependencies": {
-        "@types/aws-lambda": "^8.10.161",
         "@types/node": "^24.12.4",
-        "dotenv": "^17.4.2",
-        "esbuild": "^0.28.0",
         "typescript": "^6.0.3"
-    },
-    "dependencies": {
-        "shared": "workspace:*"
     }
 }
