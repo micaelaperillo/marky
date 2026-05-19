@@ -10,6 +10,16 @@ provider "aws" {
 
 data "aws_caller_identity" "current" {}
 
+resource "random_string" "suffix" {
+  length  = 8
+  special = false
+  upper   = false
+
+  lifecycle {
+    ignore_changes = all
+  }
+}
+
 locals {
   lab_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
 }
@@ -30,7 +40,7 @@ module "database" {
   source = "./modules/database"
 
   project           = var.project
-  suffix            = var.suffix
+  suffix            = random_string.suffix.result
   db_instance_class = var.db_instance_class
   db_name       = var.db_name
   db_username   = var.db_username
@@ -42,14 +52,14 @@ module "database" {
 module "storage" {
   source  = "./modules/storage"
   project = var.project
-  suffix  = var.suffix
+  suffix  = random_string.suffix.result
 }
 
 module "pipeline" {
   source = "./modules/pipeline"
 
   project                     = var.project
-  suffix                      = var.suffix
+  suffix                      = random_string.suffix.result
   lab_role_arn                = local.lab_role_arn
   posts_bucket_name           = module.storage.posts_bucket_name
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
