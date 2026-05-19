@@ -1,51 +1,64 @@
 variable "project" {
-  type = string
+  type        = string
+  description = "Project name prefix for all resource names and tags."
 }
 
 variable "region" {
-  type = string
+  type        = string
+  description = "AWS region for resource deployment."
 }
 
 variable "lab_role_arn" {
-  type = string
+  type        = string
+  description = "ARN of the LabRole IAM role used by all resources."
 }
 
 variable "frontend_bucket_name" {
-  type = string
+  type        = string
+  description = "Name of the S3 bucket serving frontend static files."
 }
 
 variable "lambda_subnet_ids" {
-  type = list(string)
+  type        = list(string)
+  description = "List of subnet IDs for VPC-attached Lambda functions."
 }
 
 variable "lambda_sg_id" {
-  type = string
+  type        = string
+  description = "Security group ID for VPC-attached Lambda functions."
 }
 
 variable "cognito_user_pool_id" {
-  type = string
+  type        = string
+  description = "Cognito User Pool ID for JWT validation."
 }
 
 variable "cognito_client_id" {
-  type = string
+  type        = string
+  description = "Cognito App Client ID for JWT validation."
 }
 
 variable "rds_proxy_endpoint" {
-  type = string
+  type        = string
+  description = "RDS Proxy endpoint for database connections."
 }
 
 variable "db_name" {
-  type = string
+  type        = string
+  description = "Name of the PostgreSQL database."
 }
 
 variable "rds_secret_arn" {
-  type = string
+  type        = string
+  description = "ARN of the Secrets Manager secret with RDS credentials."
 }
 
 variable "dynamodb_reports_table_name" {
-  type = string
+  type        = string
+  description = "Name of the DynamoDB table for analysis reports."
 }
 
 variable "campaign_events_queue_url" {
-  type = string
+  type        = string
+  description = "URL of the campaign events SQS queue."
 }
