@@ -1,0 +1,10 @@
+[Unit]
+Description=Run Marky ingest daily at 23:00 UTC
+
+[Timer]
+OnCalendar=*-*-* 23:00:00
+Persistent=true
+Unit=marky-ingest.service
+
+[Install]
+WantedBy=timers.target

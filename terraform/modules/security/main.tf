@@ -82,6 +82,67 @@ resource "aws_vpc_security_group_egress_rule" "backend_dns" {
   cidr_ipv4         = "0.0.0.0/0"
 }
 
+resource "aws_vpc_security_group_egress_rule" "backend_self_8000" {
+  security_group_id            = aws_security_group.backend.id
+  description                  = "Allows ALB to forward to EC2 on port 8000"
+  from_port                    = 8000
+  to_port                      = 8000
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.backend.id
+}
+
+# ============================================================
+# Lambda Security Group
+# ============================================================
+
+resource "aws_security_group" "lambda" {
+  name        = "${var.project}-lambda-sg"
+  description = "Allows Lambda to reach the backend API."
+  vpc_id      = var.vpc_id
+
+  tags = { Name = "${var.project}-lambda-sg" }
+}
+
+resource "aws_vpc_security_group_egress_rule" "lambda_all" {
+  security_group_id = aws_security_group.lambda.id
+  description       = "Allows all outbound from Lambda"
+  ip_protocol       = "-1"
+  cidr_ipv4         = "0.0.0.0/0"
+}
+
+# -- Backend: allow inbound from Lambda on ALB port 80 --
+
+resource "aws_vpc_security_group_ingress_rule" "backend_from_lambda_http" {
+  security_group_id            = aws_security_group.backend.id
+  description                  = "Allows Lambda to reach ALB on port 80"
+  from_port                    = 80
+  to_port                      = 80
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.lambda.id
+}
+
+# -- Backend: allow ALB to forward to EC2 on port 8000 (self-reference) --
+
+resource "aws_vpc_security_group_ingress_rule" "backend_self_8000" {
+  security_group_id            = aws_security_group.backend.id
+  description                  = "Allows ALB to forward to EC2 on port 8000"
+  from_port                    = 8000
+  to_port                      = 8000
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.backend.id
+}
+
+# -- NAT: allow inbound from Lambda SG --
+
+resource "aws_vpc_security_group_ingress_rule" "nat_lambda_https" {
+  security_group_id            = aws_security_group.nat.id
+  description                  = "Allows Lambda HTTPS through NAT"
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.lambda.id
+}
+
 # ============================================================
 # NAT (fck-nat) Security Group
 # ============================================================

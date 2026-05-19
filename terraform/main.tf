@@ -39,6 +39,7 @@ module "storage" {
 module "compute" {
   source                    = "./modules/compute"
   project                   = var.project
+  vpc_id                    = module.networking.vpc_id
   backend_subnet_ids        = module.networking.backend_subnet_ids
   backend_sg_id             = module.security.backend_sg_id
   create_key_pair           = var.create_key_pair
@@ -46,9 +47,19 @@ module "compute" {
   iam_instance_profile_name = var.iam_instance_profile_name
 }
 
+module "auth" {
+  source  = "./modules/auth"
+  project = var.project
+}
+
 module "api" {
   source               = "./modules/api"
   project              = var.project
   region               = var.region
   frontend_bucket_name = module.storage.frontend_bucket_name
+  lambda_subnet_ids    = module.networking.backend_subnet_ids
+  lambda_sg_id         = module.security.lambda_sg_id
+  backend_url          = "http://${module.compute.backend_alb_dns}"
+  cognito_user_pool_id = module.auth.user_pool_id
+  cognito_client_id    = module.auth.user_pool_client_id
 }

@@ -39,3 +39,4 @@ variable "iam_instance_profile_name" {
   default     = "LabInstanceProfile"
   description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
 }
+

@@ -1,0 +1,16 @@
+[Unit]
+Description=Marky Analysis API (FastAPI)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=ec2-user
+WorkingDirectory=$APP_DIR
+EnvironmentFile=$APP_DIR/.env
+ExecStart=$UV_INSTALL_DIR/uv run marky-api
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

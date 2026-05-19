@@ -18,4 +18,8 @@ terraform/*.tfvars
 # SSH keys
 *.pem
 
+# Environment / credentials
 .env
+.env.*
+!.env.example
+credentials.txt

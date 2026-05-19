@@ -25,6 +25,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/health")
+async def health():
+    return {"status": "ok"}
+
+
 def analyze_sentiment(text: str):
     if not text:
         return 0.0, 0.0
@@ -128,7 +133,7 @@ async def analyze(
     return {"report": response.text}
 
 def main():
-    uvicorn.run("marky.api:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("marky.api:app", host="0.0.0.0", port=8000)
 
 if __name__ == "__main__":
     main()

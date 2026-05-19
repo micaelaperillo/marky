@@ -1,53 +1,14 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
-	import dayjs from 'dayjs';
-
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
+	import type { Campaign } from '$lib/types';
+	import { daysLeft, fmt } from '$lib/utils/date';
 
 	let { data }: PageProps = $props();
 
-	type RawItem = {
-		PK: string;
-		SK?: string;
-		Topics?: string[];
-		Start?: string;
-		End?: string;
-	};
-
-	const items = $derived((data.Items ?? []) as RawItem[]);
-
-	function campaignName(i: RawItem) {
-		return i.SK ?? 'Untitled';
-	}
-
-	function topics(i: RawItem): string[] {
-		return i.Topics ?? [];
-	}
-
-	function fmt(d?: string) {
-		if (!d) return '-';
-
-		const parsed = dayjs(d);
-		if (!parsed.isValid()) return d;
-
-		return parsed.toDate().toLocaleDateString(undefined, {
-			month: 'short',
-			day: 'numeric',
-			year: 'numeric'
-		});
-	}
-
-	function daysLeft(end?: string) {
-		if (!end) return null;
-
-		const parsed = dayjs(end);
-		if (!parsed.isValid()) return null;
-
-		const today = dayjs().startOf('day');
-		return Math.round(parsed.diff(today, 'days'));
-	}
+	const campaigns = $derived((data.campaigns ?? []) as Campaign[]);
 </script>
 
 <div class="flex-1">
@@ -62,14 +23,16 @@
 					{m.list_title()}
 				</h1>
 				<p class="mt-2 text-slate-600 dark:text-slate-400">
-					{items.length === 0 ? m.list_emptyLead() : m.list_summary({ count: items.length })}
+					{campaigns.length === 0
+						? m.list_emptyLead()
+						: m.list_summary({ count: campaigns.length })}
 				</p>
 			</div>
 			<a
 				href={resolve('/create')}
 				class="inline-flex items-center gap-2 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-slate-900/10 transition hover:bg-slate-800 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-white dark:text-slate-900 dark:hover:bg-slate-200"
 			>
-				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+				<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
 					<path
 						fill-rule="evenodd"
 						d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
@@ -81,7 +44,7 @@
 		</div>
 
 		<!-- Stats strip -->
-		{#if items.length > 0}
+		{#if campaigns.length > 0}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<div
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
@@ -89,7 +52,9 @@
 					<p class="text-xs font-medium tracking-wide text-slate-500 uppercase dark:text-slate-400">
 						{m.list_statCampaigns()}
 					</p>
-					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">{items.length}</p>
+					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
+						{campaigns.length}
+					</p>
 				</div>
 				<div
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
@@ -98,7 +63,7 @@
 						{m.list_statTopics()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{items.reduce((n, i) => n + topics(i).length, 0)}
+						{campaigns.reduce((n, c) => n + c.topics.length, 0)}
 					</p>
 				</div>
 				<div
@@ -108,8 +73,8 @@
 						{m.list_statRunning()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{items.filter((i) => {
-							const d = daysLeft(i.End);
+						{campaigns.filter((c) => {
+							const d = daysLeft(c.end);
 							return d !== null && d >= 0;
 						}).length}
 					</p>
@@ -118,7 +83,7 @@
 		{/if}
 
 		<!-- Grid / Empty state -->
-		{#if items.length === 0}
+		{#if campaigns.length === 0}
 			<div
 				class="mt-10 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-800 dark:bg-slate-900"
 			>
@@ -153,13 +118,11 @@
 			</div>
 		{:else}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each items as item (`${item.PK}::${campaignName(item)}`)}
-					{@const name = campaignName(item)}
-					{@const ts = topics(item)}
-					{@const left = daysLeft(item.End)}
+				{#each campaigns as item (item.name)}
+					{@const left = daysLeft(item.end)}
 					{@const running = left !== null && left >= 0}
 					<a
-						href={resolve('/list/[campaign]', { campaign: name })}
+						href={resolve('/list/[campaign]', { campaign: item.name })}
 						class="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700 dark:hover:shadow-brand-500/5"
 					>
 						<div class="flex items-start justify-between gap-2">
@@ -167,10 +130,10 @@
 								<h3
 									class="truncate text-lg font-bold text-slate-900 group-hover:text-brand-700 dark:text-white dark:group-hover:text-brand-300"
 								>
-									{name}
+									{item.name}
 								</h3>
 								<p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
-									{fmt(item.Start)} → {fmt(item.End)}
+									{fmt(item.start)} &rarr; {fmt(item.end)}
 								</p>
 							</div>
 							<span
@@ -182,20 +145,21 @@
 							</span>
 						</div>
 
-						{#if ts.length > 0}
+						{#if item.topics.length > 0}
 							<div class="mt-4 flex flex-wrap gap-1.5">
-								{#each ts.slice(0, 5) as tag (tag)}
+								{#each item.topics.slice(0, 5) as tag (tag)}
 									<span
 										class="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-950/50 dark:text-brand-300"
 									>
 										{tag}
 									</span>
 								{/each}
-								{#if ts.length > 5}
+								{#if item.topics.length > 5}
 									<span
 										class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+										aria-label="{item.topics.length - 5} more topics"
 									>
-										+{ts.length - 5}
+										+{item.topics.length - 5}
 									</span>
 								{/if}
 							</div>
@@ -204,11 +168,11 @@
 						<div
 							class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400"
 						>
-							<span>{m.list_topicCount({ count: ts.length })}</span>
+							<span>{m.list_topicCount({ count: item.topics.length })}</span>
 							<span
 								class="font-medium text-brand-600 opacity-0 transition group-hover:opacity-100 dark:text-brand-400"
 							>
-								{m.common_view()} →
+								{m.common_view()} &rarr;
 							</span>
 						</div>
 					</a>

@@ -32,3 +32,13 @@ output "lambda_function_name" {
   description = "API Lambda function name (update code with: aws lambda update-function-code)"
   value       = module.api.lambda_function_name
 }
+
+output "cognito_user_pool_id" {
+  description = "Cognito User Pool ID (use for frontend VITE_COGNITO_USER_POOL_ID)"
+  value       = module.auth.user_pool_id
+}
+
+output "cognito_client_id" {
+  description = "Cognito App Client ID (use for frontend VITE_COGNITO_CLIENT_ID)"
+  value       = module.auth.user_pool_client_id
+}

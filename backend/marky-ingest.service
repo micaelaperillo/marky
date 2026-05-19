@@ -1,0 +1,12 @@
+[Unit]
+Description=Marky Daily Ingest Job
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=ec2-user
+WorkingDirectory=$APP_DIR
+EnvironmentFile=$APP_DIR/.env
+ExecStart=$UV_INSTALL_DIR/uv run marky-ingest
+TimeoutStartSec=600
