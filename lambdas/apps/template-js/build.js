@@ -4,6 +4,8 @@ import "dotenv/config";
 
 import { build } from "esbuild";
 
+import defaults from "../../defaults.build.js";
+
 const define = Object.fromEntries(
     Object.entries(process.env).map(([key, value]) => [
         `process.env.${key}`,
@@ -13,14 +15,7 @@ const define = Object.fromEntries(
 
 await build({
     entryPoints: ["./src/handler.ts"],
-    outdir: "./dist",
-    bundle: true,
-    minify: true,
-    sourcemap: false,
-    format: "esm",
-    platform: "neutral",
-    target: "node24",
-    tsconfig: "./tsconfig.json",
+    ...defaults,
     define
 });
 

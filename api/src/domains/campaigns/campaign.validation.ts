@@ -69,6 +69,8 @@ export const CampaignParamsSchema = z.object({
 });
 
 export const CampaignSchema = z.object({
+	id: z.string(),
+	userId: z.string(),
 	end: z.string(),
 	name: z.string(),
 	start: z.string(),
