@@ -12,7 +12,7 @@ resource "aws_sqs_queue" "campaign_events_dlq" {
 resource "aws_sqs_queue" "campaign_topics_dlq" {
   name                        = "${var.project}-campaign-topics-dlq.fifo"
   fifo_queue                  = true
-  content_based_deduplication = true
+  content_based_deduplication = false
   message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   tags                        = { Name = "${var.project}-campaign-topics-dlq" }
@@ -211,6 +211,7 @@ resource "aws_lambda_function" "orchestrator" {
   filename         = data.archive_file.orchestrator.output_path
   source_code_hash = data.archive_file.orchestrator.output_base64sha256
   timeout          = 60
+  memory_size      = 256
 
   environment {
     variables = {
@@ -223,6 +224,10 @@ resource "aws_lambda_function" "orchestrator" {
   }
 
   tags = { Name = "${var.project}-orchestrator" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # --- Scheduler ---
@@ -250,6 +255,7 @@ resource "aws_lambda_function" "scheduler" {
   filename         = data.archive_file.scheduler.output_path
   source_code_hash = data.archive_file.scheduler.output_base64sha256
   timeout          = 30
+  memory_size      = 256
 
   environment {
     variables = {
@@ -259,6 +265,10 @@ resource "aws_lambda_function" "scheduler" {
   }
 
   tags = { Name = "${var.project}-scheduler" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # --- Fetcher ---
@@ -286,6 +296,7 @@ resource "aws_lambda_function" "fetcher" {
   filename         = data.archive_file.fetcher.output_path
   source_code_hash = data.archive_file.fetcher.output_base64sha256
   timeout          = 120
+  memory_size      = 256
 
   environment {
     variables = {
@@ -295,6 +306,10 @@ resource "aws_lambda_function" "fetcher" {
   }
 
   tags = { Name = "${var.project}-fetcher" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # --- S3 Saver ---
@@ -322,6 +337,7 @@ resource "aws_lambda_function" "s3_saver" {
   filename         = data.archive_file.s3_saver.output_path
   source_code_hash = data.archive_file.s3_saver.output_base64sha256
   timeout          = 60
+  memory_size      = 256
 
   environment {
     variables = {
@@ -331,6 +347,10 @@ resource "aws_lambda_function" "s3_saver" {
   }
 
   tags = { Name = "${var.project}-s3-saver" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # --- Report Generator ---
@@ -358,6 +378,7 @@ resource "aws_lambda_function" "report_generator" {
   filename         = data.archive_file.report_generator.output_path
   source_code_hash = data.archive_file.report_generator.output_base64sha256
   timeout          = 300
+  memory_size      = 512
 
   environment {
     variables = {
@@ -368,6 +389,10 @@ resource "aws_lambda_function" "report_generator" {
   }
 
   tags = { Name = "${var.project}-report-generator" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # --- Report Writer ---
@@ -395,6 +420,7 @@ resource "aws_lambda_function" "report_writer" {
   filename         = data.archive_file.report_writer.output_path
   source_code_hash = data.archive_file.report_writer.output_base64sha256
   timeout          = 60
+  memory_size      = 256
 
   environment {
     variables = {
@@ -404,6 +430,32 @@ resource "aws_lambda_function" "report_writer" {
   }
 
   tags = { Name = "${var.project}-report-writer" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
+}
+
+################################################################################
+# Section 5b: Scheduler DLQ + Event Invoke Config
+################################################################################
+
+resource "aws_sqs_queue" "scheduler_dlq" {
+  name                      = "${var.project}-scheduler-dlq"
+  message_retention_seconds = 1209600
+  sqs_managed_sse_enabled   = true
+  tags                      = { Name = "${var.project}-scheduler-dlq" }
+}
+
+resource "aws_lambda_function_event_invoke_config" "scheduler" {
+  function_name          = aws_lambda_function.scheduler.function_name
+  maximum_retry_attempts = 2
+
+  destination_config {
+    on_failure {
+      destination = aws_sqs_queue.scheduler_dlq.arn
+    }
+  }
 }
 
 ################################################################################
@@ -458,14 +510,19 @@ resource "aws_lambda_event_source_mapping" "fetcher" {
   batch_size              = 1
   enabled                 = true
   function_response_types = ["ReportBatchItemFailures"]
+
+  scaling_config {
+    maximum_concurrency = 5
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "s3_saver" {
-  event_source_arn        = aws_sqs_queue.posts_to_s3.arn
-  function_name           = aws_lambda_function.s3_saver.arn
-  batch_size              = 10
-  enabled                 = true
-  function_response_types = ["ReportBatchItemFailures"]
+  event_source_arn                   = aws_sqs_queue.posts_to_s3.arn
+  function_name                      = aws_lambda_function.s3_saver.arn
+  batch_size                         = 10
+  enabled                            = true
+  function_response_types            = ["ReportBatchItemFailures"]
+  maximum_batching_window_in_seconds = 5
 }
 
 resource "aws_lambda_event_source_mapping" "report_generator" {
@@ -474,6 +531,10 @@ resource "aws_lambda_event_source_mapping" "report_generator" {
   batch_size              = 5
   enabled                 = true
   function_response_types = ["ReportBatchItemFailures"]
+
+  scaling_config {
+    maximum_concurrency = 2
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "report_writer" {

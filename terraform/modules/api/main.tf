@@ -56,6 +56,7 @@ resource "aws_lambda_function" "auth" {
   filename         = data.archive_file.auth.output_path
   source_code_hash = data.archive_file.auth.output_base64sha256
   timeout          = 10
+  memory_size      = 256
 
   environment {
     variables = {
@@ -66,6 +67,10 @@ resource "aws_lambda_function" "auth" {
   }
 
   tags = { Name = "${var.project}-auth-lambda" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 resource "aws_lambda_function" "campaigns" {
@@ -76,6 +81,7 @@ resource "aws_lambda_function" "campaigns" {
   filename         = data.archive_file.campaigns.output_path
   source_code_hash = data.archive_file.campaigns.output_base64sha256
   timeout          = 28
+  memory_size      = 512
 
   environment {
     variables = {
@@ -95,6 +101,10 @@ resource "aws_lambda_function" "campaigns" {
   }
 
   tags = { Name = "${var.project}-campaigns-lambda" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 resource "aws_lambda_function" "reports" {
@@ -105,6 +115,7 @@ resource "aws_lambda_function" "reports" {
   filename         = data.archive_file.reports.output_path
   source_code_hash = data.archive_file.reports.output_base64sha256
   timeout          = 28
+  memory_size      = 256
 
   environment {
     variables = {
@@ -116,6 +127,10 @@ resource "aws_lambda_function" "reports" {
   }
 
   tags = { Name = "${var.project}-reports-lambda" }
+
+  lifecycle {
+    ignore_changes = [filename, source_code_hash]
+  }
 }
 
 # ============================================================
