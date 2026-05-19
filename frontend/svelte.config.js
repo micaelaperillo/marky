@@ -1,6 +1,8 @@
 import { relative, sep } from 'node:path';
 import adapter from '@sveltejs/adapter-static';
 
+const BASE_PATH = /** @type {`/${string}` | undefined} */ (process.env.BASE_PATH);
+
 /** @type {import('@sveltejs/kit').Config} */
 const config = {
 	compilerOptions: {
@@ -19,7 +21,7 @@ const config = {
 		}),
 		csrf: { trustedOrigins: [] },
 		paths: {
-			base: process.env.BASE_PATH || '' // Set to "/prod" for API GW deployment
+			base: BASE_PATH // Set to "/prod" for API GW deployment
 		}
 	}
 };

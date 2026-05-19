@@ -1,4 +1,4 @@
-import { base } from '$app/paths';
+import { resolve } from '$app/paths';
 import { getAccessToken } from './auth';
 
 let refreshPromise: Promise<string | null> | null = null;
@@ -21,15 +21,16 @@ export async function apiFetch(
 	const headers = new Headers(opts.headers);
 	if (token) headers.set('Authorization', `Bearer ${token}`);
 
-	const res = await fetchFn(`${base}${path}`, { ...opts, headers });
+	const res = await fetchFn((import.meta.env.BASE_PATH ?? '') + path, { ...opts, headers });
 
 	if (res.status === 401 && token) {
 		const refreshed = await refreshOnce();
 		if (refreshed) {
 			headers.set('Authorization', `Bearer ${refreshed}`);
-			return fetchFn(`${base}${path}`, { ...opts, headers });
+			return fetchFn((import.meta.env.BASE_PATH ?? '') + path, { ...opts, headers });
 		}
-		window.location.href = `${base}/login`;
+		window.location.href = resolve('/login');
 	}
+
 	return res;
 }
