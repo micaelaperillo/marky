@@ -12,7 +12,6 @@ const repo = new RdsCampaignRepository();
 const app = express();
 
 app.use(express.json());
-app.use(errorMiddleware);
 app.use(authenticated);
 
 app.route("/")
@@ -36,5 +35,7 @@ app.route("/")
             next(err);
         }
     });
+
+app.use(errorMiddleware);
 
 export default app;
