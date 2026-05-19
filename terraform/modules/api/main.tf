@@ -80,7 +80,7 @@ resource "aws_lambda_function" "campaigns" {
   runtime          = "nodejs22.x"
   filename         = data.archive_file.campaigns.output_path
   source_code_hash = data.archive_file.campaigns.output_base64sha256
-  timeout          = 28
+  timeout          = 25
   memory_size      = 512
 
   environment {
@@ -114,7 +114,7 @@ resource "aws_lambda_function" "reports" {
   runtime          = "nodejs22.x"
   filename         = data.archive_file.reports.output_path
   source_code_hash = data.archive_file.reports.output_base64sha256
-  timeout          = 28
+  timeout          = 25
   memory_size      = 256
 
   environment {
@@ -805,7 +805,11 @@ resource "aws_api_gateway_stage" "prod" {
       resourcePath   = "$context.resourcePath"
       status         = "$context.status"
       responseLength = "$context.responseLength"
-      requestTime    = "$context.requestTime"
+      requestTime        = "$context.requestTime"
+      integrationLatency = "$context.integrationLatency"
+      errorMessage       = "$context.error.message"
+      userAgent          = "$context.identity.userAgent"
+      protocol           = "$context.protocol"
     })
   }
 
