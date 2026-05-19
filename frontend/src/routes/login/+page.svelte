@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { base } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { signIn, signUp, confirmSignUp } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages';
 
@@ -41,7 +41,7 @@
 		submitting = true;
 		try {
 			await signIn(email, password);
-			goto(`${base}/list`);
+			goto(resolve('/list'));
 		} catch (err) {
 			errorMsg = mapError(err);
 		} finally {
@@ -185,7 +185,7 @@
 							{m.login_switchToSignup()}
 						</button>
 						<a
-							href="{base}/reset-password"
+							href={resolve('/reset-password')}
 							class="text-slate-500 hover:underline dark:text-slate-400"
 						>
 							{m.login_forgotPassword()}

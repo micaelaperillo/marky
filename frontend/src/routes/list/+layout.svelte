@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { base, resolve } from '$app/paths';
+	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
 	import { signOut } from '$lib/auth';
 	import { m } from '$lib/paraglide/messages.js';
@@ -9,7 +9,7 @@
 
 	function handleSignOut() {
 		signOut();
-		goto(`${base}/login`);
+		goto(resolve('/login'));
 	}
 
 	const nav = [
@@ -17,9 +17,9 @@
 		{ href: '/create', label: m.nav_newCampaign, icon: 'plus' }
 	] as const;
 
-	const isActive = (href: string) => {
-		const fullHref = `${base}${href}`;
-		return fullHref === `${base}/list`
+	const isActive = (href: (typeof nav)[number]['href']) => {
+		const fullHref = resolve(href);
+		return fullHref === resolve('/list')
 			? page.url.pathname === fullHref
 			: page.url.pathname.startsWith(fullHref);
 	};
