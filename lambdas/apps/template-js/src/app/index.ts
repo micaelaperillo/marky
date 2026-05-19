@@ -1,6 +1,6 @@
 import express from "express";
 
-import { hello_world } from "shared/src/my-library";
+import { hello_world } from "@shared/my-library";
 
 const app = express();
 
