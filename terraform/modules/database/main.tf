@@ -37,7 +37,7 @@ resource "aws_db_subnet_group" "main" {
 resource "aws_db_instance" "main" {
   identifier     = "${var.project}-db"
   engine         = "postgres"
-  engine_version = "16.4"
+  engine_version = "16"
   instance_class = var.db_instance_class
 
   allocated_storage = 20
@@ -56,6 +56,9 @@ resource "aws_db_instance" "main" {
   skip_final_snapshot = true
 
   backup_retention_period = 7
+  apply_immediately       = true
+  backup_window           = "03:00-04:00"
+  maintenance_window      = "sun:04:30-sun:05:30"
 
   tags = {
     Name = "${var.project}-db"
@@ -70,6 +73,7 @@ resource "aws_db_proxy" "main" {
   vpc_subnet_ids         = var.subnet_ids
   vpc_security_group_ids = [var.rds_sg_id]
   require_tls            = true
+  idle_client_timeout    = 600
 
   auth {
     auth_scheme = "SECRETS"
@@ -86,7 +90,10 @@ resource "aws_db_proxy_default_target_group" "main" {
   db_proxy_name = aws_db_proxy.main.name
 
   connection_pool_config {
-    max_connections_percent = 90
+    max_connections_percent          = 70
+    max_idle_connections_percent     = 30
+    connection_borrow_timeout        = 20
+    session_pinning_filters          = ["EXCLUDE_VARIABLE_SETS"]
   }
 }
 
@@ -94,6 +101,8 @@ resource "aws_db_proxy_target" "main" {
   db_proxy_name          = aws_db_proxy.main.name
   target_group_name      = aws_db_proxy_default_target_group.main.name
   db_instance_identifier = aws_db_instance.main.identifier
+
+  depends_on = [aws_secretsmanager_secret_version.rds_credentials]
 }
 
 resource "aws_dynamodb_table" "reports" {
