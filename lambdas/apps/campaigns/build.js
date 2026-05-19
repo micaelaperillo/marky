@@ -18,7 +18,7 @@ await build({
     minify: true,
     sourcemap: false,
     format: "esm",
-    platform: "neutral",
+    platform: "node",
     target: "node24",
     tsconfig: "./tsconfig.json",
     define
