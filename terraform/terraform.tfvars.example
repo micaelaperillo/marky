@@ -1,4 +1,6 @@
-suffix = "yourname"  # Required. Unique per team member, max 13 chars.
+suffix               = "yourname"           # Required. Unique per team member, max 13 chars.
+bluesky_identifier   = "your-handle.bsky.social"
+bluesky_app_password = "xxxx-xxxx-xxxx-xxxx"
 
 # Cognito User Pool is auto-provisioned by the auth module. No manual secrets needed.
 
