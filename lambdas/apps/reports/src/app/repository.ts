@@ -1,6 +1,5 @@
 import { AttributeValue, GetItemCommand, QueryCommand } from "@aws-sdk/client-dynamodb";
-import { IReportRepository } from "./interfaces/report.repository";
-import { dynamoClient } from "@shared/database/dynamo.client";
+import { dynamo as dynamoClient } from "@shared/service/dynamo";
 import {Report,SentimentPoint } from "./report.types";
 import { ReportSchema, SentimentPointSchema } from "./report.validation";
 
@@ -12,7 +11,7 @@ type SentimentPointItem = {
   sentiment: number;
 };
 
-export class DynamoReportRepository implements IReportRepository {
+export class DynamoReportRepository {
   async findOne(
     campaignId: string,
     timestamp: string
