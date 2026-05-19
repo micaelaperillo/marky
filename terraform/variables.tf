@@ -10,11 +10,11 @@ variable "project" {
 
 variable "suffix" {
   type        = string
-  description = "Unique suffix for globally-scoped resources (S3 buckets). Max 13 chars."
+  description = "Unique suffix for globally-scoped resources (S3 buckets, secrets). Max 13 chars."
 
   validation {
-    condition     = length(var.suffix) <= 13
-    error_message = "Suffix must be 13 characters or fewer."
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", var.suffix)) && length(var.suffix) >= 1 && length(var.suffix) <= 13
+    error_message = "Suffix must be 1-13 lowercase alphanumeric characters or hyphens (cannot start/end with hyphen)."
   }
 }
 
@@ -23,20 +23,17 @@ variable "vpc_cidr" {
   default = "172.16.0.0/16"
 }
 
-variable "create_key_pair" {
-  type        = bool
-  default     = true
-  description = "Generate EC2 key pair for backend and save .pem locally."
-}
-
-variable "repo_url" {
+variable "db_instance_class" {
   type    = string
-  default = "https://github.com/micaelaperillo/marky.git"
+  default = "db.t4g.micro"
 }
 
-variable "iam_instance_profile_name" {
-  type        = string
-  default     = "LabInstanceProfile"
-  description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
+variable "db_name" {
+  type    = string
+  default = "marky"
 }
 
+variable "db_username" {
+  type    = string
+  default = "marky_admin"
+}

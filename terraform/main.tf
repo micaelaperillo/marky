@@ -8,6 +8,12 @@ provider "aws" {
   }
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  lab_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
+}
+
 module "networking" {
   source   = "./modules/networking"
   project  = var.project
@@ -15,19 +21,22 @@ module "networking" {
   region   = var.region
 }
 
-module "security" {
-  source  = "./modules/security"
+module "auth" {
+  source  = "./modules/auth"
   project = var.project
-  vpc_id  = module.networking.vpc_id
-  region  = var.region
 }
 
-module "nat" {
-  source                  = "./modules/nat"
-  project                 = var.project
-  subnet_id               = module.networking.nat_subnet_ids[0]
-  security_group_id       = module.security.nat_sg_id
-  backend_route_table_ids = module.networking.backend_route_table_ids
+module "database" {
+  source = "./modules/database"
+
+  project           = var.project
+  suffix            = var.suffix
+  db_instance_class = var.db_instance_class
+  db_name       = var.db_name
+  db_username   = var.db_username
+  subnet_ids    = module.networking.backend_subnet_ids
+  rds_sg_id     = module.networking.rds_sg_id
+  lab_role_arn  = local.lab_role_arn
 }
 
 module "storage" {
@@ -36,30 +45,30 @@ module "storage" {
   suffix  = var.suffix
 }
 
-module "compute" {
-  source                    = "./modules/compute"
-  project                   = var.project
-  vpc_id                    = module.networking.vpc_id
-  backend_subnet_ids        = module.networking.backend_subnet_ids
-  backend_sg_id             = module.security.backend_sg_id
-  create_key_pair           = var.create_key_pair
-  repo_url                  = var.repo_url
-  iam_instance_profile_name = var.iam_instance_profile_name
-}
+module "pipeline" {
+  source = "./modules/pipeline"
 
-module "auth" {
-  source  = "./modules/auth"
-  project = var.project
+  project                     = var.project
+  suffix                      = var.suffix
+  lab_role_arn                = local.lab_role_arn
+  posts_bucket_name           = module.storage.posts_bucket_name
+  dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
 }
 
 module "api" {
-  source               = "./modules/api"
-  project              = var.project
-  region               = var.region
-  frontend_bucket_name = module.storage.frontend_bucket_name
-  lambda_subnet_ids    = module.networking.backend_subnet_ids
-  lambda_sg_id         = module.security.lambda_sg_id
-  backend_url          = "http://${module.compute.backend_alb_dns}"
-  cognito_user_pool_id = module.auth.user_pool_id
-  cognito_client_id    = module.auth.user_pool_client_id
+  source = "./modules/api"
+
+  project                     = var.project
+  region                      = var.region
+  lab_role_arn                = local.lab_role_arn
+  frontend_bucket_name        = module.storage.frontend_bucket_name
+  lambda_subnet_ids           = module.networking.backend_subnet_ids
+  lambda_sg_id                = module.networking.lambda_sg_id
+  cognito_user_pool_id        = module.auth.user_pool_id
+  cognito_client_id           = module.auth.user_pool_client_id
+  rds_proxy_endpoint          = module.database.rds_proxy_endpoint
+  db_name                     = module.database.db_name
+  rds_secret_arn              = module.database.rds_secret_arn
+  dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
+  campaign_events_queue_url   = module.pipeline.campaign_events_queue_url
 }
