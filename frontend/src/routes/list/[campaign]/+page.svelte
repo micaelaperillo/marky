@@ -1,7 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
 
-	import { page } from '$app/state';
 	import { resolve } from '$app/paths';
 	import { apiFetch } from '$lib/api';
 	import { m } from '$lib/paraglide/messages';
@@ -9,9 +8,9 @@
 	import DOMPurify from 'dompurify';
 	import { marked } from 'marked';
 
-	let { data }: PageProps = $props();
+	let { data, params }: PageProps = $props();
 
-	const slug = $derived(page.params.campaign);
+	const slug = $derived(params.campaign);
 	const name = $derived(data.campaign?.name || 'Campaign');
 	const topics = $derived<string[]>(data.campaign?.topics ?? []);
 	const start = $derived(data.campaign?.start);
