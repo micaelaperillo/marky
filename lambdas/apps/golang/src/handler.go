@@ -42,15 +42,15 @@ func init() {
 }
 
 func handler(ctx context.Context, event events.CloudWatchEvent) error {
-	campaings, err := getActiveCampaings(ctx)
+	campaigns, err := getActiveCampaigns(ctx)
 	if err != nil {
 		return err
 	}
 
-	return addToQueue(ctx, campaings)
+	return addToQueue(ctx, campaigns)
 }
 
-func getActiveCampaings(ctx context.Context) ([]Campaign, error) {
+func getActiveCampaigns(ctx context.Context) ([]Campaign, error) {
 	rows, err := pool.Query(ctx, `
 		SELECT id, topics
 		FROM campaigns

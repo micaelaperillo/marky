@@ -1,17 +1,13 @@
 import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
 
-import { hello_world } from "shared/src/my-library";
+import serverless from "serverless-http";
 
-export const handler: APIGatewayProxyHandlerV2 = async (event) => {
-    if (event.requestContext.http.method.toUpperCase() === "GET") {
-        return {
-            statusCode: 200,
-            body: `<h1>${hello_world()}</h1>`
-        };
-    }
+import app from "./app";
 
-    return {
-        statusCode: 200,
-        body: JSON.stringify({ test: "Hello from Lambda!" })
-    };
+const serverlessHandler = serverless(app, {
+    binary: false
+});
+
+export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
+    return serverlessHandler(event, context);
 };
