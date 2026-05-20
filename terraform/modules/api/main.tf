@@ -100,8 +100,6 @@ resource "aws_lambda_function" "campaigns" {
     variables = {
       SM_RDS_CREDENTIALS_ID    = var.rds_secret_name
       SQS_CAMPAIGNS_EVENTS_URL = var.campaign_events_queue_url
-      COGNITO_USER_POOL_ID     = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID        = var.cognito_client_id
       NODE_ENV                 = "production"
     }
   }
@@ -613,6 +611,19 @@ resource "aws_api_gateway_integration" "auth_proxy_lambda" {
   uri                     = aws_lambda_function.auth.invoke_arn
 }
 
+# ============================================================
+# Cognito Authorizer
+# ============================================================
+
+resource "aws_api_gateway_authorizer" "cognito" {
+  rest_api_id   = aws_api_gateway_rest_api.main.id
+  name          = "${var.project}-cognito-authorizer"
+  type          = "COGNITO_USER_POOLS"
+  provider_arns = ["arn:aws:cognito-idp:${var.region}:${data.aws_caller_identity.current.account_id}:userpool/${var.cognito_user_pool_id}"]
+}
+
+data "aws_caller_identity" "current" {}
+
 # --- /api/campaigns ---
 
 resource "aws_api_gateway_resource" "campaigns" {
@@ -622,10 +633,12 @@ resource "aws_api_gateway_resource" "campaigns" {
 }
 
 resource "aws_api_gateway_method" "campaigns_any" {
-  rest_api_id   = aws_api_gateway_rest_api.main.id
-  resource_id   = aws_api_gateway_resource.campaigns.id
-  http_method   = "ANY"
-  authorization = "NONE"
+  rest_api_id          = aws_api_gateway_rest_api.main.id
+  resource_id          = aws_api_gateway_resource.campaigns.id
+  http_method          = "ANY"
+  authorization        = "COGNITO_USER_POOLS"
+  authorizer_id        = aws_api_gateway_authorizer.cognito.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
 }
 
 resource "aws_api_gateway_integration" "campaigns_lambda" {
@@ -645,11 +658,13 @@ resource "aws_api_gateway_resource" "campaigns_proxy" {
 }
 
 resource "aws_api_gateway_method" "campaigns_proxy_any" {
-  rest_api_id        = aws_api_gateway_rest_api.main.id
-  resource_id        = aws_api_gateway_resource.campaigns_proxy.id
-  http_method        = "ANY"
-  authorization      = "NONE"
-  request_parameters = { "method.request.path.proxy" = true }
+  rest_api_id          = aws_api_gateway_rest_api.main.id
+  resource_id          = aws_api_gateway_resource.campaigns_proxy.id
+  http_method          = "ANY"
+  authorization        = "COGNITO_USER_POOLS"
+  authorizer_id        = aws_api_gateway_authorizer.cognito.id
+  authorization_scopes = ["aws.cognito.signin.user.admin"]
+  request_parameters   = { "method.request.path.proxy" = true }
 }
 
 resource "aws_api_gateway_integration" "campaigns_proxy_lambda" {

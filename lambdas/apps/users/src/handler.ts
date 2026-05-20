@@ -5,7 +5,7 @@ import serverless from "serverless-http";
 import app from "./app";
 
 const serverlessHandler = serverless(app, {
-	basePath: `/prod/api/auth`,
+	basePath: `/api/auth`,
 	binary: false,
 });
 
