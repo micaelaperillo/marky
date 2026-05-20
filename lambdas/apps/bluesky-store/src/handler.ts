@@ -1,4 +1,4 @@
-import type { SQSHandler, SQSBatchItemFailure } from "aws-lambda";
+import type { SQSHandler, SQSBatchItemFailure, SNSMessage } from "aws-lambda";
 
 import { env } from "@shared/config";
 import * as s3 from "@shared/service/s3";
@@ -25,7 +25,7 @@ export const handler: SQSHandler = async (event) => {
 
     for (const record of event.Records) {
         try {
-            const envelope = JSON.parse(record.body) as { Message: string };
+            const envelope = JSON.parse(record.body) as SNSMessage;
             const result = JSON.parse(envelope.Message) as BlueSkyResult;
 
             await storeResult(result);
