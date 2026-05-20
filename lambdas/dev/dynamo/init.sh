@@ -18,10 +18,10 @@ aws dynamodb put-item \
   --no-cli-pager \
   --item '{
     "PK": { "S": "CAMPAIGN#115efe53-e239-460c-876a-ed6d72091f8a" },
-    "SK": { "S": "REPORT#2026-05-18T17:30:00Z" },
+    "SK": { "S": "REPORT#2026-05-18T17:30:00.123Z" },
 
     "campaign_id": { "S": "115efe53-e239-460c-876a-ed6d72091f8a" },
-    "timestamp": { "S": "2025-05-18T17:30:00Z" },
+    "timestamp": { "S": "2025-05-18T17:30:00.123Z" },
     "sentiment": { "N": "0.95" },
 
     "report": {
