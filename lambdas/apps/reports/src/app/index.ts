@@ -131,6 +131,35 @@ app.route("/sentiment").get(async (req, res, next) => {
     }
 });
 
+app.route("/sentiment/latest").get(async (req, res, next) => {
+    try {
+        const { campaignId, limit } = req.query;
+
+        if (typeof campaignId !== "string") {
+            return res.status(400).json({
+                message:
+                    "campaignId query parameter is required and must be a string"
+            });
+        }
+
+        if (typeof limit !== "string" || isNaN(Number(limit))) {
+            return res.status(400).json({
+                message:
+                    "limit query parameter is required and must be a number"
+            });
+        }
+
+        const points = await repo.findLatestSentimentPointsByCampaignId(
+            campaignId,
+            parseInt(limit)
+        );
+
+        return res.json(points);
+    } catch (error) {
+        next(error);
+    }
+});
+
 app.use(errorMiddleware);
 
 export default app;

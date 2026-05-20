@@ -92,6 +92,27 @@ export class DynamoReportRepository {
         return (result.Items ?? []).map(this.unmarshallSentimentPoint);
     }
 
+    async findLatestSentimentPointsByCampaignId(
+        campaignId: string,
+        limit: number
+    ): Promise<SentimentPoint[]> {
+        const command = new QueryCommand({
+            TableName: TABLE,
+            KeyConditionExpression: "PK = :pk AND begins_with(SK, :reportPrefix)",
+            ProjectionExpression: "SK, sentiment",
+            ExpressionAttributeValues: {
+                ":pk": { S: this.pk(campaignId) },
+                ":reportPrefix": { S: "REPORT#" }
+            },
+            ScanIndexForward: false,
+            Limit: limit
+        });
+
+        const result = await dynamoClient.send(command);
+
+        return (result.Items ?? []).map(this.unmarshallSentimentPoint);
+    }
+
     private pk(campaignId: string): string {
         return `CAMPAIGN#${campaignId}`;
     }

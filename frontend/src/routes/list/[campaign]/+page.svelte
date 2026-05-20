@@ -215,7 +215,7 @@
 				</h2>
 
 				<span class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
-					Per hour
+					Latest {timeline.length} updates
 				</span>
 			</div>
 

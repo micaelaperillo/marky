@@ -21,8 +21,8 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		}
 	}
 	const report = await reportsRes.json();
-
-	const sentimentRes = await apiFetch(`/reports/sentiment?campaignId=${campaign.id}&start=${campaign.start}&end=${campaign.end}`, {}, fetch);
+	const pointLimit = 10;
+	const sentimentRes = await apiFetch(`/reports/sentiment/latest?campaignId=${campaign.id}&limit=${pointLimit}`, {}, fetch);
 	if (!sentimentRes.ok) {
 		if (sentimentRes.status === 404) {
 			campaign.sentiment = null;
