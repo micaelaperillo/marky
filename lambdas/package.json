@@ -5,7 +5,6 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "tsx watch dev-gateway.ts",
     "dev:reports": "pnpm --filter reports dev",
     "dev:campaigns": "pnpm --filter campaigns dev",
     "build": "pnpm -r build",
@@ -21,7 +20,6 @@
     "@types/node": "^24.12.4",
     "eslint": "^10.4.0",
     "eslint-config-prettier": "^10.1.8",
-    "express": "^5.2.1",
     "globals": "^17.6.0",
     "prettier": "^3.8.3",
     "tsx": "^4.22.3",
