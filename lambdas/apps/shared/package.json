@@ -19,6 +19,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.1049.0",
+        "@aws-sdk/util-dynamodb": "^3.996.2",
         "aws-jwt-verify": "^5.1.1",
         "pg": "^8.21.0",
         "zod": "^4.4.3"

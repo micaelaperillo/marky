@@ -4,7 +4,7 @@ export const ReportSchema = z.object({
     campaignId: z.string(),
     timestamp: z.string().datetime(),
     sentiment: z.number().min(-1).max(1),
-    report: z.string()
+    report: z.record(z.string(), z.unknown())
 });
 
 export const SentimentPointSchema = z.object({

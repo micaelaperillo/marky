@@ -3,6 +3,7 @@ import {
     GetItemCommand,
     QueryCommand
 } from "@aws-sdk/client-dynamodb";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
 import { dynamo as dynamoClient } from "@shared/service/dynamo";
 import { Report, SentimentPoint } from "./report.types";
 import { ReportSchema, SentimentPointSchema } from "./report.validation";
@@ -46,6 +47,7 @@ export class DynamoReportRepository {
             ScanIndexForward: false,
             Limit: 1
         });
+        console.log("Executing " + campaignId +" query: ",command);
 
         const result = await dynamoClient.send(command);
 
@@ -122,20 +124,23 @@ export class DynamoReportRepository {
     }
 
     private unmarshallReport(item: Record<string, AttributeValue>): Report {
+        console.log("Unmarshalling item: ", item);
+        const data = unmarshall(item); 
         return ReportSchema.parse({
-            campaignId: item.PK?.S?.replace("CAMPAIGN#", "") ?? "",
-            timestamp: item.SK?.S?.replace("REPORT#", "") ?? "",
-            sentiment: Number(item.Sentiment?.N ?? 0),
-            report: item.Report?.S ?? ""
+            campaignId: data.PK.replace("CAMPAIGN#", ""),
+            timestamp: data.SK.replace("REPORT#", ""),
+            sentiment: data.sentiment,
+            report: data.report
         });
     }
 
     private unmarshallSentimentPoint(
         item: Record<string, AttributeValue>
     ): SentimentPoint {
+        const data = unmarshall(item);
         return SentimentPointSchema.parse({
-            timestamp: item.SK?.S?.replace("REPORT#", "") ?? "",
-            sentiment: Number(item.Sentiment?.N ?? 0)
+            timestamp: data.SK.replace("REPORT#", ""),
+            sentiment: data.sentiment,
         });
     }
 }
