@@ -8,6 +8,7 @@
 	const campaign = $derived(data.campaign);
 	const report = $derived(data.report?.report);
 	const timeline = $derived(data.sentimentTimeline ?? []);
+	const timestamp = $derived(data.report?.timestamp ?? null);
 
 	const slug = $derived(params.campaign);
 	const name = $derived(campaign?.name ?? 'Campaign');
@@ -35,6 +36,6 @@
 			</a>
 		</div>
 
-		<ReportView {campaign} {report} {timeline} variant="latest" />
+		<ReportView {campaign} {report} {timeline} {timestamp} variant="latest" />
 	</div>
 </div>

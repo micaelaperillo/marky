@@ -47,12 +47,14 @@
 		campaign,
 		report,
 		timeline = [],
-		variant = 'latest'
+		variant = 'latest',
+		timestamp = null
 	}: {
 		campaign: CampaignLike;
 		report: ReportPayload | null | undefined;
 		timeline?: TimelinePoint[];
 		variant?: 'latest' | 'historic';
+		timestamp?: string | null;
 	} = $props();
 
 	const topics = $derived<string[]>(campaign?.topics ?? []);
@@ -89,8 +91,8 @@
 	}
 
 	const minutesSinceGenerated = $derived.by(() => {
-		if (!report?.generated_at) return null;
-		return Math.floor((Date.now() - new Date(report.generated_at).getTime()) / 60000);
+		if (!timestamp) return null;
+		return Math.floor((Date.now() - new Date(timestamp).getTime()) / 60000);
 	});
 
 	const nextUpdateMinutes = $derived.by(() => {
@@ -192,7 +194,7 @@
 				<p class="text-xs text-slate-500 dark:text-slate-400">Last update</p>
 
 				<p class="text-lg font-black text-slate-900 dark:text-white">
-					{fmtDateTime(report?.generated_at)}
+					{fmtDateTime(timestamp?? report?.generated_at)}
 				</p>
 			</div>
 		</div>
@@ -250,7 +252,7 @@
 	</div>
 </section>
 
-{#if timeline.length > 0}
+{#if timeline.length > 1}
 			<section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-bold text-slate-900 dark:text-white">

@@ -9,6 +9,7 @@
 	const report = $derived(data.report?.report);
 	const slug = $derived(params.campaign);
 	const name = $derived(campaign?.name ?? 'Campaign');
+	const timestamp = $derived(data.report?.timestamp ?? null);
 
 	function fmtBreadcrumbDate(value: string) {
 		return new Intl.DateTimeFormat('es-AR', {
@@ -50,6 +51,6 @@
 			</span>
 		</nav>
 
-		<ReportView {campaign} {report} timeline={[]} variant="historic" />
+		<ReportView {campaign} {report} timeline={[]} {timestamp} variant="historic" />
 	</div>
 </div>

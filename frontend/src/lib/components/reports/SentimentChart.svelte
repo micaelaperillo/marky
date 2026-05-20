@@ -20,7 +20,7 @@
 	};
 
 	let { points = [] }: { points: Point[] } = $props();
-
+	let pointsDesc = $derived(points.reverse());
 	let canvas: HTMLCanvasElement;
 	let chart: Chart | null = null;
 
@@ -31,7 +31,7 @@
 		chart = new Chart(ctx, {
 			type: 'line',
 			data: {
-				labels: points.map((p) =>
+				labels: pointsDesc.map((p) =>
 					new Intl.DateTimeFormat('es-AR', {
 						day: '2-digit',
 						hour: '2-digit',
@@ -41,7 +41,7 @@
 				datasets: [
 					{
 						label: 'Sentiment',
-						data: points.map((p) => p.sentiment),
+						data: pointsDesc.map((p) => p.sentiment),
 						tension: 0.35,
 						fill: true,
 						borderWidth: 2,

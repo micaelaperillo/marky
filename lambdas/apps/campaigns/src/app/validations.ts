@@ -48,6 +48,20 @@ export const CampaignInputSchema = z
                 { message: "Topics must be unique" }
             )
     })
+    
+    .refine(
+        ({ start }) => {
+            const today = dayjs().startOf("day");
+            const startDate = dayjs(start);
+
+            return startDate.isSame(today) || startDate.isAfter(today);
+        },
+        {
+            message: "Start date cannot be in the past",
+            path: ["start"]
+        }
+    )
+
     // Date range is [start, end) - end date is exclusive
     .refine(
         ({ start, end }) => {
@@ -58,7 +72,7 @@ export const CampaignInputSchema = z
                 e.diff(s, "day") <= DATE_RANGE_RULES.DATE_RANGE_MAX_LENGTH
             );
         },
-        { message: "End must be after start and range must not exceed 30 days" }
+        { message: "End date must be after start and range must not exceed 30 days" }
     );
 
 export const CampaignParamsSchema = z.object({
