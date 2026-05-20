@@ -26,25 +26,6 @@ aws dynamodb put-item \
 
     "report": {
       "M": {
-        "report_id": {
-          "S": "unique_report_id"
-        },
-
-        "query": {
-          "S": "search query"
-        },
-
-        "time_window": {
-          "M": {
-            "from": {
-              "S": "2025-05-01T00:00:00.123Z"
-            },
-            "to": {
-              "S": "2025-05-19T23:59:59.123Z"
-            }
-          }
-        },
-
         "analysis": {
           "M": {
             "summary": {
