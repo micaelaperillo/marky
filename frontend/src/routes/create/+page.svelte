@@ -149,6 +149,7 @@
 						name="start"
 						id="start"
 						required
+						value={new Date().toISOString().split('T')[0]}
 						class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:scheme-dark"
 					/>
 				</div>
