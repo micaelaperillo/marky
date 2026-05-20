@@ -515,11 +515,11 @@ resource "aws_lambda_event_source_mapping" "fetcher" {
 }
 
 resource "aws_lambda_event_source_mapping" "s3_saver" {
-  event_source_arn                   = aws_sqs_queue.posts_to_s3.arn
-  function_name                      = aws_lambda_function.s3_saver.arn
-  batch_size                         = 10
-  enabled                            = true
-  function_response_types            = ["ReportBatchItemFailures"]
+  event_source_arn        = aws_sqs_queue.posts_to_s3.arn
+  function_name           = aws_lambda_function.s3_saver.arn
+  batch_size              = 10
+  enabled                 = true
+  function_response_types = ["ReportBatchItemFailures"]
 
   scaling_config {
     maximum_concurrency = var.s3_saver_max_concurrency

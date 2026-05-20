@@ -6,7 +6,7 @@ check "bluesky_credentials_paired" {
 }
 
 provider "aws" {
-  region = var.region
+  region      = var.region
   max_retries = 30
 
   default_tags {
