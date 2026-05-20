@@ -147,6 +147,31 @@ importers:
 
   apps/golang: {}
 
+  apps/orchestrator:
+    dependencies:
+      '@aws-sdk/client-scheduler':
+        specifier: ^3.700.0
+        version: 3.1050.0
+      '@aws-sdk/client-sqs':
+        specifier: ^3.700.0
+        version: 3.1050.0
+    devDependencies:
+      '@types/aws-lambda':
+        specifier: ^8.10.161
+        version: 8.10.161
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      esbuild:
+        specifier: ^0.28.0
+        version: 0.28.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   apps/report-creator:
     dependencies:
       '@aws-sdk/client-secrets-manager':
@@ -223,6 +248,9 @@ importers:
       '@aws-sdk/client-sqs':
         specifier: ^3.1050.0
         version: 3.1050.0
+      '@aws-sdk/util-dynamodb':
+        specifier: ^3.996.2
+        version: 3.996.2(@aws-sdk/client-dynamodb@3.1049.0)
       aws-jwt-verify:
         specifier: ^5.1.1
         version: 5.1.1
@@ -374,6 +402,10 @@ packages:
     resolution: {integrity: sha512-9kgtv+bXZQrOIJT2INPPBCezrJu1FlgGrzEat/ut4A4V53IT00LynsBZgp12eFKbjJuNCeTo7iPSKjPsX8ub+A==}
     engines: {node: '>=20.0.0'}
 
+  '@aws-sdk/client-scheduler@3.1050.0':
+    resolution: {integrity: sha512-rU0nTQ8yrQTqeb/B6sMFgTjme/z89VzdntyFebXXA7bXSX/dECOEc64PqCEghrVYxSAuVwKaNaPG6I1FSXZp9A==}
+    engines: {node: '>=20.0.0'}
+
   '@aws-sdk/client-secrets-manager@3.1050.0':
     resolution: {integrity: sha512-mVOzxK4inCJgbGSQTeENYaACA9qGikru07b3HJyrKEeLVhuLKmo5csVzvKuz++ROdhX9gR7WzzJkoDOO5Xy/EQ==}
     engines: {node: '>=20.0.0'}
@@ -481,6 +513,12 @@ packages:
   '@aws-sdk/types@3.973.8':
     resolution: {integrity: sha512-gjlAdtHMbtR9X5iIhVUvbVcy55KnznpC6bkDUWW9z915bi0ckdUr5cjf16Kp6xq0bP5HBD2xzgbL9F9Quv5vUw==}
     engines: {node: '>=20.0.0'}
+
+  '@aws-sdk/util-dynamodb@3.996.2':
+    resolution: {integrity: sha512-ddpwaZmjBzcApYN7lgtAXjk+u+GO8fiPsxzuc59UqP+zqdxI1gsenPvkyiHiF9LnYnyRGijz6oN2JylnN561qQ==}
+    engines: {node: '>=20.0.0'}
+    peerDependencies:
+      '@aws-sdk/client-dynamodb': ^3.1003.0
 
   '@aws-sdk/util-locate-window@3.965.5':
     resolution: {integrity: sha512-WhlJNNINQB+9qtLtZJcpQdgZw3SCDCpXdUJP7cToGwHbCWCnRckGlc6Bx/OhWwIYFNAn+FIydY8SZ0QmVu3xTQ==}
@@ -1672,6 +1710,19 @@ snapshots:
       '@smithy/types': 4.14.2
       tslib: 2.8.1
 
+  '@aws-sdk/client-scheduler@3.1050.0':
+    dependencies:
+      '@aws-crypto/sha256-browser': 5.2.0
+      '@aws-crypto/sha256-js': 5.2.0
+      '@aws-sdk/core': 3.974.12
+      '@aws-sdk/credential-provider-node': 3.972.43
+      '@aws-sdk/types': 3.973.8
+      '@smithy/core': 3.24.3
+      '@smithy/fetch-http-handler': 5.4.3
+      '@smithy/node-http-handler': 4.7.3
+      '@smithy/types': 4.14.2
+      tslib: 2.8.1
+
   '@aws-sdk/client-secrets-manager@3.1050.0':
     dependencies:
       '@aws-crypto/sha256-browser': 5.2.0
@@ -1921,6 +1972,11 @@ snapshots:
   '@aws-sdk/types@3.973.8':
     dependencies:
       '@smithy/types': 4.14.2
+      tslib: 2.8.1
+
+  '@aws-sdk/util-dynamodb@3.996.2(@aws-sdk/client-dynamodb@3.1049.0)':
+    dependencies:
+      '@aws-sdk/client-dynamodb': 3.1049.0
       tslib: 2.8.1
 
   '@aws-sdk/util-locate-window@3.965.5':
