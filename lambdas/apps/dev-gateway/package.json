@@ -1,0 +1,17 @@
+{
+    "type": "module",
+    "scripts": {
+        "dev": "tsx watch --env-file=.env dev-gateway.ts"
+    },
+    "devDependencies": {
+        "@types/cors": "^2.8.19",
+        "tsx": "^4.20.6"
+    },
+    "dependencies": {
+        "campaigns": "workspace:*",
+        "cors": "^2.8.6",
+        "express": "^5.2.1",
+        "reports": "workspace:*",
+        "users": "workspace:*"
+    }
+}

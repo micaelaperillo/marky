@@ -31,7 +31,7 @@
 		apiError = '';
 		submitting = true;
 		try {
-			const res = await apiFetch('/api/campaigns', {
+			const res = await apiFetch('/campaigns', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ campaign, start, end, topics })

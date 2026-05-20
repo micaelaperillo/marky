@@ -1,0 +1,14 @@
+{
+    "compilerOptions": {
+        "target": "esnext",
+        "strict": true,
+        "moduleResolution": "bundler",
+        "paths": {
+            "@shared/*": ["./apps/shared/src/*"]
+        },
+        "skipLibCheck": true,
+        "types": [
+            "node"
+        ]
+    }
+}

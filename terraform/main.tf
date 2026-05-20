@@ -52,6 +52,26 @@ module "auth" {
   project = var.project
 }
 
+module "bluesky_ingest" {
+  source               = "./modules/bluesky-ingest"
+  project              = var.project
+  region               = var.region
+  lambda_subnet_ids    = module.networking.backend_subnet_ids
+  lambda_sg_id         = module.security.lambda_sg_id
+  bluesky_identifier   = var.bluesky_identifier
+  bluesky_app_password = var.bluesky_app_password
+}
+
+module "bluesky_store" {
+  source            = "./modules/bluesky-store"
+  project           = var.project
+  region            = var.region
+  suffix            = var.suffix
+  lambda_subnet_ids = module.networking.backend_subnet_ids
+  lambda_sg_id      = module.security.lambda_sg_id
+  sns_topic_arn     = module.bluesky_ingest.sns_topic_arn
+}
+
 module "api" {
   source               = "./modules/api"
   project              = var.project
