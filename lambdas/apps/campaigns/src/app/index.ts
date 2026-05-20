@@ -39,10 +39,10 @@ app.route("/")
 
             sqs.send({
                 MessageBody: JSON.stringify({
+                    id,
                     action: "create",
                     startDate: input.start,
                     endDate: input.end,
-                    campaignId: id,
                     topics: input.topics
                 } satisfies CampaignEvent),
                 QueueUrl: env.sqs.campaigns

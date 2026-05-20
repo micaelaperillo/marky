@@ -60,11 +60,11 @@ const responseSchema = {
     required: ["analysis", "sentiment", "key_comments"] as string[]
 } as const;
 
-function buildPrompt(query: string, postsBlock: string): string {
+function buildPrompt(topics: string[], postsBlock: string): string {
     return [
         "You analyze Bluesky social-media posts. Your output must be valid JSON matching the schema you've been given.",
         "",
-        `Topic of analysis: "${query}"`,
+        `Topic of analysis: "${topics.join(",")}"`,
         "",
         "Posts (one JSON object per line):",
         postsBlock,
@@ -99,7 +99,7 @@ export async function analyze(
     const postsBlock = input.posts.map((p) => JSON.stringify(p)).join("\n");
 
     const result = await model.generateContent(
-        buildPrompt(input.query, postsBlock)
+        buildPrompt(input.topics, postsBlock)
     );
 
     const text = result.response.text();
@@ -114,9 +114,9 @@ export async function analyze(
     }
 
     return {
-        report_id: input.report_id,
-        query: input.query,
-        time_window: input.time_window,
+        report_id: input.id,
+        query: input.topics,
+        fetchedAt: input.fetchedAt,
         analysis: parsed.analysis,
         sentiment: parsed.sentiment,
         key_comments: parsed.key_comments,

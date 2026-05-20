@@ -4,14 +4,15 @@ export interface BlueSkyPost {
     uri: string;
     text: string;
     date: string;
-    authorHandle: string;
-    authorAvatar?: string;
+    user: string;
+    avatar?: string;
     likeCount: number;
     repostCount: number;
 }
 
 export interface BlueSkyResult {
     id: string;
+    topics: string[];
     fetchedAt: string;
     posts: BlueSkyPost[];
 }
@@ -48,16 +49,16 @@ export async function searchBlueSky(campaign: {
         return {
             uri: post.uri,
             text: record.text,
+            user: post.author.handle,
+            avatar: post.author.avatar,
             date: record.createdAt,
-            authorHandle: post.author.handle,
-            authorAvatar: post.author.avatar,
             likeCount: post.likeCount ?? 0,
             repostCount: post.repostCount ?? 0
         } satisfies BlueSkyPost;
     });
 
     return {
-        id: campaign.id,
+        ...campaign,
         fetchedAt,
         posts
     };

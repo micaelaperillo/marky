@@ -8,11 +8,13 @@ export const handler: SQSHandler = async (event) => {
 
     for (const record of event.Records) {
         try {
-            const snsEnvelope = JSON.parse(record.body) as { Message: string };
-            const result = JSON.parse(snsEnvelope.Message) as BlueSkyResult;
+            const envelope = JSON.parse(record.body) as { Message: string };
+            const result = JSON.parse(envelope.Message) as BlueSkyResult;
+
             await storeResult(result);
+
             console.log(
-                `Stored campaignId=${result.campaignId} topic="${result.topic}" posts=${result.posts.length}`,
+                `Stored campaignId=${result.id} topic="${result.topics.join(",")}" posts=${result.posts.length}`
             );
         } catch (err) {
             console.error("Failed record", record.messageId, err);

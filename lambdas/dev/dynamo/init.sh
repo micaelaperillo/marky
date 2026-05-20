@@ -18,33 +18,14 @@ aws dynamodb put-item \
   --no-cli-pager \
   --item '{
     "PK": { "S": "CAMPAIGN#115efe53-e239-460c-876a-ed6d72091f8a" },
-    "SK": { "S": "REPORT#2026-05-18T17:30:00Z" },
+    "SK": { "S": "REPORT#2026-05-18T17:30:00.123Z" },
 
     "campaign_id": { "S": "115efe53-e239-460c-876a-ed6d72091f8a" },
-    "timestamp": { "S": "2025-05-18T17:30:00Z" },
+    "timestamp": { "S": "2025-05-18T17:30:00.123Z" },
     "sentiment": { "N": "0.95" },
 
     "report": {
       "M": {
-        "report_id": {
-          "S": "unique_report_id"
-        },
-
-        "query": {
-          "S": "search query"
-        },
-
-        "time_window": {
-          "M": {
-            "from": {
-              "S": "2025-05-01T00:00:00Z"
-            },
-            "to": {
-              "S": "2025-05-19T23:59:59Z"
-            }
-          }
-        },
-
         "analysis": {
           "M": {
             "summary": {
@@ -101,7 +82,7 @@ aws dynamodb put-item \
                   "N": "0.75"
                 },
                 "created_at": {
-                  "S": "2025-05-19T10:00:00Z"
+                  "S": "2025-05-19T10:00:00.123Z"
                 }
               }
             }
@@ -113,7 +94,7 @@ aws dynamodb put-item \
         },
 
         "generated_at": {
-          "S": "2025-05-19T15:30:00Z"
+          "S": "2025-05-19T15:30:00.123Z"
         }
       }
     }

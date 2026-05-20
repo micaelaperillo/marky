@@ -1,9 +1,0 @@
-packages:
-  - "../campaigns"
-  - "../reports"
-  - "../users"
-  - "../shared"
-allowBuilds:
-  esbuild: true
-minimumReleaseAgeExclude:
-  - tsx@4.22.3
