@@ -18,7 +18,7 @@ export async function storeResult(result: BlueSkyResult): Promise<void> {
             Bucket: BUCKET,
             Key: key,
             Body: JSON.stringify(result),
-            ContentType: "application/json",
-        }),
+            ContentType: "application/json"
+        })
     );
 }

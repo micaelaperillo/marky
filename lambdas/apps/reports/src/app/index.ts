@@ -10,24 +10,14 @@ const app = express();
 app.use(express.json());
 app.use(authenticated);
 
-app.route("/").get(async (req, res, next) => {
-    try {
-        res.json({ message: "Hello, world!" });
-    } catch (error) {
-        next(error);
-    }
-});
-
 app.route("/latest").get(async (req, res, next) => {
     try {
         const { campaignId } = req.query;
         if (typeof campaignId !== "string") {
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "campaignId query parameter is required and must be a string"
-                });
+            return res.status(400).json({
+                message:
+                    "campaignId query parameter is required and must be a string"
+            });
         }
         const report = await repo.findLatestByCampaignId(campaignId);
         if (!report) {
@@ -140,5 +130,7 @@ app.route("/sentiment").get(async (req, res, next) => {
         next(error);
     }
 });
+
 app.use(errorMiddleware);
+
 export default app;

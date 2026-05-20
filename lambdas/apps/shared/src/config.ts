@@ -8,11 +8,12 @@ const EnvSchema = z
         COGNITO_USER_POOL_ID: z.string().min(1),
         DYNAMODB_TABLE: z.string().default("reports"),
         DYNAMODB_ENDPOINT: z.url().optional(),
-        DB_HOST: z.string().min(1),
+        DB_HOST: z.url(),
         DB_PORT: z.coerce.number().positive().default(5432),
         DB_NAME: z.string().min(1),
         DB_USER: z.string().min(1),
         DB_PASS: z.string().min(1),
+        SQS_CAMPAIGNS_EVENTS_URL: z.url(),
         LAMBDA_TASK_ROOT: z.string().optional(),
         NODE_ENV: z.enum(["development", "production"]).default("development")
     })
