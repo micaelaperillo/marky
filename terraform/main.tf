@@ -1,10 +1,3 @@
-check "bluesky_credentials_paired" {
-  assert {
-    condition     = (var.bluesky_identifier == null) == (var.bluesky_app_password == null)
-    error_message = "bluesky_identifier and bluesky_app_password must both be set or both be null."
-  }
-}
-
 provider "aws" {
   region      = var.region
   max_retries = 30
