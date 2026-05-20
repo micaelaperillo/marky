@@ -84,12 +84,12 @@
 			}
 		}
 	],
-	"home_badge": "Sentiment-driven marketing intelligence",
+	"home_badge": "Bluesky topic intelligence",
+	"home_titleLine1": "Track the topics",
+	"home_titleLine2": "your audience cares about",
+	"home_subtitle": "Create a campaign, define the topics you want to monitor, and Marky finds relevant Bluesky posts to generate reports with sentiment, key conversations and representative comments.",
 	"home_createCampaign": "Create campaign",
 	"home_openDashboard": "Open dashboard",
-	"home_subtitle": "Spin up campaigns, ingest signals from prediction markets, and watch sentiment unfold — all in one calm dashboard.",
-	"home_titleLine1": "Track the pulse of",
-	"home_titleLine2": "your markets.",
 	"list_badgeDaysLeft": [
 		{
 			"match": {

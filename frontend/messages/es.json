@@ -84,12 +84,12 @@
 			}
 		}
 	],
-	"home_badge": "Marketing con pulso de mercado",
+	"home_badge": "Inteligencia de tópicos en Bluesky",
+	"home_titleLine1": "Seguí los temas",
+	"home_titleLine2": "que le importan a tu audiencia",
+	"home_subtitle": "Creá una campaña, definí los tópicos que querés monitorear y Marky encuentra publicaciones relevantes en Bluesky para generar reportes con sentimiento, conversaciones clave y comentarios representativos.",
 	"home_createCampaign": "Armar campaña",
 	"home_openDashboard": "Abrir el panel",
-	"home_subtitle": "Armá campañas, metele señales de los mercados de predicción y mirá cómo se mueve el sentimiento — todo desde un mismo panel, tranqui.",
-	"home_titleLine1": "Tomale el pulso",
-	"home_titleLine2": "a tus mercados.",
 	"list_badgeDaysLeft": [
 		{
 			"match": {

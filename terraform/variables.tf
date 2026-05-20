@@ -31,14 +31,14 @@ variable "db_username" {
 
 variable "bluesky_identifier" {
   type        = string
-  description = "Bluesky account identifier for the fetcher Lambda."
+  description = "BlueSky handle (e.g. user.bsky.social)"
   default     = null
   sensitive   = true
 }
 
 variable "bluesky_app_password" {
   type        = string
-  description = "Bluesky app password for the fetcher Lambda."
+  description = "BlueSky app password (from bsky.app/settings/app-passwords)"
   default     = null
   sensitive   = true
 }

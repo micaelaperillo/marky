@@ -12,6 +12,8 @@ function refreshOnce(): Promise<string | null> {
 	return refreshPromise;
 }
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
+
 export async function apiFetch(
 	path: string,
 	opts: RequestInit = {},
@@ -21,13 +23,15 @@ export async function apiFetch(
 	const headers = new Headers(opts.headers);
 	if (token) headers.set('Authorization', `Bearer ${token}`);
 
-	const res = await fetchFn((import.meta.env.BASE_PATH ?? '') + path, { ...opts, headers });
+	const url = `${API_BASE_URL}${path}`;
+
+	const res = await fetchFn(url, { ...opts, headers });
 
 	if (res.status === 401 && token) {
 		const refreshed = await refreshOnce();
 		if (refreshed) {
 			headers.set('Authorization', `Bearer ${refreshed}`);
-			return fetchFn((import.meta.env.BASE_PATH ?? '') + path, { ...opts, headers });
+			return fetchFn(url, { ...opts, headers });
 		}
 		window.location.href = resolve('/login');
 	}
