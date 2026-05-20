@@ -24,6 +24,7 @@
     },
     "dependencies": {
         "@aws-sdk/client-dynamodb": "^3.1049.0",
+        "@aws-sdk/util-dynamodb": "^3.996.2",
         "express": "^5.2.1",
         "serverless-http": "^4.0.0",
         "shared": "workspace:*",
