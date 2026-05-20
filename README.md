@@ -11,6 +11,9 @@ Marky is a cloud-based platform for analyzing social media posts from Bluesky us
 - **AI Processing**: Google Gemini API for content analysis
 - **Social Media**: Bluesky API integration for post ingestion
 
+## Architecture Diagram
+![Architecture](architecture.png)
+
 ## Prerequisites
 
 - AWS Academy Learner Lab access (provides temporary LabRole credentials)
