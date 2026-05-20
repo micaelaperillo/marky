@@ -3,11 +3,11 @@ import {
     DeleteScheduleCommand,
     SchedulerClient
 } from "@aws-sdk/client-scheduler";
-import { SendMessageCommand, SQSClient } from "@aws-sdk/client-sqs";
 import type { SQSBatchResponse, SQSHandler } from "aws-lambda";
 
+import * as sqs from "@shared/service/sqs";
+
 const scheduler = new SchedulerClient();
-const sqs = new SQSClient();
 
 const {
     CAMPAIGN_TOPICS_QUEUE_URL,
@@ -84,23 +84,21 @@ async function createSchedule({
 }
 
 async function enqueueInitialFetch(
-    campaignId: string,
+    id: string,
     topics: string[],
     startDate: string
 ): Promise<void> {
-    await sqs.send(
-        new SendMessageCommand({
-            MessageBody: JSON.stringify({
-                campaignId,
-                fromDate: startDate,
-                toDate: new Date().toISOString(),
-                topics
-            }),
-            MessageDeduplicationId: `${campaignId}-initial-${Date.now()}`,
-            MessageGroupId: campaignId,
-            QueueUrl: CAMPAIGN_TOPICS_QUEUE_URL
-        })
-    );
+    await sqs.send({
+        MessageBody: JSON.stringify({
+            id,
+            fromDate: startDate,
+            toDate: new Date().toISOString(),
+            topics
+        }),
+        MessageDeduplicationId: `${id}-initial-${Date.now()}`,
+        MessageGroupId: id,
+        QueueUrl: CAMPAIGN_TOPICS_QUEUE_URL
+    });
 }
 
 async function deleteSchedule(campaignId: string): Promise<void> {

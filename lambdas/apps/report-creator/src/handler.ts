@@ -17,9 +17,9 @@ function parseRecord(record: SQSRecord): InputMessage {
     }
 
     const m = body as Partial<InputMessage>;
-    if (!m.report_id || !m.query || !Array.isArray(m.posts)) {
+    if (!m.id || !m.topics || !Array.isArray(m.posts)) {
         throw new Error(
-            `SQS record ${record.messageId} missing required fields (report_id, query, posts)`
+            `SQS record ${record.messageId} missing required fields (report_id, topics, posts)`
         );
     }
 
@@ -34,7 +34,7 @@ export const handler: SQSHandler = async (event) => {
     for (const record of event.Records) {
         const input = parseRecord(record);
         console.log(
-            `Processing report_id=${input.report_id} query="${input.query}" posts=${input.posts.length}`
+            `Processing report_id=${input.id} topics="${input.topics}" posts=${input.posts.length}`
         );
 
         const report = await analyze(apiKey, input);

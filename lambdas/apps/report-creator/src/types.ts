@@ -1,20 +1,15 @@
 export type BlueskyPost = {
     user: string;
     text: string;
-    avatar: string;
+    avatar?: string;
     date: string;
 };
 
-export type TimeWindow = {
-    from: string;
-    to: string;
-};
-
 export type InputMessage = {
-    report_id: string;
-    query: string;
+    id: string;
+    topics: string[];
     posts: BlueskyPost[];
-    time_window?: TimeWindow;
+    fetchedAt: string;
 };
 
 export type MainTopic = {
@@ -47,8 +42,8 @@ export type GeminiAnalysis = {
 
 export type OutputReport = GeminiAnalysis & {
     report_id: string;
-    query: string;
-    time_window?: TimeWindow;
+    query: string[];
+    fetchedAt: string;
     posts_analyzed: number;
     generated_at: string;
 };

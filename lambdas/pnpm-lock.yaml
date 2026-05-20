@@ -68,10 +68,6 @@ importers:
         version: 6.0.3
 
   apps/bluesky-store:
-    dependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.0.0
-        version: 3.1050.0
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -159,9 +155,9 @@ importers:
       '@aws-sdk/client-scheduler':
         specifier: ^3.700.0
         version: 3.1050.0
-      '@aws-sdk/client-sqs':
-        specifier: ^3.700.0
-        version: 3.1050.0
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -207,11 +203,39 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3
 
+  apps/report-writer:
+    dependencies:
+      '@aws-sdk/util-dynamodb':
+        specifier: ^3.996.2
+        version: 3.996.2(@aws-sdk/client-dynamodb@3.1049.0)
+      shared:
+        specifier: workspace:*
+        version: link:../shared
+    devDependencies:
+      '@types/aws-lambda':
+        specifier: ^8.10.161
+        version: 8.10.161
+      '@types/node':
+        specifier: ^24.12.4
+        version: 24.12.4
+      dotenv:
+        specifier: ^17.4.2
+        version: 17.4.2
+      esbuild:
+        specifier: ^0.28.0
+        version: 0.28.0
+      typescript:
+        specifier: ^6.0.3
+        version: 6.0.3
+
   apps/reports:
     dependencies:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1049.0
         version: 3.1049.0
+      '@aws-sdk/util-dynamodb':
+        specifier: ^3.996.2
+        version: 3.996.2(@aws-sdk/client-dynamodb@3.1049.0)
       express:
         specifier: ^5.2.1
         version: 5.2.1
@@ -252,6 +276,9 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1049.0
         version: 3.1049.0
+      '@aws-sdk/client-s3':
+        specifier: ^3.1050.0
+        version: 3.1050.0
       '@aws-sdk/client-sqs':
         specifier: ^3.1050.0
         version: 3.1050.0

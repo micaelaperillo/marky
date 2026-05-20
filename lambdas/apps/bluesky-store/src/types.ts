@@ -1,15 +1,16 @@
 export interface BlueSkyPost {
     uri: string;
     text: string;
-    authorHandle: string;
-    indexedAt: string;
+    date: string;
+    user: string;
+    avatar?: string;
     likeCount: number;
     repostCount: number;
 }
 
 export interface BlueSkyResult {
-    campaignId: string;
-    topic: string;
-    posts: BlueSkyPost[];
+    id: string;
+    topics: string[];
     fetchedAt: string;
+    posts: BlueSkyPost[];
 }
