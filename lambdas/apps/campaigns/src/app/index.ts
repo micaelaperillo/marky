@@ -1,7 +1,6 @@
 import { SqsCampaignsEnvSchema } from "@shared/config";
 import { errorMiddleware } from "@shared/express/errors";
 import * as validate from "@shared/express/validate";
-import { authenticated } from "@shared/service/cognito";
 import { getPool } from "@shared/service/postgres";
 import * as sqs from "@shared/service/sqs";
 import express from "express";
@@ -17,7 +16,15 @@ const repo = new RdsCampaignRepository();
 const app = express();
 
 app.use(express.json());
-app.use(authenticated);
+app.use((req, res, next) => {
+	const claims = (req as any).requestContext?.authorizer?.claims;
+	if (!claims?.sub) {
+		res.status(401).json({ error: "Unauthorized" });
+		return;
+	}
+	res.locals.userId = claims.sub;
+	next();
+});
 
 app
 	.route("/")
