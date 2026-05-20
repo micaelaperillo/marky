@@ -3,17 +3,17 @@ import { AtpAgent } from "@atproto/api";
 export interface BlueSkyPost {
     uri: string;
     text: string;
+    date: string;
     authorHandle: string;
-    indexedAt: string;
+    authorAvatar?: string;
     likeCount: number;
     repostCount: number;
 }
 
 export interface BlueSkyResult {
-    campaignId: string;
-    topic: string;
-    posts: BlueSkyPost[];
+    id: string;
     fetchedAt: string;
+    posts: BlueSkyPost[];
 }
 
 let agent: AtpAgent | null = null;
@@ -24,7 +24,7 @@ async function getAgent(): Promise<AtpAgent> {
     agent = new AtpAgent({ service: "https://bsky.social" });
     await agent.login({
         identifier: process.env.BLUESKY_IDENTIFIER!,
-        password: process.env.BLUESKY_APP_PASSWORD!,
+        password: process.env.BLUESKY_APP_PASSWORD!
     });
 
     return agent;
@@ -33,36 +33,32 @@ async function getAgent(): Promise<AtpAgent> {
 export async function searchBlueSky(campaign: {
     id: string;
     topics: string[];
-}): Promise<BlueSkyResult[]> {
-    const a = await getAgent();
-    return Promise.all(
-        campaign.topics.map((topic) => searchTopic(a, campaign.id, topic)),
-    );
-}
+}): Promise<BlueSkyResult> {
+    const agent = await getAgent();
 
-async function searchTopic(
-    a: AtpAgent,
-    campaignId: string,
-    topic: string,
-): Promise<BlueSkyResult> {
-    const response = await a.app.bsky.feed.searchPosts({
-        q: topic,
-        limit: 25,
+    const fetchedAt = new Date().toISOString();
+    const response = await agent.app.bsky.feed.searchPosts({
+        // Topics, by design, will always have at least 1 topic
+        q: "+" + campaign.topics.join(" +"),
+        limit: 25
     });
 
-    const posts: BlueSkyPost[] = response.data.posts.map((post) => ({
-        uri: post.uri,
-        text: (post.record as { text: string }).text,
-        authorHandle: post.author.handle,
-        indexedAt: post.indexedAt,
-        likeCount: post.likeCount ?? 0,
-        repostCount: post.repostCount ?? 0,
-    }));
+    const posts = response.data.posts.map((post) => {
+        const record = post.record as { text: string; createdAt: string };
+        return {
+            uri: post.uri,
+            text: record.text,
+            date: record.createdAt,
+            authorHandle: post.author.handle,
+            authorAvatar: post.author.avatar,
+            likeCount: post.likeCount ?? 0,
+            repostCount: post.repostCount ?? 0
+        } satisfies BlueSkyPost;
+    });
 
     return {
-        campaignId,
-        topic,
-        posts,
-        fetchedAt: new Date().toISOString(),
+        id: campaign.id,
+        fetchedAt,
+        posts
     };
 }
