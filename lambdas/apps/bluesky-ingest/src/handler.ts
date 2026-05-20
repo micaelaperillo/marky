@@ -1,4 +1,4 @@
-import type { SQSHandler } from "aws-lambda";
+import type { SQSHandler, SQSBatchItemFailure } from "aws-lambda";
 import { SNSClient, PublishCommand } from "@aws-sdk/client-sns";
 
 import { searchBlueSky } from "./bluesky";
@@ -6,7 +6,7 @@ import { searchBlueSky } from "./bluesky";
 const sns = new SNSClient({ region: process.env.AWS_REGION });
 
 export const handler: SQSHandler = async (event) => {
-    const failures: { itemIdentifier: string }[] = [];
+    const failures: SQSBatchItemFailure[] = [];
 
     for (const record of event.Records) {
         try {
