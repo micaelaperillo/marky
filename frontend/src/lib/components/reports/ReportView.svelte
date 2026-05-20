@@ -251,23 +251,21 @@
 </section>
 
 {#if timeline.length > 0}
-	<section
-		class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
-	>
-		<div class="flex items-center justify-between">
-			<h2 class="text-lg font-bold text-slate-900 dark:text-white">Sentiment timeline</h2>
+			<section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">
+					Sentiment timeline
+				</h2>
 
-			<span
-				class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300"
-			>
-				Per hour
-			</span>
-		</div>
+				<span class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+					Latest {timeline.length} updates
+				</span>
+			</div>
 
-		<div class="mt-6">
-			<SentimentChart points={timeline} />
-		</div>
-	</section>
+			<div class="mt-6">
+				<SentimentChart points={timeline} />
+			</div>
+		</section>
 {/if}
 
 <section class="mt-8">
