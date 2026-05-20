@@ -1,15 +1,14 @@
-import type { APIGatewayProxyHandlerV2 } from "aws-lambda";
+import type { APIGatewayProxyHandler } from "aws-lambda";
 
 import serverless from "serverless-http";
 
 import app from "./app";
-import pkg from "../package.json" with { type: "json" };
 
 const serverlessHandler = serverless(app, {
-    binary: false,
-    basePath: `/prod/${pkg.name}`
+	basePath: `/api/reports`,
+	binary: false,
 });
 
-export const handler: APIGatewayProxyHandlerV2 = async (event, context) => {
-    return serverlessHandler(event, context);
+export const handler: APIGatewayProxyHandler = async (event, context) => {
+	return serverlessHandler(event, context);
 };

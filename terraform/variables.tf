@@ -8,45 +8,43 @@ variable "project" {
   default = "marky"
 }
 
-variable "suffix" {
-  type        = string
-  description = "Unique suffix for globally-scoped resources (S3 buckets). Max 13 chars."
-
-  validation {
-    condition     = length(var.suffix) <= 13
-    error_message = "Suffix must be 13 characters or fewer."
-  }
-}
 
 variable "vpc_cidr" {
   type    = string
   default = "172.16.0.0/16"
 }
 
-variable "create_key_pair" {
-  type        = bool
-  default     = true
-  description = "Generate EC2 key pair for backend and save .pem locally."
-}
-
-variable "repo_url" {
+variable "db_instance_class" {
   type    = string
-  default = "https://github.com/micaelaperillo/marky.git"
+  default = "db.t4g.micro"
 }
 
-variable "iam_instance_profile_name" {
+variable "db_name" {
+  type    = string
+  default = "marky"
+}
+
+variable "db_username" {
+  type    = string
+  default = "marky_admin"
+}
+
+variable "gemini_api_key" {
   type        = string
-  default     = "LabInstanceProfile"
-  description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
+  description = "Google Gemini API key for report generation."
+  sensitive   = true
 }
 
 variable "bluesky_identifier" {
   type        = string
   description = "BlueSky handle (e.g. user.bsky.social)"
+  default     = null
+  sensitive   = true
 }
 
 variable "bluesky_app_password" {
   type        = string
-  sensitive   = true
   description = "BlueSky app password (from bsky.app/settings/app-passwords)"
+  default     = null
+  sensitive   = true
 }

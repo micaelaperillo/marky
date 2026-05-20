@@ -1,13 +1,13 @@
-suffix               = "yourname"           # Required. Unique per team member, max 13 chars.
+gemini_api_key       = "your-gemini-api-key"
 bluesky_identifier   = "your-handle.bsky.social"
 bluesky_app_password = "xxxx-xxxx-xxxx-xxxx"
 
 # Cognito User Pool is auto-provisioned by the auth module. No manual secrets needed.
 
 # Optional overrides:
-# region                    = "us-east-1"
-# project                   = "marky"
-# vpc_cidr                  = "172.16.0.0/16"
-# create_key_pair           = true
-# repo_url                  = "https://github.com/micaelaperillo/marky.git"
-# iam_instance_profile_name = "LabInstanceProfile"
+# region            = "us-east-1"
+# project           = "marky"
+# vpc_cidr          = "172.16.0.0/16"
+# db_instance_class = "db.t4g.micro"
+# db_name           = "marky"
+# db_username       = "marky_admin"

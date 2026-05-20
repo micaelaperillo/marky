@@ -4,41 +4,62 @@ output "vpc_id" {
 }
 
 output "api_url" {
-  description = "Application URL (API Gateway) — serves frontend and API"
+  description = "Application URL (API Gateway)"
   value       = module.api.api_url
 }
 
-output "s3_bucket_name" {
-  description = "S3 bucket for raw Polymarket data"
-  value       = module.storage.s3_bucket_name
-}
-
 output "frontend_bucket_name" {
-  description = "S3 bucket for frontend static files (upload HTML/JS/CSS here)"
+  description = "S3 bucket for frontend static files"
   value       = module.storage.frontend_bucket_name
 }
 
-output "dynamodb_table_name" {
-  description = "DynamoDB table name"
-  value       = module.storage.dynamodb_table_name
+output "posts_bucket_name" {
+  description = "S3 bucket for Bluesky posts"
+  value       = module.storage.posts_bucket_name
 }
 
-output "fck_nat_instance_id" {
-  description = "fck-nat EC2 instance ID"
-  value       = module.nat.instance_id
+output "dynamodb_reports_table" {
+  description = "DynamoDB reports table name"
+  value       = module.database.dynamodb_reports_table_name
 }
 
-output "lambda_function_name" {
-  description = "API Lambda function name (update code with: aws lambda update-function-code)"
-  value       = module.api.lambda_function_name
+output "rds_proxy_endpoint" {
+  description = "RDS Proxy endpoint"
+  value       = module.database.rds_proxy_endpoint
+  sensitive   = true
 }
 
 output "cognito_user_pool_id" {
-  description = "Cognito User Pool ID (use for frontend VITE_COGNITO_USER_POOL_ID)"
+  description = "Cognito User Pool ID"
   value       = module.auth.user_pool_id
 }
 
 output "cognito_client_id" {
-  description = "Cognito App Client ID (use for frontend VITE_COGNITO_CLIENT_ID)"
+  description = "Cognito App Client ID"
   value       = module.auth.user_pool_client_id
+}
+
+output "lambda_function_names" {
+  description = "All Lambda function names for code deployment"
+  value = {
+    auth             = module.api.auth_lambda_function_name
+    campaigns        = module.api.campaigns_lambda_function_name
+    reports          = module.api.reports_lambda_function_name
+    orchestrator     = module.pipeline.orchestrator_function_name
+    fetcher          = module.pipeline.fetcher_function_name
+    s3_saver         = module.pipeline.s3_saver_function_name
+    report_generator = module.pipeline.report_generator_function_name
+    report_writer    = module.pipeline.report_writer_function_name
+  }
+}
+
+output "schedule_group_name" {
+  description = "EventBridge Scheduler group for per-campaign schedules"
+  value       = module.pipeline.schedule_group_name
+}
+
+output "gemini_secret_arn" {
+  description = "Secrets Manager ARN for Gemini API key (set value manually)"
+  value       = module.pipeline.gemini_secret_arn
+  sensitive   = true
 }

@@ -1,0 +1,75 @@
+title: "Marky — Bluesky Sentiment Analysis"
+
+# Aggressive removal — keep only core services visible:
+#   Lambdas (8), SQS main queues (5), SNS topic, API Gateway,
+#   RDS + Proxy, DynamoDB, S3 buckets (2), Cognito, EventBridge,
+#   Secrets Manager secrets (2)
+remove:
+  # --- Networking internals (all noise) ---
+  - aws_vpc.*
+  - aws_subnet.*
+  - aws_route_table.*
+  - aws_route_table_association.*
+  - aws_security_group.*
+  - aws_vpc_security_group_ingress_rule.*
+  - aws_vpc_security_group_egress_rule.*
+  - aws_vpc_endpoint.*
+
+  # --- S3 bucket sub-resources ---
+  - aws_s3_bucket_server_side_encryption_configuration.*
+  - aws_s3_bucket_public_access_block.*
+  - aws_s3_bucket_ownership_controls.*
+  - aws_s3_bucket_lifecycle_configuration.*
+  - aws_s3_bucket_versioning.*
+
+  # --- API Gateway internals ---
+  - aws_api_gateway_method.*
+  - aws_api_gateway_integration.*
+  - aws_api_gateway_method_response.*
+  - aws_api_gateway_integration_response.*
+  - aws_api_gateway_resource.*
+  - aws_api_gateway_gateway_response.*
+  - aws_api_gateway_method_settings.*
+  - aws_api_gateway_account.*
+  - aws_api_gateway_deployment.*
+  - aws_api_gateway_stage.*
+
+  # --- Lambda internals ---
+  - data.archive_file.*
+  - aws_lambda_permission.*
+  - aws_lambda_function_event_invoke_config.*
+  - aws_lambda_event_source_mapping.*
+
+  # --- Database internals ---
+  - aws_db_parameter_group.*
+  - aws_db_subnet_group.*
+  - aws_db_proxy_default_target_group.*
+  - aws_db_proxy_target.*
+
+  # --- All DLQs (5 nodes of pure noise) ---
+  - aws_sqs_queue.campaign_events_dlq
+  - aws_sqs_queue.campaign_topics_dlq
+  - aws_sqs_queue.posts_to_s3_dlq
+  - aws_sqs_queue.posts_to_analyze_dlq
+  - aws_sqs_queue.reports_dlq
+
+  # --- All CloudWatch log groups (9 nodes of noise) ---
+  - aws_cloudwatch_log_group.*
+
+  # --- SQS policies + redrive allow policies ---
+  - aws_sqs_queue_policy.*
+  - aws_sqs_queue_redrive_allow_policy.*
+
+  # --- SNS subscriptions (keep topic, remove wiring) ---
+  - aws_sns_topic_subscription.*
+
+  # --- Secrets Manager version (keep secret, remove version) ---
+  - aws_secretsmanager_secret_version.*
+
+  # --- Cognito client (keep pool, remove client sub-resource) ---
+  - aws_cognito_user_pool_client.*
+
+  # --- Random resources ---
+  - random_password.*
+  - random_string.*
+  - data.aws_caller_identity.*

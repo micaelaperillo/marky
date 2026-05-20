@@ -6,7 +6,7 @@ resource "aws_cognito_user_pool" "main" {
   mfa_configuration        = "OFF"
 
   password_policy {
-    minimum_length    = 8
+    minimum_length    = 12
     require_lowercase = true
     require_numbers   = true
     require_symbols   = false
@@ -52,6 +52,6 @@ resource "aws_cognito_user_pool_client" "spa" {
     refresh_token = "days"
   }
 
-  supported_identity_providers = ["COGNITO"]
+  supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
 }

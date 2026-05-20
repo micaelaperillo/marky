@@ -1,11 +1,14 @@
 variable "project" {
-  type = string
+  type        = string
+  description = "Project name prefix for all resource names and tags."
 }
 
 variable "vpc_cidr" {
-  type = string
+  type        = string
+  description = "CIDR block for the VPC."
 }
 
 variable "region" {
-  type = string
+  type        = string
+  description = "AWS region for resource deployment."
 }

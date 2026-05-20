@@ -1,26 +1,32 @@
-import type { SQSHandler } from "aws-lambda";
+import { S3EnvSchema } from "@shared/config";
+import * as s3 from "@shared/service/s3";
+import type { SNSMessage, SQSBatchItemFailure, SQSHandler } from "aws-lambda";
 
-import { storeResult } from "./s3.js";
-import type { BlueSkyResult } from "./types.js";
+const env = S3EnvSchema.parse(process.env);
 
 export const handler: SQSHandler = async (event) => {
-    const failures: { itemIdentifier: string }[] = [];
+	const failures: SQSBatchItemFailure[] = [];
 
-    for (const record of event.Records) {
-        try {
-            const envelope = JSON.parse(record.body) as { Message: string };
-            const result = JSON.parse(envelope.Message) as BlueSkyResult;
+	for (const record of event.Records) {
+		try {
+			const envelope = JSON.parse(record.body) as SNSMessage;
+			const result = JSON.parse(envelope.Message);
+			const unix = +new Date(result.fetchedAt);
+			const key = `bluesky/${result.id}/${unix}.json`;
 
-            await storeResult(result);
+			await s3.store({
+				Body: envelope.Message,
+				Bucket: env.s3.bucket,
+				ContentType: "application/json",
+				Key: key,
+			});
 
-            console.log(
-                `Stored campaignId=${result.id} topic="${result.topics.join(",")}" posts=${result.posts.length}`
-            );
-        } catch (err) {
-            console.error("Failed record", record.messageId, err);
-            failures.push({ itemIdentifier: record.messageId });
-        }
-    }
+			console.log(`Stored data key=${key}`);
+		} catch (err) {
+			console.error("Failed record", record.messageId, err);
+			failures.push({ itemIdentifier: record.messageId });
+		}
+	}
 
-    return { batchItemFailures: failures };
+	return { batchItemFailures: failures };
 };

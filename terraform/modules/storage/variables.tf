@@ -1,7 +1,9 @@
 variable "project" {
-  type = string
+  type        = string
+  description = "Project name prefix for all resource names and tags."
 }
 
 variable "suffix" {
-  type = string
+  type        = string
+  description = "Auto-generated suffix for globally-scoped S3 bucket names."
 }

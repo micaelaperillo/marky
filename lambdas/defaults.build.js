@@ -1,14 +1,17 @@
 export default /** @type {const} */ ({
-    outdir: "./dist",
-    bundle: true,
-    minify: true,
-    sourcemap: false,
-    format: "esm",
-    platform: "node",
-    target: "node24",
-    tsconfig: "./tsconfig.json",
-    external: /** @type {string[]} */ (['@aws-sdk/*']),
-    alias: {
-        "@shared": "shared/src",
-    }
+	alias: {
+		"@shared": "shared/src",
+	},
+	banner: {
+		js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
+	},
+	bundle: true,
+	external: /** @type {string[]} */ (["@aws-sdk/*"]),
+	format: "esm",
+	minify: true,
+	outdir: "./dist",
+	platform: "node",
+	sourcemap: false,
+	target: "node24",
+	tsconfig: "./tsconfig.json",
 });

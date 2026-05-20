@@ -1,27 +1,34 @@
 import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
-import { Pool } from "pg";
+import { PostgresEnvSchema } from "@shared/config";
+import { Pool, type PoolClient } from "pg";
+export type { PoolClient };
+
 import z from "zod";
 
-import { env } from "@shared/config";
+const env = PostgresEnvSchema.parse(process.env);
 
-const data = z
-    .object({
-        username: z.string().min(1),
-        password: z.string(),
-        dbname: z.string().min(1),
-        port: z.number(),
-        host: z.string()
-    })
-    .transform((e) => ({
-        host: e.host,
-        port: e.port,
-        database: e.dbname,
-        user: e.username,
-        password: e.password
-    }))
-    .parse(await getSecret(env.sm.rds));
+const CredentialsSchema = z
+	.object({
+		dbname: z.string().min(1),
+		host: z.string(),
+		password: z.string(),
+		port: z.number(),
+		username: z.string().min(1),
+	})
+	.transform((e) => ({
+		database: e.dbname,
+		host: e.host,
+		password: e.password,
+		port: e.port,
+		user: e.username,
+	}));
 
-export const pool = new Pool({
-    ...data,
-    max: 1
-});
+let _pool: Pool | null = null;
+
+export async function getPool(): Promise<Pool> {
+	if (_pool) return _pool;
+	const raw = await getSecret(env.sm.rds);
+	const data = CredentialsSchema.parse(JSON.parse(raw as string));
+	_pool = new Pool({ ...data, max: 1, ssl: true });
+	return _pool;
+}
