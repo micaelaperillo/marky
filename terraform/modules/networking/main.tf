@@ -111,6 +111,15 @@ resource "aws_vpc_security_group_egress_rule" "rds_to_endpoints" {
   referenced_security_group_id = aws_security_group.endpoint.id
 }
 
+resource "aws_vpc_security_group_egress_rule" "proxy_to_rds" {
+  security_group_id            = aws_security_group.rds.id
+  description                  = "PostgreSQL from RDS Proxy to DB instance (self-referencing)"
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
+  referenced_security_group_id = aws_security_group.rds.id
+}
+
 resource "aws_security_group" "endpoint" {
   name        = "${var.project}-endpoint-sg"
   description = "VPC endpoints: inbound HTTPS from Lambda"
