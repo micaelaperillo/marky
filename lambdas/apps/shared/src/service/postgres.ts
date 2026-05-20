@@ -29,6 +29,6 @@ export async function getPool(): Promise<Pool> {
 	if (_pool) return _pool;
 	const raw = await getSecret(env.sm.rds);
 	const data = CredentialsSchema.parse(JSON.parse(raw as string));
-	_pool = new Pool({ ...data, max: 1 });
+	_pool = new Pool({ ...data, max: 1, ssl: true });
 	return _pool;
 }
