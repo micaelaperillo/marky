@@ -34,6 +34,9 @@ const EnvSchema = z
             user: env.DB_USER,
             pass: env.DB_PASS
         },
+        sqs: {
+            campaigns: env.SQS_CAMPAIGNS_EVENTS_URL
+        },
         isProduction: env.NODE_ENV === "production"
     }));
 
