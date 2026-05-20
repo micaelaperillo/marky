@@ -52,6 +52,6 @@ resource "aws_cognito_user_pool_client" "spa" {
     refresh_token = "days"
   }
 
-  supported_identity_providers = ["COGNITO"]
+  supported_identity_providers  = ["COGNITO"]
   prevent_user_existence_errors = "ENABLED"
 }

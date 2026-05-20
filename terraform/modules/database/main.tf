@@ -35,8 +35,8 @@ resource "aws_db_subnet_group" "main" {
 }
 
 resource "aws_db_instance" "main" {
-  identifier     = "${var.project}-db"
-  engine         = "postgres"
+  identifier                 = "${var.project}-db"
+  engine                     = "postgres"
   engine_version             = "16"
   auto_minor_version_upgrade = false
   instance_class             = var.db_instance_class
@@ -131,10 +131,10 @@ resource "aws_db_proxy_default_target_group" "main" {
   db_proxy_name = aws_db_proxy.main.name
 
   connection_pool_config {
-    max_connections_percent          = 70
-    max_idle_connections_percent     = 30
-    connection_borrow_timeout        = 20
-    session_pinning_filters          = ["EXCLUDE_VARIABLE_SETS"]
+    max_connections_percent      = 70
+    max_idle_connections_percent = 30
+    connection_borrow_timeout    = 20
+    session_pinning_filters      = ["EXCLUDE_VARIABLE_SETS"]
   }
 }
 
