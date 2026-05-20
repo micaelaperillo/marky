@@ -3,7 +3,7 @@ import { apiFetch } from '$lib/api';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const res = await apiFetch(`/api/campaigns/${params.campaign}`, {}, fetch);
+	const res = await apiFetch(`/campaigns/${params.campaign}`, {}, fetch);
 	if (res.status === 404) {
 		throw error(404, 'Campaign not found');
 	}

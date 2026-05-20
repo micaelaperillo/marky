@@ -5,7 +5,7 @@ import { authenticated } from "@shared/service/cognito";
 import * as validate from "@shared/express/validate";
 
 import { RdsCampaignRepository } from "./repository";
-import { CampaignInputSchema } from "./validations";
+import { CampaignInputSchema, CampaignParamsSchema } from "./validations";
 
 const repo = new RdsCampaignRepository();
 
@@ -34,6 +34,26 @@ app.route("/")
         } catch (err) {
             next(err);
         }
+    });
+
+app.route("/:name")
+  .get(
+    validate.params(CampaignParamsSchema),
+    async (req, res, next) => {
+      try {
+        const campaign = await repo.findOne(
+          res.locals.userId,
+          req.params.name
+        );
+
+        if (!campaign) {
+          return res.status(404).json({ message: "Campaign not found" });
+        }
+
+        res.json(campaign);
+      } catch (err) {
+        next(err);
+      }
     });
 
 app.use(errorMiddleware);
