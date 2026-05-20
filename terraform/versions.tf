@@ -1,12 +1,12 @@
 terraform {
-  required_version = ">= 1.5"
+  required_version = ">= 1.10"
 
   backend "s3" {
-    bucket         = "marky-tfstate"
-    key            = "infrastructure/terraform.tfstate"
-    region         = "us-east-1"
-    dynamodb_table = "marky-tfstate-locks"
-    encrypt        = true
+    bucket       = "marky-tfstate"
+    key          = "infrastructure/terraform.tfstate"
+    region       = "us-east-1"
+    use_lockfile = true
+    encrypt      = true
   }
 
   required_providers {
@@ -20,7 +20,7 @@ terraform {
     }
     archive = {
       source  = "hashicorp/archive"
-      version = "~> 2.0"
+      version = "~> 2.3"
     }
   }
 }

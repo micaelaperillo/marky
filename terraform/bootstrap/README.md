@@ -1,6 +1,11 @@
 # Terraform State Bootstrap
 
-Creates the S3 bucket and DynamoDB table used for remote state locking.
+Creates the S3 bucket used for remote state storage. State locking uses native S3 conditional writes (`use_lockfile = true`).
+
+## Prerequisites
+
+- Terraform >= 1.10
+- AWS credentials configured
 
 ## Usage
 
