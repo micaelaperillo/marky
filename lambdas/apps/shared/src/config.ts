@@ -6,7 +6,8 @@ const EnvSchema = z
         BACKEND_URL: z.url().default("http://127.0.0.1:8000"),
         COGNITO_CLIENT_ID: z.string().min(1),
         COGNITO_USER_POOL_ID: z.string().min(1),
-        DYNAMODB_TABLE: z.string().default("marky-data"),
+        DYNAMODB_TABLE: z.string().default("reports"),
+        DYNAMODB_ENDPOINT: z.url().optional(),
         DB_HOST: z.string().min(1),
         DB_PORT: z.coerce.number().positive().default(5432),
         DB_NAME: z.string().min(1),
@@ -18,7 +19,7 @@ const EnvSchema = z
     .transform((env) => ({
         aws: {
             dynamoTable: env.DYNAMODB_TABLE,
-            lambdaTask: env.LAMBDA_TASK_ROOT,
+            dynamoEndpoint: env.DYNAMODB_ENDPOINT,
             region: env.AWS_REGION
         },
         backendUrl: env.BACKEND_URL,
