@@ -4,16 +4,9 @@ import {
     QueryCommand
 } from "@aws-sdk/client-dynamodb";
 import { unmarshall } from "@aws-sdk/util-dynamodb";
-import { dynamo as dynamoClient } from "@shared/service/dynamo";
+import { dynamo as dynamoClient, TABLE } from "@shared/service/dynamo";
 import { Report, SentimentPoint } from "./report.types";
 import { ReportSchema, SentimentPointSchema } from "./report.validation";
-
-const TABLE = process.env.DYNAMODB_TABLE!;
-
-type SentimentPointItem = {
-    timestamp: string;
-    sentiment: number;
-};
 
 export class DynamoReportRepository {
     async findOne(
@@ -32,7 +25,7 @@ export class DynamoReportRepository {
 
         if (!result.Item) return null;
 
-        return this.toReport(result.Item);
+        return this.unmarshallReport(result.Item);
     }
 
     async findLatestByCampaignId(campaignId: string): Promise<Report | null> {
@@ -53,7 +46,7 @@ export class DynamoReportRepository {
 
         if (!result.Items || result.Items.length === 0) return null;
 
-        return this.toReport(result.Items[0]);
+        return this.unmarshallReport(result.Items[0]);
     }
 
     async findReportsByCampaignIdBetween(
@@ -74,7 +67,7 @@ export class DynamoReportRepository {
 
         const result = await dynamoClient.send(command);
 
-        return (result.Items ?? []).map((item) => this.toReport(item));
+        return (result.Items ?? []).map(this.unmarshallReport);
     }
 
     async findSentimentPointsByCampaignIdBetween(
@@ -96,7 +89,7 @@ export class DynamoReportRepository {
 
         const result = await dynamoClient.send(command);
 
-        return (result.Items ?? []).map((item) => this.toSentimentPoint(item));
+        return (result.Items ?? []).map(this.unmarshallSentimentPoint);
     }
 
     private pk(campaignId: string): string {
@@ -105,19 +98,6 @@ export class DynamoReportRepository {
 
     private reportSk(timestamp: string): string {
         return `REPORT#${timestamp}`;
-    }
-
-    private toReport(item: Record<string, AttributeValue>): Report {
-        return this.unmarshallReport(item);
-    }
-
-    private toSentimentPoint(item: Record<string, any>): SentimentPoint {
-        const data = this.unmarshallSentimentPoint(item) as SentimentPointItem;
-
-        return {
-            timestamp: data.timestamp,
-            sentiment: data.sentiment
-        };
     }
 
     private unmarshallReport(item: Record<string, AttributeValue>): Report {

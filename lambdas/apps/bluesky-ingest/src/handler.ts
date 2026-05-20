@@ -15,16 +15,14 @@ export const handler: SQSHandler = async (event) => {
                 topics: string[];
             };
 
-            const results = await searchBlueSky(campaign);
+            const result = await searchBlueSky(campaign);
 
-            for (const result of results) {
-                await sns.send(
-                    new PublishCommand({
-                        TopicArn: process.env.SNS_TOPIC_ARN,
-                        Message: JSON.stringify(result),
-                    }),
-                );
-            }
+            await sns.send(
+                new PublishCommand({
+                    TopicArn: process.env.SNS_TOPIC_ARN,
+                    Message: JSON.stringify(result)
+                })
+            );
         } catch (err) {
             console.error("Failed record", record.messageId, err);
             failures.push({ itemIdentifier: record.messageId });
