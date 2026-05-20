@@ -85,10 +85,7 @@ export class DynamoReportRepository {
         const command = new QueryCommand({
             TableName: TABLE,
             KeyConditionExpression: "PK = :pk AND SK BETWEEN :start AND :end",
-            ProjectionExpression: "#timestamp, sentiment",
-            ExpressionAttributeNames: {
-                "#timestamp": "timestamp"
-            },
+            ProjectionExpression: "SK, sentiment",
             ExpressionAttributeValues: {
                 ":pk": { S: this.pk(campaignId) },
                 ":start": { S: this.reportSk(start) },
