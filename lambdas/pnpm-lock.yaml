@@ -68,10 +68,6 @@ importers:
         version: 6.0.3
 
   apps/bluesky-store:
-    dependencies:
-      '@aws-sdk/client-s3':
-        specifier: ^3.0.0
-        version: 3.1050.0
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -137,6 +133,9 @@ importers:
       cors:
         specifier: ^2.8.6
         version: 2.8.6
+      express:
+        specifier: ^5.2.1
+        version: 5.2.1
       reports:
         specifier: workspace:*
         version: link:../reports
@@ -147,23 +146,18 @@ importers:
       '@types/cors':
         specifier: ^2.8.19
         version: 2.8.19
-      express:
-        specifier: ^5.2.1
-        version: 5.2.1
       tsx:
         specifier: ^4.20.6
         version: 4.22.3
-
-  apps/golang: {}
 
   apps/orchestrator:
     dependencies:
       '@aws-sdk/client-scheduler':
         specifier: ^3.700.0
         version: 3.1050.0
-      '@aws-sdk/client-sqs':
-        specifier: ^3.700.0
-        version: 3.1050.0
+      shared:
+        specifier: workspace:*
+        version: link:../shared
     devDependencies:
       '@types/aws-lambda':
         specifier: ^8.10.161
@@ -254,6 +248,9 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.1049.0
         version: 3.1049.0
+      '@aws-sdk/client-s3':
+        specifier: ^3.1050.0
+        version: 3.1050.0
       '@aws-sdk/client-sqs':
         specifier: ^3.1050.0
         version: 3.1050.0

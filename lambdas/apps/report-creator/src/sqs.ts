@@ -1,30 +1,12 @@
-import { SQSClient, SendMessageCommand } from "@aws-sdk/client-sqs";
-
 import type { OutputReport } from "./types.js";
 
-const region = process.env.AWS_REGION ?? "us-east-1";
-const client = new SQSClient({ region });
+import { env } from "@shared/config";
 
-export async function publishReport(report: OutputReport): Promise<void> {
-    const queueUrl = process.env.OUTPUT_SQS_QUEUE_URL;
-    if (!queueUrl) {
-        throw new Error("OUTPUT_SQS_QUEUE_URL env var is required");
-    }
+import * as sqs from "@shared/service/sqs";
 
-    await client.send(
-        new SendMessageCommand({
-            QueueUrl: queueUrl,
-            MessageBody: JSON.stringify(report),
-            MessageAttributes: {
-                report_id: {
-                    DataType: "String",
-                    StringValue: report.report_id
-                },
-                query: {
-                    DataType: "String",
-                    StringValue: report.query
-                }
-            }
-        })
-    );
+export async function publishReport(report: OutputReport) {
+    sqs.send({
+        QueueUrl: env.sqs.reports,
+        MessageBody: JSON.stringify(report)
+    });
 }
