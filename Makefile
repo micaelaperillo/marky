@@ -17,8 +17,10 @@ deploy-frontend:
 	POOL_ID=$$(terraform output -raw cognito_user_pool_id) || { echo "Failed to get cognito_user_pool_id"; exit 1; } && \
 	CLIENT_ID=$$(terraform output -raw cognito_client_id) || { echo "Failed to get cognito_client_id"; exit 1; } && \
 	BUCKET=$$(terraform output -raw frontend_bucket_name) || { echo "Failed to get frontend_bucket_name"; exit 1; } && \
+	API_URL=$$(terraform output -raw api_url) || { echo "Failed to get api_url"; exit 1; } && \
 	cd ../frontend && \
 	pnpm install && \
+	VITE_API_BASE_URL=$$API_URL/api \
 	VITE_COGNITO_USER_POOL_ID=$$POOL_ID \
 	VITE_COGNITO_CLIENT_ID=$$CLIENT_ID \
 	BASE_PATH=/prod \
