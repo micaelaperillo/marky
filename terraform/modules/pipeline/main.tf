@@ -520,7 +520,6 @@ resource "aws_lambda_event_source_mapping" "s3_saver" {
   batch_size                         = 10
   enabled                            = true
   function_response_types            = ["ReportBatchItemFailures"]
-  maximum_batching_window_in_seconds = 5
 
   scaling_config {
     maximum_concurrency = var.s3_saver_max_concurrency
