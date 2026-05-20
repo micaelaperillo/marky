@@ -619,10 +619,8 @@ resource "aws_api_gateway_authorizer" "cognito" {
   rest_api_id   = aws_api_gateway_rest_api.main.id
   name          = "${var.project}-cognito-authorizer"
   type          = "COGNITO_USER_POOLS"
-  provider_arns = ["arn:aws:cognito-idp:${var.region}:${data.aws_caller_identity.current.account_id}:userpool/${var.cognito_user_pool_id}"]
+  provider_arns = ["arn:aws:cognito-idp:${var.region}:${var.account_id}:userpool/${var.cognito_user_pool_id}"]
 }
-
-data "aws_caller_identity" "current" {}
 
 # --- /api/campaigns ---
 

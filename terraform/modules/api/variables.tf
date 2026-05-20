@@ -3,6 +3,11 @@ variable "project" {
   description = "Project name prefix for all resource names and tags."
 }
 
+variable "account_id" {
+  type        = string
+  description = "AWS account ID for constructing ARNs."
+}
+
 variable "lambda_dist_base" {
   type        = string
   description = "Base path to the Lambda workspace apps directory. Null = use stubs."
