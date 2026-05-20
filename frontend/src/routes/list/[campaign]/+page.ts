@@ -16,11 +16,13 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	if (!reportsRes.ok) {
 		if (reportsRes.status === 404) {
 			campaign.reports = [];
+			return { campaign, report: null, sentimentTimeline: [], timestamp: null };
 		} else {
 			throw error(reportsRes.status, 'Failed to load last campaign report');
 		}
 	}
 	const report = await reportsRes.json();
+	const timestamp = report ? report.timestamp : null;
 	const pointLimit = 10;
 	const sentimentRes = await apiFetch(`/reports/sentiment/latest?campaignId=${campaign.id}&limit=${pointLimit}`, {}, fetch);
 	if (!sentimentRes.ok) {
@@ -32,5 +34,5 @@ export const load: PageLoad = async ({ fetch, params }) => {
 	}
 	const sentimentTimeline = await sentimentRes.json();
 	
-	return { campaign, report, sentimentTimeline };
+	return { campaign, report, sentimentTimeline, timestamp };
 };
