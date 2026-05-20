@@ -45,19 +45,9 @@ variable "cognito_client_id" {
   description = "Cognito App Client ID for JWT validation."
 }
 
-variable "rds_proxy_endpoint" {
+variable "rds_secret_name" {
   type        = string
-  description = "RDS Proxy endpoint for database connections."
-}
-
-variable "db_name" {
-  type        = string
-  description = "Name of the PostgreSQL database."
-}
-
-variable "rds_secret_arn" {
-  type        = string
-  description = "ARN of the Secrets Manager secret with RDS credentials."
+  description = "Name of the Secrets Manager secret with RDS credentials."
 }
 
 variable "dynamodb_reports_table_name" {
@@ -68,19 +58,4 @@ variable "dynamodb_reports_table_name" {
 variable "campaign_events_queue_url" {
   type        = string
   description = "URL of the campaign events FIFO SQS queue."
-}
-
-variable "posts_bucket_name" {
-  type        = string
-  description = "Name of the S3 posts bucket (shared config requirement)."
-}
-
-variable "gemini_secret_arn" {
-  type        = string
-  description = "ARN of the Gemini API key secret (shared config requirement)."
-}
-
-variable "reports_queue_url" {
-  type        = string
-  description = "URL of the reports FIFO SQS queue (shared config requirement)."
 }

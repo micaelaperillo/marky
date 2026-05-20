@@ -8,9 +8,9 @@ output "db_name" {
   value       = var.db_name
 }
 
-output "rds_secret_arn" {
-  description = "ARN of the Secrets Manager secret containing RDS credentials."
-  value       = aws_secretsmanager_secret.rds_credentials.arn
+output "rds_secret_name" {
+  description = "Name of the Secrets Manager secret containing RDS credentials."
+  value       = aws_secretsmanager_secret.rds_credentials.name
 }
 
 output "dynamodb_reports_table_name" {

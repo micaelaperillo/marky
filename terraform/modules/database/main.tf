@@ -149,17 +149,17 @@ resource "aws_db_proxy_target" "main" {
 resource "aws_dynamodb_table" "reports" {
   name         = "${var.project}-reports"
   billing_mode = "PAY_PER_REQUEST"
-  hash_key     = "campaign_id"
-  range_key    = "timestamp"
+  hash_key     = "PK"
+  range_key    = "SK"
 
   attribute {
-    name = "campaign_id"
+    name = "PK"
     type = "S"
   }
 
   attribute {
-    name = "timestamp"
-    type = "N"
+    name = "SK"
+    type = "S"
   }
 
   server_side_encryption {

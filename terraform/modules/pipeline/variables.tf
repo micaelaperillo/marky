@@ -85,21 +85,6 @@ variable "report_writer_max_concurrency" {
   }
 }
 
-variable "cognito_user_pool_id" {
-  type        = string
-  description = "Cognito User Pool ID (shared config requirement)."
-}
-
-variable "cognito_client_id" {
-  type        = string
-  description = "Cognito App Client ID (shared config requirement)."
-}
-
-variable "rds_secret_arn" {
-  type        = string
-  description = "ARN of the Secrets Manager secret with RDS credentials (shared config requirement)."
-}
-
 variable "bluesky_identifier" {
   type        = string
   description = "Bluesky account identifier for the fetcher Lambda."

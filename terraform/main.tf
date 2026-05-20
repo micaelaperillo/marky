@@ -1,3 +1,10 @@
+check "bluesky_credentials_paired" {
+  assert {
+    condition     = (var.bluesky_identifier == null) == (var.bluesky_app_password == null)
+    error_message = "bluesky_identifier and bluesky_app_password must both be set or both be null."
+  }
+}
+
 provider "aws" {
   region = var.region
 
@@ -66,9 +73,6 @@ module "pipeline" {
   lambda_dist_base            = "${path.root}/../lambdas/apps"
   bluesky_identifier          = var.bluesky_identifier
   bluesky_app_password        = var.bluesky_app_password
-  cognito_user_pool_id        = module.auth.user_pool_id
-  cognito_client_id           = module.auth.user_pool_client_id
-  rds_secret_arn              = module.database.rds_secret_arn
 }
 
 module "api" {
@@ -82,13 +86,8 @@ module "api" {
   lambda_sg_id                = module.networking.lambda_sg_id
   cognito_user_pool_id        = module.auth.user_pool_id
   cognito_client_id           = module.auth.user_pool_client_id
-  rds_proxy_endpoint          = module.database.rds_proxy_endpoint
-  db_name                     = module.database.db_name
-  rds_secret_arn              = module.database.rds_secret_arn
+  rds_secret_name             = module.database.rds_secret_name
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
   campaign_events_queue_url   = module.pipeline.campaign_events_queue_url
   lambda_dist_base            = "${path.root}/../lambdas/apps"
-  posts_bucket_name           = module.storage.posts_bucket_name
-  gemini_secret_arn           = module.pipeline.gemini_secret_arn
-  reports_queue_url           = module.pipeline.reports_queue_url
 }

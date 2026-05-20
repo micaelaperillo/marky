@@ -370,14 +370,8 @@ resource "aws_lambda_function" "s3_saver" {
 
   environment {
     variables = {
-      NODE_ENV                    = "production"
-      S3_BUCKET_NAME              = var.posts_bucket_name
-      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID           = var.cognito_client_id
-      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
-      SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.arn
-      SQS_CAMPAIGNS_EVENTS_URL    = aws_sqs_queue.campaign_events.url
-      SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
+      NODE_ENV       = "production"
+      S3_BUCKET_NAME = var.posts_bucket_name
     }
   }
 
@@ -416,13 +410,8 @@ resource "aws_lambda_function" "report_generator" {
   environment {
     variables = {
       NODE_ENV                    = "production"
-      SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.arn
+      SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.name
       SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
-      S3_BUCKET_NAME              = var.posts_bucket_name
-      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID           = var.cognito_client_id
-      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
-      SQS_CAMPAIGNS_EVENTS_URL    = aws_sqs_queue.campaign_events.url
     }
   }
 
@@ -460,15 +449,8 @@ resource "aws_lambda_function" "report_writer" {
 
   environment {
     variables = {
-      NODE_ENV                    = "production"
-      DYNAMODB_TABLE              = var.dynamodb_reports_table_name
-      S3_BUCKET_NAME              = var.posts_bucket_name
-      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID           = var.cognito_client_id
-      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
-      SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.arn
-      SQS_CAMPAIGNS_EVENTS_URL    = aws_sqs_queue.campaign_events.url
-      SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
+      NODE_ENV       = "production"
+      DYNAMODB_TABLE = var.dynamodb_reports_table_name
     }
   }
 
