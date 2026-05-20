@@ -2,7 +2,7 @@
 
 ### 0. Bootstrap State Backend (first time only)
 
-Create the S3 bucket and DynamoDB table for remote state:
+Create the S3 bucket for remote state (uses native S3 locking via `use_lockfile`):
 
 ```bash
 cd terraform/bootstrap
@@ -44,44 +44,50 @@ cp terraform.tfvars.example terraform.tfvars
 
 Edit `terraform.tfvars` — set your `suffix` (unique per team member, ≤13 chars).
 
-### 3. Initialize Terraform
+### 3. Build Lambda functions (optional)
+
+If the `lambdas/` directory exists (after merging the Lambda code branch):
+
+```bash
+cd lambdas && pnpm install && pnpm -r build
+```
+
+Or use the Makefile from the repo root: `make build`. If skipped, Terraform deploys stub handlers.
+
+### 4. Deploy with Makefile
+
+From the repo root:
+
+```bash
+make plan      # builds lambdas + terraform plan
+make deploy    # builds lambdas + terraform apply
+```
+
+Or manually from `terraform/`:
 
 ```bash
 terraform init
-```
-
-Downloads AWS provider, creates `.terraform/` directory.
-
-### 4. Validate configuration
-
-```bash
 terraform validate
-```
-
-Catches syntax/reference errors without touching AWS.
-
-### 5. Plan
-
-```bash
 terraform plan
+terraform apply    # ~15-20 min (RDS instance + proxy is slowest)
 ```
-
-Shows what will be created. Review the resource list — expect ~80 resources (VPC, subnets, VPC endpoints, security groups, RDS + Proxy, API Gateway, 8 Lambdas, 5 SQS FIFO queues + 5 DLQs, SNS FIFO topic, EventBridge schedule group, S3 buckets, DynamoDB, Cognito, Secrets Manager, CloudWatch log groups).
-
-### 6. Apply
-
-```bash
-terraform apply
-```
-
-Type `yes` when prompted. Takes ~15-20 minutes (RDS instance + proxy creation is the slowest part).
 
 ### Post-Apply
 
-Set the Gemini API key manually:
+1. Set the Gemini API key:
 
 ```bash
 aws secretsmanager put-secret-value \
   --secret-id marky-gemini-api-key-<suffix> \
   --secret-string '{"api_key":"your-key-here"}'
 ```
+
+2. Deploy the frontend (if `frontend/` directory exists):
+
+```bash
+make deploy-frontend
+```
+
+This extracts Cognito IDs from Terraform outputs, builds the SvelteKit frontend, and uploads to S3.
+
+Or do everything at once: `make deploy-all` (infra + frontend).
