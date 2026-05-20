@@ -42,11 +42,11 @@ module "database" {
   project           = var.project
   suffix            = random_string.suffix.result
   db_instance_class = var.db_instance_class
-  db_name       = var.db_name
-  db_username   = var.db_username
-  subnet_ids    = module.networking.backend_subnet_ids
-  rds_sg_id     = module.networking.rds_sg_id
-  lab_role_arn  = local.lab_role_arn
+  db_name           = var.db_name
+  db_username       = var.db_username
+  subnet_ids        = module.networking.backend_subnet_ids
+  rds_sg_id         = module.networking.rds_sg_id
+  lab_role_arn      = local.lab_role_arn
 }
 
 module "storage" {
@@ -63,6 +63,9 @@ module "pipeline" {
   lab_role_arn                = local.lab_role_arn
   posts_bucket_name           = module.storage.posts_bucket_name
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
+  lambda_dist_base            = "${path.root}/../lambdas/apps"
+  bluesky_identifier          = var.bluesky_identifier
+  bluesky_app_password        = var.bluesky_app_password
 }
 
 module "api" {
@@ -81,4 +84,5 @@ module "api" {
   rds_secret_arn              = module.database.rds_secret_arn
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
   campaign_events_queue_url   = module.pipeline.campaign_events_queue_url
+  lambda_dist_base            = "${path.root}/../lambdas/apps"
 }

@@ -1,5 +1,13 @@
 locals {
-  s3_uri_base = "arn:aws:apigateway:${var.region}:s3:path/${var.frontend_bucket_name}"
+  s3_uri_base  = "arn:aws:apigateway:${var.region}:s3:path/${var.frontend_bucket_name}"
+  stub_handler = "export const handler = async (event) => ({ statusCode: 200, headers: {\"Content-Type\": \"application/json\"}, body: JSON.stringify({ message: \"stub\" }) });"
+  pkg_json_esm = "{\"type\":\"module\"}"
+
+  api_apps = {
+    auth      = "users"
+    campaigns = "campaigns"
+    reports   = "reports"
+  }
 }
 
 # ============================================================
@@ -11,12 +19,15 @@ data "archive_file" "auth" {
   output_path = "${path.module}/dist/auth.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "placeholder" }) };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.api_apps["auth"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -25,12 +36,15 @@ data "archive_file" "campaigns" {
   output_path = "${path.module}/dist/campaigns.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "placeholder" }) };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.api_apps["campaigns"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -39,19 +53,22 @@ data "archive_file" "reports" {
   output_path = "${path.module}/dist/reports.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        return { statusCode: 200, headers: { "Content-Type": "application/json" }, body: JSON.stringify({ message: "placeholder" }) };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.api_apps["reports"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
 resource "aws_lambda_function" "auth" {
   function_name    = "${var.project}-auth"
   role             = var.lab_role_arn
-  handler          = "index.handler"
+  handler          = "handler.handler"
   runtime          = "nodejs22.x"
   filename         = data.archive_file.auth.output_path
   source_code_hash = data.archive_file.auth.output_base64sha256
@@ -67,16 +84,12 @@ resource "aws_lambda_function" "auth" {
   }
 
   tags = { Name = "${var.project}-auth-lambda" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 resource "aws_lambda_function" "campaigns" {
   function_name    = "${var.project}-campaigns"
   role             = var.lab_role_arn
-  handler          = "index.handler"
+  handler          = "handler.handler"
   runtime          = "nodejs22.x"
   filename         = data.archive_file.campaigns.output_path
   source_code_hash = data.archive_file.campaigns.output_base64sha256
@@ -85,13 +98,13 @@ resource "aws_lambda_function" "campaigns" {
 
   environment {
     variables = {
-      RDS_PROXY_ENDPOINT        = var.rds_proxy_endpoint
-      DB_NAME                   = var.db_name
-      RDS_SECRET_ARN            = var.rds_secret_arn
-      CAMPAIGN_EVENTS_QUEUE_URL = var.campaign_events_queue_url
-      COGNITO_USER_POOL_ID      = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID         = var.cognito_client_id
-      NODE_ENV                  = "production"
+      RDS_PROXY_ENDPOINT       = var.rds_proxy_endpoint
+      DB_NAME                  = var.db_name
+      SM_RDS_CREDENTIALS_ID    = var.rds_secret_arn
+      SQS_CAMPAIGNS_EVENTS_URL = var.campaign_events_queue_url
+      COGNITO_USER_POOL_ID     = var.cognito_user_pool_id
+      COGNITO_CLIENT_ID        = var.cognito_client_id
+      NODE_ENV                 = "production"
     }
   }
 
@@ -101,16 +114,12 @@ resource "aws_lambda_function" "campaigns" {
   }
 
   tags = { Name = "${var.project}-campaigns-lambda" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 resource "aws_lambda_function" "reports" {
   function_name    = "${var.project}-reports"
   role             = var.lab_role_arn
-  handler          = "index.handler"
+  handler          = "handler.handler"
   runtime          = "nodejs22.x"
   filename         = data.archive_file.reports.output_path
   source_code_hash = data.archive_file.reports.output_base64sha256
@@ -127,10 +136,6 @@ resource "aws_lambda_function" "reports" {
   }
 
   tags = { Name = "${var.project}-reports-lambda" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 # ============================================================
@@ -799,12 +804,12 @@ resource "aws_api_gateway_stage" "prod" {
   access_log_settings {
     destination_arn = aws_cloudwatch_log_group.api_gateway.arn
     format = jsonencode({
-      requestId      = "$context.requestId"
-      ip             = "$context.identity.sourceIp"
-      httpMethod     = "$context.httpMethod"
-      resourcePath   = "$context.resourcePath"
-      status         = "$context.status"
-      responseLength = "$context.responseLength"
+      requestId          = "$context.requestId"
+      ip                 = "$context.identity.sourceIp"
+      httpMethod         = "$context.httpMethod"
+      resourcePath       = "$context.resourcePath"
+      status             = "$context.status"
+      responseLength     = "$context.responseLength"
       requestTime        = "$context.requestTime"
       integrationLatency = "$context.integrationLatency"
       errorMessage       = "$context.error.message"

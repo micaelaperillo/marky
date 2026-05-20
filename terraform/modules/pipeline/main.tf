@@ -241,6 +241,19 @@ resource "aws_secretsmanager_secret" "gemini_api_key" {
 # Section 5: Lambda Functions
 ################################################################################
 
+locals {
+  stub_handler = "export const handler = async (event) => ({ statusCode: 200, body: JSON.stringify({ message: 'stub' }) });"
+  pkg_json_esm = "{\"type\":\"module\"}"
+
+  pipeline_apps = {
+    orchestrator     = "orchestrator"
+    fetcher          = "bluesky-ingest"
+    s3_saver         = "bluesky-store"
+    report_generator = "report-creator"
+    report_writer    = "report-writer"
+  }
+}
+
 # --- Orchestrator ---
 
 data "archive_file" "orchestrator" {
@@ -248,13 +261,15 @@ data "archive_file" "orchestrator" {
   output_path = "${path.module}/dist/orchestrator.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.pipeline_apps["orchestrator"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -262,7 +277,7 @@ resource "aws_lambda_function" "orchestrator" {
   function_name    = "${var.project}-orchestrator"
   role             = var.lab_role_arn
   runtime          = "nodejs22.x"
-  handler          = "index.handler"
+  handler          = "handler.handler"
   filename         = data.archive_file.orchestrator.output_path
   source_code_hash = data.archive_file.orchestrator.output_base64sha256
   timeout          = 60
@@ -274,15 +289,11 @@ resource "aws_lambda_function" "orchestrator" {
       CAMPAIGN_TOPICS_QUEUE_URL = aws_sqs_queue.campaign_topics.url
       SCHEDULE_GROUP_NAME       = aws_scheduler_schedule_group.campaigns.name
       SCHEDULER_ROLE_ARN        = var.lab_role_arn
-      CAMPAIGN_TOPICS_QUEUE_ARN = aws_sqs_queue.campaign_topics.arn
+      SCHEDULER_LAMBDA_ARN      = aws_lambda_function.fetcher.arn
     }
   }
 
   tags = { Name = "${var.project}-orchestrator" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 # --- Fetcher ---
@@ -292,13 +303,15 @@ data "archive_file" "fetcher" {
   output_path = "${path.module}/dist/fetcher.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.pipeline_apps["fetcher"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -306,24 +319,24 @@ resource "aws_lambda_function" "fetcher" {
   function_name    = "${var.project}-fetcher"
   role             = var.lab_role_arn
   runtime          = "nodejs22.x"
-  handler          = "index.handler"
+  handler          = "handler.handler"
   filename         = data.archive_file.fetcher.output_path
   source_code_hash = data.archive_file.fetcher.output_base64sha256
   timeout          = 120
   memory_size      = 256
 
   environment {
-    variables = {
-      NODE_ENV      = "production"
-      SNS_TOPIC_ARN = aws_sns_topic.campaign_posts.arn
-    }
+    variables = merge(
+      {
+        NODE_ENV      = "production"
+        SNS_TOPIC_ARN = aws_sns_topic.campaign_posts.arn
+      },
+      var.bluesky_identifier != null ? { BLUESKY_IDENTIFIER = var.bluesky_identifier } : {},
+      var.bluesky_app_password != null ? { BLUESKY_APP_PASSWORD = var.bluesky_app_password } : {}
+    )
   }
 
   tags = { Name = "${var.project}-fetcher" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 # --- S3 Saver ---
@@ -333,13 +346,15 @@ data "archive_file" "s3_saver" {
   output_path = "${path.module}/dist/s3_saver.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.pipeline_apps["s3_saver"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -347,7 +362,7 @@ resource "aws_lambda_function" "s3_saver" {
   function_name    = "${var.project}-s3-saver"
   role             = var.lab_role_arn
   runtime          = "nodejs22.x"
-  handler          = "index.handler"
+  handler          = "handler.handler"
   filename         = data.archive_file.s3_saver.output_path
   source_code_hash = data.archive_file.s3_saver.output_base64sha256
   timeout          = 60
@@ -355,16 +370,12 @@ resource "aws_lambda_function" "s3_saver" {
 
   environment {
     variables = {
-      NODE_ENV     = "production"
-      POSTS_BUCKET = var.posts_bucket_name
+      NODE_ENV       = "production"
+      S3_BUCKET_NAME = var.posts_bucket_name
     }
   }
 
   tags = { Name = "${var.project}-s3-saver" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 # --- Report Generator ---
@@ -374,13 +385,15 @@ data "archive_file" "report_generator" {
   output_path = "${path.module}/dist/report_generator.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.pipeline_apps["report_generator"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -388,7 +401,7 @@ resource "aws_lambda_function" "report_generator" {
   function_name    = "${var.project}-report-generator"
   role             = var.lab_role_arn
   runtime          = "nodejs22.x"
-  handler          = "index.handler"
+  handler          = "handler.handler"
   filename         = data.archive_file.report_generator.output_path
   source_code_hash = data.archive_file.report_generator.output_base64sha256
   timeout          = 300
@@ -396,17 +409,13 @@ resource "aws_lambda_function" "report_generator" {
 
   environment {
     variables = {
-      NODE_ENV          = "production"
-      GEMINI_SECRET_ARN = aws_secretsmanager_secret.gemini_api_key.arn
-      REPORTS_QUEUE_URL = aws_sqs_queue.reports.url
+      NODE_ENV                    = "production"
+      SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.arn
+      SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
     }
   }
 
   tags = { Name = "${var.project}-report-generator" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 # --- Report Writer ---
@@ -416,13 +425,15 @@ data "archive_file" "report_writer" {
   output_path = "${path.module}/dist/report_writer.zip"
 
   source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/${local.pipeline_apps["report_writer"]}/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
   }
 }
 
@@ -430,7 +441,7 @@ resource "aws_lambda_function" "report_writer" {
   function_name    = "${var.project}-report-writer"
   role             = var.lab_role_arn
   runtime          = "nodejs22.x"
-  handler          = "index.handler"
+  handler          = "handler.handler"
   filename         = data.archive_file.report_writer.output_path
   source_code_hash = data.archive_file.report_writer.output_base64sha256
   timeout          = 60
@@ -444,10 +455,6 @@ resource "aws_lambda_function" "report_writer" {
   }
 
   tags = { Name = "${var.project}-report-writer" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
 }
 
 ################################################################################

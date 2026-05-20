@@ -3,6 +3,13 @@ variable "project" {
   description = "Project name prefix for all resource names and tags."
 }
 
+variable "lambda_dist_base" {
+  type        = string
+  description = "Base path to the Lambda workspace apps directory. Null = use stubs."
+  default     = null
+  nullable    = true
+}
+
 variable "region" {
   type        = string
   description = "AWS region for resource deployment."

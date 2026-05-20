@@ -28,3 +28,17 @@ variable "db_username" {
   type    = string
   default = "marky_admin"
 }
+
+variable "bluesky_identifier" {
+  type        = string
+  description = "Bluesky account identifier for the fetcher Lambda."
+  default     = null
+  sensitive   = true
+}
+
+variable "bluesky_app_password" {
+  type        = string
+  description = "Bluesky app password for the fetcher Lambda."
+  default     = null
+  sensitive   = true
+}

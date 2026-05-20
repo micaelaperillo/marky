@@ -3,6 +3,13 @@ variable "project" {
   description = "Project name prefix for all resource names and tags."
 }
 
+variable "lambda_dist_base" {
+  type        = string
+  description = "Base path to the Lambda workspace apps directory. Null = use stubs."
+  default     = null
+  nullable    = true
+}
+
 variable "suffix" {
   type        = string
   description = "Auto-generated suffix for globally-scoped resources (secrets, etc.)."
@@ -76,4 +83,18 @@ variable "report_writer_max_concurrency" {
     condition     = var.report_writer_max_concurrency >= 2 && var.report_writer_max_concurrency <= 1000
     error_message = "Maximum concurrency must be between 2 and 1000."
   }
+}
+
+variable "bluesky_identifier" {
+  type        = string
+  description = "Bluesky account identifier for the fetcher Lambda."
+  default     = null
+  sensitive   = true
+}
+
+variable "bluesky_app_password" {
+  type        = string
+  description = "Bluesky app password for the fetcher Lambda."
+  default     = null
+  sensitive   = true
 }
