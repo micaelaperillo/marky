@@ -3,10 +3,12 @@
 ################################################################################
 
 resource "aws_sqs_queue" "campaign_events_dlq" {
-  name                      = "${var.project}-campaign-events-dlq"
-  message_retention_seconds = 1209600
-  sqs_managed_sse_enabled   = true
-  tags                      = { Name = "${var.project}-campaign-events-dlq" }
+  name                        = "${var.project}-campaign-events-dlq.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = false
+  message_retention_seconds   = 1209600
+  sqs_managed_sse_enabled     = true
+  tags                        = { Name = "${var.project}-campaign-events-dlq" }
 }
 
 resource "aws_sqs_queue" "campaign_topics_dlq" {
@@ -50,10 +52,14 @@ resource "aws_sqs_queue" "reports_dlq" {
 ################################################################################
 
 resource "aws_sqs_queue" "campaign_events" {
-  name                       = "${var.project}-campaign-events"
-  visibility_timeout_seconds = 360
-  message_retention_seconds  = 1209600
-  sqs_managed_sse_enabled    = true
+  name                        = "${var.project}-campaign-events.fifo"
+  fifo_queue                  = true
+  content_based_deduplication = false
+  deduplication_scope         = "messageGroup"
+  fifo_throughput_limit       = "perMessageGroupId"
+  visibility_timeout_seconds  = 360
+  message_retention_seconds   = 1209600
+  sqs_managed_sse_enabled     = true
   redrive_policy = jsonencode({
     deadLetterTargetArn = aws_sqs_queue.campaign_events_dlq.arn
     maxReceiveCount     = 3

@@ -60,5 +60,5 @@ variable "dynamodb_reports_table_name" {
 
 variable "campaign_events_queue_url" {
   type        = string
-  description = "URL of the campaign events SQS queue."
+  description = "URL of the campaign events FIFO SQS queue."
 }

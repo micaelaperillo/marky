@@ -1,10 +1,10 @@
 output "campaign_events_queue_url" {
-  description = "URL of the campaign events SQS queue."
+  description = "URL of the campaign events FIFO SQS queue."
   value       = aws_sqs_queue.campaign_events.url
 }
 
 output "campaign_events_queue_arn" {
-  description = "ARN of the campaign events SQS queue."
+  description = "ARN of the campaign events FIFO SQS queue."
   value       = aws_sqs_queue.campaign_events.arn
 }
 
