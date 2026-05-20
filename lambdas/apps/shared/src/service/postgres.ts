@@ -27,7 +27,8 @@ let _pool: Pool | null = null;
 
 export async function getPool(): Promise<Pool> {
 	if (_pool) return _pool;
-	const data = CredentialsSchema.parse(await getSecret(env.sm.rds));
+	const raw = await getSecret(env.sm.rds);
+	const data = CredentialsSchema.parse(JSON.parse(raw as string));
 	_pool = new Pool({ ...data, max: 1 });
 	return _pool;
 }
