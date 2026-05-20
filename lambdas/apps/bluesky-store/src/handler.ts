@@ -1,55 +1,59 @@
-import type { SQSHandler, SQSBatchItemFailure, SNSMessage } from "aws-lambda";
-
-import { env } from "@shared/config";
+import { S3EnvSchema } from "@shared/config";
 import * as s3 from "@shared/service/s3";
+import type { SQSHandler } from "aws-lambda";
+
+const env = S3EnvSchema.parse(process.env);
 
 export interface BlueSkyPost {
-    uri: string;
-    text: string;
-    date: string;
-    user: string;
-    avatar?: string;
-    likeCount: number;
-    repostCount: number;
+	uri: string;
+	text: string;
+	date: string;
+	user: string;
+	avatar?: string;
+	likeCount: number;
+	repostCount: number;
 }
 
 export interface BlueSkyResult {
-    id: string;
-    topics: string[];
-    fetchedAt: string;
-    posts: BlueSkyPost[];
+	id: string;
+	topics: string[];
+	fetchedAt: string;
+	posts: BlueSkyPost[];
 }
 
 export const handler: SQSHandler = async (event) => {
-    const failures: SQSBatchItemFailure[] = [];
+	const failures: { itemIdentifier: string }[] = [];
 
-    for (const record of event.Records) {
-        try {
-            const envelope = JSON.parse(record.body) as SNSMessage;
-            const result = JSON.parse(envelope.Message) as BlueSkyResult;
+	for (const record of event.Records) {
+		try {
+			const raw = JSON.parse(record.body);
+			if (!raw.id || !raw.fetchedAt || !Array.isArray(raw.posts)) {
+				throw new Error("Invalid message: missing id, fetchedAt, or posts");
+			}
+			const result = raw as BlueSkyResult;
 
-            await storeResult(result);
+			await storeResult(result);
 
-            console.log(
-                `Stored campaignId=${result.id} topic="${result.topics.join(",")}" posts=${result.posts.length}`
-            );
-        } catch (err) {
-            console.error("Failed record", record.messageId, err);
-            failures.push({ itemIdentifier: record.messageId });
-        }
-    }
+			console.log(
+				`Stored campaignId=${result.id} topic="${result.topics.join(",")}" posts=${result.posts.length}`,
+			);
+		} catch (err) {
+			console.error("Failed record", record.messageId, err);
+			failures.push({ itemIdentifier: record.messageId });
+		}
+	}
 
-    return { batchItemFailures: failures };
+	return { batchItemFailures: failures };
 };
 
-export async function storeResult(result: BlueSkyResult) {
-    const unix = +new Date(result.fetchedAt);
-    const key = `bluesky/${result.id}/${unix}.json`;
+async function storeResult(result: BlueSkyResult) {
+	const unix = +new Date(result.fetchedAt);
+	const key = `bluesky/${result.id}/${unix}.json`;
 
-    await s3.store({
-        Bucket: env.s3.bucket,
-        Key: key,
-        Body: JSON.stringify(result),
-        ContentType: "application/json"
-    });
+	await s3.store({
+		Body: JSON.stringify(result),
+		Bucket: env.s3.bucket,
+		ContentType: "application/json",
+		Key: key,
+	});
 }

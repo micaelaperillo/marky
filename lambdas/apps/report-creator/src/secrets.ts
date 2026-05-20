@@ -1,8 +1,9 @@
 import { getSecret } from "@aws-lambda-powertools/parameters/secrets";
-import { z } from "zod/v4/mini";
+import { SecretsEnvSchema } from "@shared/config";
+import z from "zod";
 
-import { env } from "@shared/config";
+const env = SecretsEnvSchema.parse(process.env);
 
 export async function getGeminiApiKey() {
-    return z.string().parse(await getSecret(env.sm.gemini));
+	return z.string().parse(await getSecret(env.sm.gemini));
 }
