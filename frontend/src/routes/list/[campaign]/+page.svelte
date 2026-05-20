@@ -31,6 +31,27 @@
 				? 'text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400'
 				: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400'
 	);
+	function fmtDateTime(value?: string) {
+	if (!value) return '—';
+
+		return new Intl.DateTimeFormat('es-AR', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		}).format(new Date(value));
+	}
+
+
+	function nextUpdate(value?: string) {
+		if (!value) return null;
+
+		const next = new Date(value);
+		next.setMinutes(next.getMinutes() + 10);
+
+		return next;
+	}
 </script>
 
 <div class="flex-1">
@@ -65,6 +86,22 @@
 						<span class="inline-flex items-center gap-1.5">
 							<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
 							{running ? 'Active' : 'Ended'}
+						</span>
+						
+						<span class="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
+							<span class="h-2 w-2 animate-pulse rounded-full bg-brand-500"></span>
+
+							Next update in {
+								report?.generated_at
+									? Math.max(
+											0,
+											10 -
+												Math.floor(
+													(Date.now() - new Date(report.generated_at).getTime()) / 60000
+												)
+										)
+									: '—'
+							} min
 						</span>
 					</div>
 				</div>
@@ -107,11 +144,23 @@
 			</div>
 
 			<div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
-				<p class="text-xs font-semibold text-slate-500 uppercase dark:text-slate-400">Generated at</p>
-				<p class="mt-2 text-sm font-semibold text-slate-900 dark:text-white">
-					{report?.generated_at ? fmt(report.generated_at) : '—'}
-				</p>
-			</div>
+	<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+		Report updates
+	</p>
+
+	<div class="mt-3 space-y-2">
+		<div>
+			<p class="text-xs text-slate-500 dark:text-slate-400">
+				Last update
+			</p>
+
+			<p class="text-lg font-black text-slate-900 dark:text-white">
+				{fmtDateTime(report?.generated_at)}
+			</p>
+		</div>
+		
+	</div>
+</div>
 		</section>
 
 		<section class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
