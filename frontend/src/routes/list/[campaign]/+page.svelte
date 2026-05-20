@@ -2,7 +2,7 @@
 	import type { PageProps } from './$types';
 	import { resolve } from '$app/paths';
 	import { fmt, daysLeft as computeDaysLeft } from '$lib/utils/date';
-
+	import SentimentChart from '$lib/components/reports/SentimentChart.svelte';
 	let { data, params }: PageProps = $props();
 
 	const campaign = $derived(data.campaign);
@@ -209,29 +209,18 @@
 		</section>
 
 		<section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
-			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-				Sentiment timeline
-			</h2>
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">
+					Sentiment timeline
+				</h2>
 
-			<div class="mt-5 space-y-3">
-				{#each timeline as point}
-					<div class="grid grid-cols-[140px_1fr_64px] items-center gap-3 text-sm">
-						<span class="text-slate-500 dark:text-slate-400">{fmt(point.timestamp)}</span>
+				<span class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+					Per hour
+				</span>
+			</div>
 
-						<div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-							<div
-								class="h-full rounded-full bg-brand-600"
-								style={`width: ${Math.max(0, Math.min(100, point.sentiment))}%`}
-							></div>
-						</div>
-
-						<span class="text-right font-semibold text-slate-900 dark:text-white">
-							{Math.round(point.sentiment)}%
-						</span>
-					</div>
-				{:else}
-					<p class="text-sm text-slate-500 dark:text-slate-400">No sentiment history yet.</p>
-				{/each}
+			<div class="mt-6">
+				<SentimentChart points={timeline} />
 			</div>
 		</section>
 
