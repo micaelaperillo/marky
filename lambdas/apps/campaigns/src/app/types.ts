@@ -5,10 +5,10 @@ export type Campaign = z.infer<typeof CampaignSchema>;
 export type CampaignInput = z.infer<typeof CampaignInputSchema>;
 
 export type CampaignEvent = {
-    id: string;
-    action: "create" | "delete";
-    topics: string[];
-    startDate: string;
-    endDate: string;
-    rateMinutes?: number;
+	campaignId: string;
+	action: "create" | "delete";
+	topics: string[];
+	startDate: string;
+	endDate: string;
+	rateMinutes?: number;
 };
