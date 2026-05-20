@@ -184,14 +184,14 @@ resource "aws_sns_topic_subscription" "posts_to_s3" {
   topic_arn            = aws_sns_topic.campaign_posts.arn
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.posts_to_s3.arn
-  raw_message_delivery = true
+  raw_message_delivery = false
 }
 
 resource "aws_sns_topic_subscription" "posts_to_analyze" {
   topic_arn            = aws_sns_topic.campaign_posts.arn
   protocol             = "sqs"
   endpoint             = aws_sqs_queue.posts_to_analyze.arn
-  raw_message_delivery = true
+  raw_message_delivery = false
 }
 
 resource "aws_sqs_queue_policy" "posts_to_s3" {
