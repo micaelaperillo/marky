@@ -25,9 +25,6 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
-        with:
-          # cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
-          terraform_version: 1.1.7
 
       - name: Terraform Format
         id: fmt
@@ -35,7 +32,7 @@ jobs:
         continue-on-error: false
 
       - name: Post Format
-        if: always() && github.ref != 'refs/heads/master' && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure')
+        if: always() && github.ref != 'refs/heads/main' && (steps.fmt.outcome == 'success' || steps.fmt.outcome == 'failure')
         uses: robburger/terraform-pr-commenter@v1
         with:
           commenter_type: fmt

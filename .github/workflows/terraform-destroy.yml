@@ -7,10 +7,19 @@ on:
         description: 'Type "destroy" to confirm'
         required: true
 
+env:
+  AWS_REGION: us-east-1
+
+permissions:
+  contents: read
+
 jobs:
   destroy:
     name: 'Destroy Infrastructure'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
     steps:
       - name: Verify Confirmation
@@ -24,6 +33,8 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -34,7 +45,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Terraform Init
-        run: terraform init -backend-config=envs/prod/backend.hcl
+        run: terraform init
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve -input=false

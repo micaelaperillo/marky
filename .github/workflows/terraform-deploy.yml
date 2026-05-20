@@ -1,10 +1,12 @@
-# "Stolen" from https://dev.to/aws-builders/provisioning-aws-infrastructure-using-terraform-and-github-actions-40ei
 name: 'Terraform CI/CD'
 
 on:
   push:
     branches:
       - main
+
+env:
+  AWS_REGION: us-east-1
 
 permissions:
   contents: read
@@ -13,13 +15,28 @@ jobs:
   terraform:
     name: 'Terraform'
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: terraform
 
     steps:
       - name: Checkout
         uses: actions/checkout@v6
 
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: '10'
+
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -29,18 +46,37 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Build Lambda functions
+        working-directory: .
+        run: |
+          if [ -d lambdas ]; then
+            cd lambdas && pnpm install --frozen-lockfile && pnpm -r build
+          fi
+
       - name: Terraform Init
-        id: init
-        run: terraform init -backend-config=envs/prod/backend.hcl
+        run: terraform init
 
       - name: Terraform Validate
-        id: validate
-        run: terraform validate -check -recursive
-
-      - name: Terraform Plan
-        id: plan
-        if: github.event_name == 'pull_request'
-        run: terraform plan -input=false
+        run: terraform validate
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
+
+      - name: Deploy Frontend
+        working-directory: .
+        run: |
+          if [ -d frontend ]; then
+            cd terraform
+            POOL_ID=$(terraform output -raw cognito_user_pool_id) || { echo "Failed to get cognito_user_pool_id"; exit 1; }
+            CLIENT_ID=$(terraform output -raw cognito_client_id) || { echo "Failed to get cognito_client_id"; exit 1; }
+            BUCKET=$(terraform output -raw frontend_bucket_name) || { echo "Failed to get frontend_bucket_name"; exit 1; }
+            echo "::add-mask::$POOL_ID"
+            echo "::add-mask::$CLIENT_ID"
+            cd ../frontend
+            pnpm install --frozen-lockfile
+            VITE_COGNITO_USER_POOL_ID=$POOL_ID \
+              VITE_COGNITO_CLIENT_ID=$CLIENT_ID \
+              BASE_PATH=/prod \
+              pnpm build
+            aws s3 sync build/ s3://$BUCKET/ --delete
+          fi
