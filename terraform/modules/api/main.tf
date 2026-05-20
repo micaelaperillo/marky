@@ -77,9 +77,14 @@ resource "aws_lambda_function" "auth" {
 
   environment {
     variables = {
-      COGNITO_USER_POOL_ID = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID    = var.cognito_client_id
-      NODE_ENV             = "production"
+      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
+      COGNITO_CLIENT_ID           = var.cognito_client_id
+      NODE_ENV                    = "production"
+      S3_BUCKET_NAME              = var.posts_bucket_name
+      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
+      SM_GEMINI_API_KEY_SECRET_ID = var.gemini_secret_arn
+      SQS_CAMPAIGNS_EVENTS_URL    = var.campaign_events_queue_url
+      SQS_OUTPUT_REPORTS_URL      = var.reports_queue_url
     }
   }
 
@@ -98,13 +103,16 @@ resource "aws_lambda_function" "campaigns" {
 
   environment {
     variables = {
-      RDS_PROXY_ENDPOINT       = var.rds_proxy_endpoint
-      DB_NAME                  = var.db_name
-      SM_RDS_CREDENTIALS_ID    = var.rds_secret_arn
-      SQS_CAMPAIGNS_EVENTS_URL = var.campaign_events_queue_url
-      COGNITO_USER_POOL_ID     = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID        = var.cognito_client_id
-      NODE_ENV                 = "production"
+      RDS_PROXY_ENDPOINT          = var.rds_proxy_endpoint
+      DB_NAME                     = var.db_name
+      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
+      SQS_CAMPAIGNS_EVENTS_URL    = var.campaign_events_queue_url
+      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
+      COGNITO_CLIENT_ID           = var.cognito_client_id
+      NODE_ENV                    = "production"
+      S3_BUCKET_NAME              = var.posts_bucket_name
+      SM_GEMINI_API_KEY_SECRET_ID = var.gemini_secret_arn
+      SQS_OUTPUT_REPORTS_URL      = var.reports_queue_url
     }
   }
 
@@ -128,10 +136,15 @@ resource "aws_lambda_function" "reports" {
 
   environment {
     variables = {
-      DYNAMODB_TABLE       = var.dynamodb_reports_table_name
-      COGNITO_USER_POOL_ID = var.cognito_user_pool_id
-      COGNITO_CLIENT_ID    = var.cognito_client_id
-      NODE_ENV             = "production"
+      DYNAMODB_TABLE              = var.dynamodb_reports_table_name
+      COGNITO_USER_POOL_ID        = var.cognito_user_pool_id
+      COGNITO_CLIENT_ID           = var.cognito_client_id
+      NODE_ENV                    = "production"
+      S3_BUCKET_NAME              = var.posts_bucket_name
+      SM_RDS_CREDENTIALS_ID       = var.rds_secret_arn
+      SM_GEMINI_API_KEY_SECRET_ID = var.gemini_secret_arn
+      SQS_CAMPAIGNS_EVENTS_URL    = var.campaign_events_queue_url
+      SQS_OUTPUT_REPORTS_URL      = var.reports_queue_url
     }
   }
 

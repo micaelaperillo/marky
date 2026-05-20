@@ -48,6 +48,11 @@ output "report_writer_function_name" {
   value       = aws_lambda_function.report_writer.function_name
 }
 
+output "reports_queue_url" {
+  description = "URL of the reports FIFO SQS queue."
+  value       = aws_sqs_queue.reports.url
+}
+
 output "gemini_secret_arn" {
   description = "ARN of the Secrets Manager secret for the Gemini API key."
   value       = aws_secretsmanager_secret.gemini_api_key.arn

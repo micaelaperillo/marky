@@ -66,6 +66,9 @@ module "pipeline" {
   lambda_dist_base            = "${path.root}/../lambdas/apps"
   bluesky_identifier          = var.bluesky_identifier
   bluesky_app_password        = var.bluesky_app_password
+  cognito_user_pool_id        = module.auth.user_pool_id
+  cognito_client_id           = module.auth.user_pool_client_id
+  rds_secret_arn              = module.database.rds_secret_arn
 }
 
 module "api" {
@@ -85,4 +88,7 @@ module "api" {
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
   campaign_events_queue_url   = module.pipeline.campaign_events_queue_url
   lambda_dist_base            = "${path.root}/../lambdas/apps"
+  posts_bucket_name           = module.storage.posts_bucket_name
+  gemini_secret_arn           = module.pipeline.gemini_secret_arn
+  reports_queue_url           = module.pipeline.reports_queue_url
 }

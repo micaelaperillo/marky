@@ -69,3 +69,18 @@ variable "campaign_events_queue_url" {
   type        = string
   description = "URL of the campaign events FIFO SQS queue."
 }
+
+variable "posts_bucket_name" {
+  type        = string
+  description = "Name of the S3 posts bucket (shared config requirement)."
+}
+
+variable "gemini_secret_arn" {
+  type        = string
+  description = "ARN of the Gemini API key secret (shared config requirement)."
+}
+
+variable "reports_queue_url" {
+  type        = string
+  description = "URL of the reports FIFO SQS queue (shared config requirement)."
+}
