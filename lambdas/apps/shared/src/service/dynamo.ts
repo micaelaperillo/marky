@@ -1,4 +1,8 @@
-import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
+import {
+    DynamoDBClient,
+    PutItemCommand,
+    type PutItemCommandInput
+} from "@aws-sdk/client-dynamodb";
 
 import { env } from "@shared/config";
 
@@ -12,5 +16,9 @@ export const dynamo = new DynamoDBClient({
         }
     })
 });
+
+export function put(input: PutItemCommandInput) {
+    return dynamo.send(new PutItemCommand(input));
+}
 
 export const TABLE = env.aws.dynamoTable;
