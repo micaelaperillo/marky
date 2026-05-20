@@ -5,6 +5,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  TF_VAR_gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
   TF_VAR_bluesky_identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
   TF_VAR_bluesky_app_password: ${{ secrets.BLUESKY_APP_PASSWORD }}
 
@@ -61,13 +62,6 @@ jobs:
 
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
-
-      - name: Set Gemini API Key in Secrets Manager
-        run: |
-          SECRET_NAME=$(terraform output -raw gemini_secret_arn)
-          aws secretsmanager put-secret-value \
-            --secret-id "$SECRET_NAME" \
-            --secret-string "${{ secrets.GEMINI_API_KEY }}"
 
       - name: Deploy Frontend
         working-directory: .

@@ -29,6 +29,12 @@ variable "db_username" {
   default = "marky_admin"
 }
 
+variable "gemini_api_key" {
+  type        = string
+  description = "Google Gemini API key for report generation."
+  sensitive   = true
+}
+
 variable "bluesky_identifier" {
   type        = string
   description = "BlueSky handle (e.g. user.bsky.social)"

@@ -237,6 +237,11 @@ resource "aws_secretsmanager_secret" "gemini_api_key" {
   tags                    = { Name = "${var.project}-gemini-api-key" }
 }
 
+resource "aws_secretsmanager_secret_version" "gemini_api_key" {
+  secret_id     = aws_secretsmanager_secret.gemini_api_key.id
+  secret_string = var.gemini_api_key
+}
+
 ################################################################################
 # Section 5: Lambda Functions
 ################################################################################
