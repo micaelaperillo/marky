@@ -46,7 +46,6 @@ output "lambda_function_names" {
     campaigns        = module.api.campaigns_lambda_function_name
     reports          = module.api.reports_lambda_function_name
     orchestrator     = module.pipeline.orchestrator_function_name
-    scheduler        = module.pipeline.scheduler_function_name
     fetcher          = module.pipeline.fetcher_function_name
     s3_saver         = module.pipeline.s3_saver_function_name
     report_generator = module.pipeline.report_generator_function_name

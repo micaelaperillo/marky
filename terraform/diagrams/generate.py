@@ -71,11 +71,10 @@ with Diagram(
     gemini_api = Firewall("Gemini API")
 
     with Cluster("Event-Driven Pipeline"):
-        sqs_events = SQS("CampaignEvents\n(standard)")
+        sqs_events = SQS("CampaignEvents\n.fifo (hi-thru)")
 
         with Cluster("Orchestration"):
             orchestrator = Lambda("Orchestrator")
-            scheduler = Lambda("Scheduler")
             eb_schedules = Eventbridge("EventBridge\nSchedule Group")
 
         sqs_topics = SQS("CampaignTopics\n.fifo (hi-thru)")
@@ -98,10 +97,10 @@ with Diagram(
         sqs_reports = SQS("Reports.fifo")
         report_writer = Lambda("ReportWriter")
 
-    with Cluster("Dead Letter Queues (6)"):
-        dlq = SQS("6 DLQs\n(incl. Scheduler)\n14d retention")
+    with Cluster("Dead Letter Queues (5)"):
+        dlq = SQS("5 DLQs\n14d retention")
 
-    logs = Cloudwatch("CloudWatch\n10 Log Groups\n14d retention")
+    logs = Cloudwatch("CloudWatch\n9 Log Groups\n14d retention")
 
     # ── User-facing flows ────────────────────────────────────────────────────
     user >> Edge(label="GET /*") >> s3_frontend
@@ -129,8 +128,7 @@ with Diagram(
     sqs_events >> orchestrator
     orchestrator >> eb_schedules
     orchestrator >> sqs_topics
-    eb_schedules >> scheduler
-    scheduler >> sqs_topics
+    eb_schedules >> sqs_topics
     sqs_topics >> fetcher
     fetcher >> Edge(label="fetch posts", style="bold") >> bluesky_api
     fetcher >> sns_posts

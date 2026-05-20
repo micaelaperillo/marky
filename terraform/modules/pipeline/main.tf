@@ -114,7 +114,7 @@ resource "aws_sqs_queue" "campaign_events" {
 resource "aws_sqs_queue" "campaign_topics" {
   name                        = "${var.project}-campaign-topics.fifo"
   fifo_queue                  = true
-  content_based_deduplication = false
+  content_based_deduplication = true
   deduplication_scope         = "messageGroup"
   fifo_throughput_limit       = "perMessageGroupId"
   visibility_timeout_seconds  = 720
@@ -274,52 +274,11 @@ resource "aws_lambda_function" "orchestrator" {
       CAMPAIGN_TOPICS_QUEUE_URL = aws_sqs_queue.campaign_topics.url
       SCHEDULE_GROUP_NAME       = aws_scheduler_schedule_group.campaigns.name
       SCHEDULER_ROLE_ARN        = var.lab_role_arn
-      SCHEDULER_LAMBDA_ARN      = aws_lambda_function.scheduler.arn
+      CAMPAIGN_TOPICS_QUEUE_ARN = aws_sqs_queue.campaign_topics.arn
     }
   }
 
   tags = { Name = "${var.project}-orchestrator" }
-
-  lifecycle {
-    ignore_changes = [filename, source_code_hash]
-  }
-}
-
-# --- Scheduler ---
-
-data "archive_file" "scheduler" {
-  type        = "zip"
-  output_path = "${path.module}/dist/scheduler.zip"
-
-  source {
-    content  = <<-JS
-      export const handler = async (event) => {
-        console.log(JSON.stringify(event));
-        return { statusCode: 200 };
-      };
-    JS
-    filename = "index.mjs"
-  }
-}
-
-resource "aws_lambda_function" "scheduler" {
-  function_name    = "${var.project}-scheduler"
-  role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
-  handler          = "index.handler"
-  filename         = data.archive_file.scheduler.output_path
-  source_code_hash = data.archive_file.scheduler.output_base64sha256
-  timeout          = 30
-  memory_size      = 256
-
-  environment {
-    variables = {
-      NODE_ENV                  = "production"
-      CAMPAIGN_TOPICS_QUEUE_URL = aws_sqs_queue.campaign_topics.url
-    }
-  }
-
-  tags = { Name = "${var.project}-scheduler" }
 
   lifecycle {
     ignore_changes = [filename, source_code_hash]
@@ -492,38 +451,11 @@ resource "aws_lambda_function" "report_writer" {
 }
 
 ################################################################################
-# Section 5b: Scheduler DLQ + Event Invoke Config
-################################################################################
-
-resource "aws_sqs_queue" "scheduler_dlq" {
-  name                      = "${var.project}-scheduler-dlq"
-  message_retention_seconds = 1209600
-  sqs_managed_sse_enabled   = true
-  tags                      = { Name = "${var.project}-scheduler-dlq" }
-}
-
-resource "aws_lambda_function_event_invoke_config" "scheduler" {
-  function_name          = aws_lambda_function.scheduler.function_name
-  maximum_retry_attempts = 2
-
-  destination_config {
-    on_failure {
-      destination = aws_sqs_queue.scheduler_dlq.arn
-    }
-  }
-}
-
-################################################################################
 # Section 6: CloudWatch Log Groups
 ################################################################################
 
 resource "aws_cloudwatch_log_group" "orchestrator" {
   name              = "/aws/lambda/${var.project}-orchestrator"
-  retention_in_days = 14
-}
-
-resource "aws_cloudwatch_log_group" "scheduler" {
-  name              = "/aws/lambda/${var.project}-scheduler"
   retention_in_days = 14
 }
 

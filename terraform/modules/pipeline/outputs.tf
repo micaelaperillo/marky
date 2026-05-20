@@ -28,11 +28,6 @@ output "orchestrator_function_name" {
   value       = aws_lambda_function.orchestrator.function_name
 }
 
-output "scheduler_function_name" {
-  description = "Name of the scheduler Lambda function."
-  value       = aws_lambda_function.scheduler.function_name
-}
-
 output "fetcher_function_name" {
   description = "Name of the fetcher Lambda function."
   value       = aws_lambda_function.fetcher.function_name
