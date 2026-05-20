@@ -39,8 +39,11 @@
 			if (res.ok) {
 				goto(resolve('/list'));
 			} else {
+				console.log('API error response:', res);
 				const body = await res.json().catch(() => ({ error: m.create_errorUnknown() }));
-				apiError = body.error || m.create_errorUnknown();
+				apiError = 	body.issues?.[0]?.message ??
+							body.error ??
+							m.create_errorUnknown();
 			}
 		} catch {
 			apiError = m.create_errorNetwork();
