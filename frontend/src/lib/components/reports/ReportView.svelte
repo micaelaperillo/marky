@@ -250,7 +250,7 @@
 	</div>
 </section>
 
-{#if timeline.length > 0}
+{#if timeline.length > 1}
 			<section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
 			<div class="flex items-center justify-between">
 				<h2 class="text-lg font-bold text-slate-900 dark:text-white">
