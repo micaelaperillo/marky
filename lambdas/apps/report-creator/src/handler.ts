@@ -1,4 +1,4 @@
-import type { SQSHandler, SQSRecord } from "aws-lambda";
+import type { SQSHandler, SQSRecord, SNSMessage } from "aws-lambda";
 
 import { analyze } from "./analyze.js";
 import { getGeminiApiKey } from "./secrets.js";
@@ -8,7 +8,8 @@ import type { InputMessage } from "./types.js";
 function parseRecord(record: SQSRecord): InputMessage {
     let body: unknown;
     try {
-        body = JSON.parse(record.body);
+        const envelope = JSON.parse(record.body) as SNSMessage;
+        body = JSON.parse(envelope.Message);
     } catch (err) {
         throw new Error(
             `SQS record ${record.messageId} body is not JSON: ${(err as Error).message}`,
