@@ -67,7 +67,7 @@ async function createSchedule({
 			GroupName: SCHEDULE_GROUP_NAME,
 			Name: campaignId,
 			ScheduleExpression: `rate(${rate} minutes)`,
-			StartDate: new Date(startDate),
+			StartDate: new Date(Math.max(Date.now(), new Date(startDate).getTime())),
 			Target: {
 				Arn: SCHEDULER_LAMBDA_ARN,
 				Input: schedulerInput,
