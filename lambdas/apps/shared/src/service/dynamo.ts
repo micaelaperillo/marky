@@ -1,24 +1,26 @@
 import {
-    DynamoDBClient,
-    PutItemCommand,
-    type PutItemCommandInput
+	DynamoDBClient,
+	PutItemCommand,
+	type PutItemCommandInput,
 } from "@aws-sdk/client-dynamodb";
 
-import { env } from "@shared/config";
+import { DynamoEnvSchema } from "@shared/config";
+
+const env = DynamoEnvSchema.parse(process.env);
 
 export const dynamo = new DynamoDBClient({
-    region: env.aws.region,
-    endpoint: env.aws.dynamoEndpoint,
-    ...(!env.isProduction && {
-        credentials: {
-            accessKeyId: "local",
-            secretAccessKey: "local"
-        }
-    })
+	endpoint: env.aws.dynamoEndpoint,
+	region: env.aws.region,
+	...(!env.isProduction && {
+		credentials: {
+			accessKeyId: "local",
+			secretAccessKey: "local",
+		},
+	}),
 });
 
 export function put(input: PutItemCommandInput) {
-    return dynamo.send(new PutItemCommand(input));
+	return dynamo.send(new PutItemCommand(input));
 }
 
 export const TABLE = env.aws.dynamoTable;
