@@ -91,6 +91,15 @@ export class RdsCampaignRepository {
 		return result.rows[0].id;
 	}
 
+	async delete(userId: string, name: string): Promise<boolean> {
+		const pool = await getPool();
+		const result = await pool.query(
+			"DELETE FROM campaigns WHERE user_sub = $1 AND name = $2",
+			[userId, name],
+		);
+		return (result.rowCount ?? 0) > 0;
+	}
+
 	private toDomain(row: CampaignRow): Campaign {
 		return {
 			end: row.end_date.toISOString(),

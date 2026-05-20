@@ -86,6 +86,31 @@ app
 		} catch (err) {
 			next(err);
 		}
+	})
+	.delete(validate.params(CampaignParamsSchema), async (req, res, next) => {
+		try {
+			const campaign = await repo.findOne(res.locals.userId, req.params.name);
+
+			if (!campaign) {
+				return res.status(404).json({ message: "Campaign not found" });
+			}
+
+			await repo.delete(res.locals.userId, req.params.name);
+
+			await sqs.send({
+				MessageBody: JSON.stringify({
+					action: "delete",
+					campaignId: campaign.id,
+				} satisfies Pick<CampaignEvent, "action" | "campaignId">),
+				MessageDeduplicationId: `delete-${campaign.id}`,
+				MessageGroupId: campaign.id,
+				QueueUrl: env.sqs.campaigns,
+			});
+
+			res.status(204).end();
+		} catch (err) {
+			next(err);
+		}
 	});
 
 app.use(errorMiddleware);
