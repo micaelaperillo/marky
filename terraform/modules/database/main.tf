@@ -146,6 +146,73 @@ resource "aws_db_proxy_target" "main" {
   depends_on = [aws_secretsmanager_secret_version.rds_credentials]
 }
 
+# ============================================================
+# DB Migrator Lambda
+# ============================================================
+
+locals {
+  stub_handler = "export const handler = async () => ({ success: false, message: \"stub\" });"
+  pkg_json_esm = "{\"type\":\"module\"}"
+}
+
+data "archive_file" "migrator" {
+  type        = "zip"
+  output_path = "${path.module}/dist/migrator.zip"
+
+  source {
+    content = try(
+      var.lambda_dist_base != null ? file("${var.lambda_dist_base}/migrator/dist/handler.js") : local.stub_handler,
+      local.stub_handler
+    )
+    filename = "handler.js"
+  }
+
+  source {
+    content  = local.pkg_json_esm
+    filename = "package.json"
+  }
+}
+
+resource "aws_cloudwatch_log_group" "migrator" {
+  name              = "/aws/lambda/${var.project}-migrator"
+  retention_in_days = 7
+}
+
+resource "aws_lambda_function" "migrator" {
+  function_name    = "${var.project}-migrator"
+  role             = var.lab_role_arn
+  runtime          = "nodejs22.x"
+  handler          = "handler.handler"
+  filename         = data.archive_file.migrator.output_path
+  source_code_hash = data.archive_file.migrator.output_base64sha256
+  timeout          = 60
+
+  vpc_config {
+    subnet_ids         = var.lambda_subnet_ids
+    security_group_ids = [var.lambda_sg_id]
+  }
+
+  environment {
+    variables = {
+      SM_RDS_CREDENTIALS_ID = aws_secretsmanager_secret.rds_credentials.name
+      NODE_ENV              = "production"
+    }
+  }
+
+  depends_on = [aws_cloudwatch_log_group.migrator]
+}
+
+resource "aws_lambda_invocation" "migrate" {
+  function_name = aws_lambda_function.migrator.function_name
+  input         = jsonencode({ action = "migrate" })
+
+  triggers = {
+    rerun = sha256(aws_lambda_function.migrator.source_code_hash)
+  }
+
+  depends_on = [aws_db_proxy_target.main]
+}
+
 resource "aws_dynamodb_table" "reports" {
   name         = "${var.project}-reports"
   billing_mode = "PAY_PER_REQUEST"

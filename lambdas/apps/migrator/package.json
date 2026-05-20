@@ -1,0 +1,24 @@
+{
+	"author": "",
+	"dependencies": {
+		"@aws-lambda-powertools/parameters": "^2.15.0",
+		"pg": "^8.16.0"
+	},
+	"description": "",
+	"devDependencies": {
+		"@types/aws-lambda": "^8.10.161",
+		"@types/node": "^24.12.4",
+		"@types/pg": "^8.11.13",
+		"esbuild": "^0.28.0",
+		"typescript": "^6.0.3"
+	},
+	"keywords": [],
+	"license": "MIT",
+	"name": "migrator",
+	"packageManager": "pnpm@10.30.3",
+	"scripts": {
+		"build": "node ./build.js"
+	},
+	"type": "module",
+	"version": "1.0.0"
+}

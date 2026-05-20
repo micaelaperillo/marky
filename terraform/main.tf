@@ -54,6 +54,9 @@ module "database" {
   subnet_ids        = module.networking.backend_subnet_ids
   rds_sg_id         = module.networking.rds_sg_id
   lab_role_arn      = local.lab_role_arn
+  lambda_dist_base  = "${path.root}/../lambdas/apps"
+  lambda_subnet_ids = module.networking.backend_subnet_ids
+  lambda_sg_id      = module.networking.lambda_sg_id
 }
 
 module "storage" {
