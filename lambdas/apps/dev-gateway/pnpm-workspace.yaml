@@ -1,8 +1,8 @@
 packages:
-  - "campaigns"
-  - "reports"
-  - "users"
-  - "shared"
+  - "../campaigns"
+  - "../reports"
+  - "../users"
+  - "../shared"
 allowBuilds:
   esbuild: true
 minimumReleaseAgeExclude:

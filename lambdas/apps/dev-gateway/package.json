@@ -3,6 +3,10 @@
     "dev": "tsx watch --env-file=.env dev-gateway.ts"
   },
   "devDependencies": {
+    "@types/cors": "^2.8.19",
     "tsx": "^4.20.6"
+  },
+  "dependencies": {
+    "cors": "^2.8.6"
   }
 }
