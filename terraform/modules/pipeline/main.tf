@@ -48,6 +48,50 @@ resource "aws_sqs_queue" "reports_dlq" {
 }
 
 ################################################################################
+# Section 1b: DLQ Redrive Allow Policies
+################################################################################
+
+resource "aws_sqs_queue_redrive_allow_policy" "campaign_events_dlq" {
+  queue_url = aws_sqs_queue.campaign_events_dlq.url
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.campaign_events.arn]
+  })
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "campaign_topics_dlq" {
+  queue_url = aws_sqs_queue.campaign_topics_dlq.url
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.campaign_topics.arn]
+  })
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "posts_to_s3_dlq" {
+  queue_url = aws_sqs_queue.posts_to_s3_dlq.url
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.posts_to_s3.arn]
+  })
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "posts_to_analyze_dlq" {
+  queue_url = aws_sqs_queue.posts_to_analyze_dlq.url
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.posts_to_analyze.arn]
+  })
+}
+
+resource "aws_sqs_queue_redrive_allow_policy" "reports_dlq" {
+  queue_url = aws_sqs_queue.reports_dlq.url
+  redrive_allow_policy = jsonencode({
+    redrivePermission = "byQueue"
+    sourceQueueArns   = [aws_sqs_queue.reports.arn]
+  })
+}
+
+################################################################################
 # Section 2: Main Queues
 ################################################################################
 
@@ -513,6 +557,10 @@ resource "aws_lambda_event_source_mapping" "orchestrator" {
   batch_size              = 1
   enabled                 = true
   function_response_types = ["ReportBatchItemFailures"]
+
+  scaling_config {
+    maximum_concurrency = var.orchestrator_max_concurrency
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "fetcher" {
@@ -523,7 +571,7 @@ resource "aws_lambda_event_source_mapping" "fetcher" {
   function_response_types = ["ReportBatchItemFailures"]
 
   scaling_config {
-    maximum_concurrency = 5
+    maximum_concurrency = var.fetcher_max_concurrency
   }
 }
 
@@ -534,6 +582,10 @@ resource "aws_lambda_event_source_mapping" "s3_saver" {
   enabled                            = true
   function_response_types            = ["ReportBatchItemFailures"]
   maximum_batching_window_in_seconds = 5
+
+  scaling_config {
+    maximum_concurrency = var.s3_saver_max_concurrency
+  }
 }
 
 resource "aws_lambda_event_source_mapping" "report_generator" {
@@ -544,7 +596,7 @@ resource "aws_lambda_event_source_mapping" "report_generator" {
   function_response_types = ["ReportBatchItemFailures"]
 
   scaling_config {
-    maximum_concurrency = 2
+    maximum_concurrency = var.report_generator_max_concurrency
   }
 }
 
@@ -554,4 +606,8 @@ resource "aws_lambda_event_source_mapping" "report_writer" {
   batch_size              = 1
   enabled                 = true
   function_response_types = ["ReportBatchItemFailures"]
+
+  scaling_config {
+    maximum_concurrency = var.report_writer_max_concurrency
+  }
 }

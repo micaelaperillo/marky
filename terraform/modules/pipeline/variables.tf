@@ -22,3 +22,58 @@ variable "dynamodb_reports_table_name" {
   type        = string
   description = "Name of the DynamoDB table for storing analysis reports."
 }
+
+variable "orchestrator_max_concurrency" {
+  type        = number
+  description = "Maximum concurrent Lambda invocations for the orchestrator ESM."
+  default     = 5
+
+  validation {
+    condition     = var.orchestrator_max_concurrency >= 2 && var.orchestrator_max_concurrency <= 1000
+    error_message = "Maximum concurrency must be between 2 and 1000."
+  }
+}
+
+variable "fetcher_max_concurrency" {
+  type        = number
+  description = "Maximum concurrent Lambda invocations for the fetcher ESM."
+  default     = 5
+
+  validation {
+    condition     = var.fetcher_max_concurrency >= 2 && var.fetcher_max_concurrency <= 1000
+    error_message = "Maximum concurrency must be between 2 and 1000."
+  }
+}
+
+variable "s3_saver_max_concurrency" {
+  type        = number
+  description = "Maximum concurrent Lambda invocations for the S3 saver ESM."
+  default     = 10
+
+  validation {
+    condition     = var.s3_saver_max_concurrency >= 2 && var.s3_saver_max_concurrency <= 1000
+    error_message = "Maximum concurrency must be between 2 and 1000."
+  }
+}
+
+variable "report_generator_max_concurrency" {
+  type        = number
+  description = "Maximum concurrent Lambda invocations for the report generator ESM."
+  default     = 2
+
+  validation {
+    condition     = var.report_generator_max_concurrency >= 2 && var.report_generator_max_concurrency <= 1000
+    error_message = "Maximum concurrency must be between 2 and 1000."
+  }
+}
+
+variable "report_writer_max_concurrency" {
+  type        = number
+  description = "Maximum concurrent Lambda invocations for the report writer ESM."
+  default     = 5
+
+  validation {
+    condition     = var.report_writer_max_concurrency >= 2 && var.report_writer_max_concurrency <= 1000
+    error_message = "Maximum concurrency must be between 2 and 1000."
+  }
+}
