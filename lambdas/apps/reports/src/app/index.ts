@@ -8,7 +8,6 @@ const repo = new DynamoReportRepository();
 const app = express();
 
 app.use(express.json());
-app.use(errorMiddleware);
 app.use(authenticated);
 
 app.route("/").get(async (req, res, next) => {
@@ -141,5 +140,5 @@ app.route("/sentiment").get(async (req, res, next) => {
         next(error);
     }
 });
-
+app.use(errorMiddleware);
 export default app;
