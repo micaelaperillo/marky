@@ -2,12 +2,9 @@ export default /** @type {const} */ ({
 	alias: {
 		"@shared": "shared/src",
 	},
-	banner: {
-		js: "import { createRequire } from 'module'; const require = createRequire(import.meta.url);",
-	},
 	bundle: true,
-	external: /** @type {string[]} */ (["@aws-sdk/*"]),
-	format: "esm",
+	external: /** @type {string[]} */ (["@aws-sdk/*", "http"]),
+	format: "cjs",
 	minify: true,
 	outdir: "./dist",
 	platform: "node",
