@@ -9,11 +9,8 @@ const EnvSchema = z
         COGNITO_USER_POOL_ID: z.string().min(1),
         DYNAMODB_TABLE: z.string().default("reports"),
         DYNAMODB_ENDPOINT: z.url().optional(),
-        DB_HOST: z.string(),
-        DB_PORT: z.coerce.number().positive().default(5432),
-        DB_NAME: z.string().min(1),
-        DB_USER: z.string().min(1),
-        DB_PASS: z.string().min(1),
+        SM_RDS_CREDENTIALS_ID: z.string(),
+        SM_GEMINI_API_KEY_SECRET_ID: z.string(),
         SQS_CAMPAIGNS_EVENTS_URL: z.url(),
         SQS_OUTPUT_REPORTS_URL: z.url(),
         LAMBDA_TASK_ROOT: z.string().optional(),
@@ -33,12 +30,9 @@ const EnvSchema = z
             clientId: env.COGNITO_CLIENT_ID,
             userPoolId: env.COGNITO_USER_POOL_ID
         },
-        rds: {
-            host: env.DB_HOST,
-            port: env.DB_PORT,
-            name: env.DB_NAME,
-            user: env.DB_USER,
-            pass: env.DB_PASS
+        sm: {
+            rds: env.SM_RDS_CREDENTIALS_ID,
+            gemini: env.SM_GEMINI_API_KEY_SECRET_ID
         },
         sqs: {
             campaigns: env.SQS_CAMPAIGNS_EVENTS_URL,
