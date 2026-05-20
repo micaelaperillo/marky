@@ -5,11 +5,6 @@ export type BlueskyPost = {
     date: string;
 };
 
-export type TimeWindow = {
-    from: string;
-    to: string;
-};
-
 export type InputMessage = {
     id: string;
     topics: string[];
