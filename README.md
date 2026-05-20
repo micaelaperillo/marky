@@ -28,9 +28,14 @@ Configure in **Settings → Secrets and variables → Actions**:
 
 ### Deploy
 
-1. Go to **Actions** → **Deploy Infrastructure**
-2. Click **Run workflow**
-3. Workflow builds Lambdas, applies Terraform, and deploys frontend (~15-20 min)
+cd lambdas
+pnpm i
+pnpm -r build
+cd ../terraform
+terraform init
+terraform apply
+cd ..
+make deploy-frontend
 
 ### Destroy
 

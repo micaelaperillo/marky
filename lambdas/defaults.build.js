@@ -3,7 +3,7 @@ export default /** @type {const} */ ({
 		"@shared": "shared/src",
 	},
 	bundle: true,
-	external: /** @type {string[]} */ (["@aws-sdk/*", "http"]),
+	external: /** @type {string[]} */ (["@aws-sdk/*", "http", "express"]),
 	format: "cjs",
 	minify: true,
 	outdir: "./dist",
