@@ -1,18 +1,22 @@
 import express from "express";
 
-import { errorMiddleware } from "@shared/express/errors";
 import { authenticated } from "@shared/service/cognito";
+import * as sqs from "@shared/service/sqs";
+
+import { errorMiddleware } from "@shared/express/errors";
 import * as validate from "@shared/express/validate";
 
+import { env } from "@shared/config";
+
 import { RdsCampaignRepository } from "./repository";
-import { CampaignInputSchema } from "./validations";
+import { CampaignInputSchema, CampaignParamsSchema } from "./validations";
+import { CampaignEvent, CampaignInput } from "./types";
 
 const repo = new RdsCampaignRepository();
 
 const app = express();
 
 app.use(express.json());
-app.use(errorMiddleware);
 app.use(authenticated);
 
 app.route("/")
@@ -26,9 +30,22 @@ app.route("/")
     })
     .post(validate.body(CampaignInputSchema), async (req, res, next) => {
         try {
+            const input = req.body as CampaignInput;
+
             const id = await repo.save({
                 ...req.body,
                 userId: res.locals.userId
+            });
+
+            sqs.send({
+                MessageBody: JSON.stringify({
+                    action: "create",
+                    startDate: input.start,
+                    endDate: input.end,
+                    campaignId: id,
+                    topics: input.topics
+                } satisfies CampaignEvent),
+                QueueUrl: env.sqs.campaigns
             });
 
             res.status(201).json({ id });
@@ -36,5 +53,27 @@ app.route("/")
             next(err);
         }
     });
+
+app.route("/:name").get(
+    validate.params(CampaignParamsSchema),
+    async (req, res, next) => {
+        try {
+            const campaign = await repo.findOne(
+                res.locals.userId,
+                req.params.name
+            );
+
+            if (!campaign) {
+                return res.status(404).json({ message: "Campaign not found" });
+            }
+
+            res.json(campaign);
+        } catch (err) {
+            next(err);
+        }
+    }
+);
+
+app.use(errorMiddleware);
 
 export default app;

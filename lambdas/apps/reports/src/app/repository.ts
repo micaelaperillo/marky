@@ -3,16 +3,10 @@ import {
     GetItemCommand,
     QueryCommand
 } from "@aws-sdk/client-dynamodb";
-import { dynamo as dynamoClient } from "@shared/service/dynamo";
+import { unmarshall } from "@aws-sdk/util-dynamodb";
+import { dynamo as dynamoClient, TABLE } from "@shared/service/dynamo";
 import { Report, SentimentPoint } from "./report.types";
 import { ReportSchema, SentimentPointSchema } from "./report.validation";
-
-const TABLE = process.env.DYNAMODB_TABLE!;
-
-type SentimentPointItem = {
-    timestamp: string;
-    sentiment: number;
-};
 
 export class DynamoReportRepository {
     async findOne(
@@ -31,7 +25,7 @@ export class DynamoReportRepository {
 
         if (!result.Item) return null;
 
-        return this.toReport(result.Item);
+        return this.unmarshallReport(result.Item);
     }
 
     async findLatestByCampaignId(campaignId: string): Promise<Report | null> {
@@ -46,12 +40,13 @@ export class DynamoReportRepository {
             ScanIndexForward: false,
             Limit: 1
         });
+        console.log("Executing " + campaignId +" query: ",command);
 
         const result = await dynamoClient.send(command);
 
         if (!result.Items || result.Items.length === 0) return null;
 
-        return this.toReport(result.Items[0]);
+        return this.unmarshallReport(result.Items[0]);
     }
 
     async findReportsByCampaignIdBetween(
@@ -72,7 +67,7 @@ export class DynamoReportRepository {
 
         const result = await dynamoClient.send(command);
 
-        return (result.Items ?? []).map((item) => this.toReport(item));
+        return (result.Items ?? []).map(this.unmarshallReport);
     }
 
     async findSentimentPointsByCampaignIdBetween(
@@ -83,10 +78,7 @@ export class DynamoReportRepository {
         const command = new QueryCommand({
             TableName: TABLE,
             KeyConditionExpression: "PK = :pk AND SK BETWEEN :start AND :end",
-            ProjectionExpression: "#timestamp, sentiment",
-            ExpressionAttributeNames: {
-                "#timestamp": "timestamp"
-            },
+            ProjectionExpression: "SK, sentiment",
             ExpressionAttributeValues: {
                 ":pk": { S: this.pk(campaignId) },
                 ":start": { S: this.reportSk(start) },
@@ -97,7 +89,7 @@ export class DynamoReportRepository {
 
         const result = await dynamoClient.send(command);
 
-        return (result.Items ?? []).map((item) => this.toSentimentPoint(item));
+        return (result.Items ?? []).map(this.unmarshallSentimentPoint);
     }
 
     private pk(campaignId: string): string {
@@ -108,34 +100,24 @@ export class DynamoReportRepository {
         return `REPORT#${timestamp}`;
     }
 
-    private toReport(item: Record<string, AttributeValue>): Report {
-        return this.unmarshallReport(item);
-    }
-
-    private toSentimentPoint(item: Record<string, any>): SentimentPoint {
-        const data = this.unmarshallSentimentPoint(item) as SentimentPointItem;
-
-        return {
-            timestamp: data.timestamp,
-            sentiment: data.sentiment
-        };
-    }
-
     private unmarshallReport(item: Record<string, AttributeValue>): Report {
+        console.log("Unmarshalling item: ", item);
+        const data = unmarshall(item); 
         return ReportSchema.parse({
-            campaignId: item.PK?.S?.replace("CAMPAIGN#", "") ?? "",
-            timestamp: item.SK?.S?.replace("REPORT#", "") ?? "",
-            sentiment: Number(item.Sentiment?.N ?? 0),
-            report: item.Report?.S ?? ""
+            campaignId: data.PK.replace("CAMPAIGN#", ""),
+            timestamp: data.SK.replace("REPORT#", ""),
+            sentiment: data.sentiment,
+            report: data.report
         });
     }
 
     private unmarshallSentimentPoint(
         item: Record<string, AttributeValue>
     ): SentimentPoint {
+        const data = unmarshall(item);
         return SentimentPointSchema.parse({
-            timestamp: item.SK?.S?.replace("REPORT#", "") ?? "",
-            sentiment: Number(item.Sentiment?.N ?? 0)
+            timestamp: data.SK.replace("REPORT#", ""),
+            sentiment: data.sentiment,
         });
     }
 }

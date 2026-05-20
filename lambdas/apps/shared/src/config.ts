@@ -6,19 +6,21 @@ const EnvSchema = z
         BACKEND_URL: z.url().default("http://127.0.0.1:8000"),
         COGNITO_CLIENT_ID: z.string().min(1),
         COGNITO_USER_POOL_ID: z.string().min(1),
-        DYNAMODB_TABLE: z.string().default("marky-data"),
-        DB_HOST: z.string().min(1),
+        DYNAMODB_TABLE: z.string().default("reports"),
+        DYNAMODB_ENDPOINT: z.url().optional(),
+        DB_HOST: z.url(),
         DB_PORT: z.coerce.number().positive().default(5432),
         DB_NAME: z.string().min(1),
         DB_USER: z.string().min(1),
         DB_PASS: z.string().min(1),
+        SQS_CAMPAIGNS_EVENTS_URL: z.url(),
         LAMBDA_TASK_ROOT: z.string().optional(),
         NODE_ENV: z.enum(["development", "production"]).default("development")
     })
     .transform((env) => ({
         aws: {
             dynamoTable: env.DYNAMODB_TABLE,
-            lambdaTask: env.LAMBDA_TASK_ROOT,
+            dynamoEndpoint: env.DYNAMODB_ENDPOINT,
             region: env.AWS_REGION
         },
         backendUrl: env.BACKEND_URL,
@@ -32,6 +34,9 @@ const EnvSchema = z
             name: env.DB_NAME,
             user: env.DB_USER,
             pass: env.DB_PASS
+        },
+        sqs: {
+            campaigns: env.SQS_CAMPAIGNS_EVENTS_URL
         },
         isProduction: env.NODE_ENV === "production"
     }));

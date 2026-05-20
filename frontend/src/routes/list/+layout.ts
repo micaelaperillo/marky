@@ -8,7 +8,7 @@ export const load: LayoutLoad = async ({ fetch }) => {
 	const token = await getAccessToken();
 	if (!token) throw redirect(303, resolve('/login'));
 
-	const res = await apiFetch('/api/auth/me', {}, fetch);
+	const res = await apiFetch('/auth/me', {}, fetch);
 	if (res.status === 401) throw redirect(303, resolve('/login'));
 	if (!res.ok) throw new Error('Failed to verify session');
 

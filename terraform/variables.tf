@@ -40,3 +40,13 @@ variable "iam_instance_profile_name" {
   description = "Pre-existing IAM instance profile for EC2 instances (AWS Academy: LabInstanceProfile)."
 }
 
+variable "bluesky_identifier" {
+  type        = string
+  description = "BlueSky handle (e.g. user.bsky.social)"
+}
+
+variable "bluesky_app_password" {
+  type        = string
+  sensitive   = true
+  description = "BlueSky app password (from bsky.app/settings/app-passwords)"
+}

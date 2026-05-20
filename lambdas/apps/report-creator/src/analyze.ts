@@ -21,24 +21,24 @@ const responseSchema = {
                             topic: { type: SchemaType.STRING },
                             percent: { type: SchemaType.INTEGER }
                         },
-                        required: ["topic", "percent"]
+                        required: ["topic", "percent"] as string[]
                     },
                     minItems: 3,
                     maxItems: 3
                 }
             },
-            required: ["summary", "main_topics"]
+            required: ["summary", "main_topics"] as string[]
         },
         sentiment: {
             type: SchemaType.OBJECT,
             properties: {
                 label: {
                     type: SchemaType.STRING,
-                    enum: ["Positive", "Neutral", "Negative"]
+                    enum: ["Positive", "Neutral", "Negative"] as string[]
                 },
                 score: { type: SchemaType.NUMBER }
             },
-            required: ["label", "score"]
+            required: ["label", "score"] as string[]
         },
         key_comments: {
             type: SchemaType.ARRAY,
@@ -51,13 +51,13 @@ const responseSchema = {
                     score: { type: SchemaType.NUMBER },
                     created_at: { type: SchemaType.STRING }
                 },
-                required: ["text", "author", "score", "created_at"]
+                required: ["text", "author", "score", "created_at"] as string[]
             },
             minItems: 1,
             maxItems: 5
         }
     },
-    required: ["analysis", "sentiment", "key_comments"]
+    required: ["analysis", "sentiment", "key_comments"] as string[]
 } as const;
 
 function buildPrompt(query: string, postsBlock: string): string {
@@ -92,8 +92,7 @@ export async function analyze(
         model: "gemini-2.5-flash",
         generationConfig: {
             responseMimeType: "application/json",
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            responseSchema: responseSchema as any
+            responseSchema
         }
     });
 

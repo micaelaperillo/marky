@@ -2,35 +2,22 @@ import express from "express";
 
 import { errorMiddleware } from "@shared/express/errors";
 import { authenticated } from "@shared/service/cognito";
-import { ReportSchema } from "./report.validation";
-import * as validate from "@shared/express/validate";
 import { DynamoReportRepository } from "./repository";
 
 const repo = new DynamoReportRepository();
 const app = express();
 
 app.use(express.json());
-app.use(errorMiddleware);
 app.use(authenticated);
-
-app.route("/").get(async (req, res, next) => {
-    try {
-        res.json({ message: "Hello, world!" });
-    } catch (error) {
-        next(error);
-    }
-});
 
 app.route("/latest").get(async (req, res, next) => {
     try {
         const { campaignId } = req.query;
         if (typeof campaignId !== "string") {
-            return res
-                .status(400)
-                .json({
-                    message:
-                        "campaignId query parameter is required and must be a string"
-                });
+            return res.status(400).json({
+                message:
+                    "campaignId query parameter is required and must be a string"
+            });
         }
         const report = await repo.findLatestByCampaignId(campaignId);
         if (!report) {
@@ -143,5 +130,7 @@ app.route("/sentiment").get(async (req, res, next) => {
         next(error);
     }
 });
+
+app.use(errorMiddleware);
 
 export default app;

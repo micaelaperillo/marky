@@ -3,7 +3,7 @@ import { apiFetch } from '$lib/api';
 import type { PageLoad } from './$types';
 
 export const load: PageLoad = async ({ fetch, params }) => {
-	const res = await apiFetch(`/api/campaigns/${params.campaign}`, {}, fetch);
+	const res = await apiFetch(`/campaigns/${params.campaign}`, {}, fetch);
 	if (res.status === 404) {
 		throw error(404, 'Campaign not found');
 	}
@@ -11,5 +11,26 @@ export const load: PageLoad = async ({ fetch, params }) => {
 		throw error(res.status, 'Failed to load campaign');
 	}
 	const campaign = await res.json();
-	return { campaign };
+	
+	const reportsRes = await apiFetch(`/reports/latest?campaignId=${campaign.id}`, {}, fetch);
+	if (!reportsRes.ok) {
+		if (reportsRes.status === 404) {
+			campaign.reports = [];
+		} else {
+			throw error(reportsRes.status, 'Failed to load last campaign report');
+		}
+	}
+	const report = await reportsRes.json();
+
+	const sentimentRes = await apiFetch(`/reports/sentiment?campaignId=${campaign.id}&start=${campaign.start}&end=${campaign.end}`, {}, fetch);
+	if (!sentimentRes.ok) {
+		if (sentimentRes.status === 404) {
+			campaign.sentiment = null;
+		} else {
+			throw error(sentimentRes.status, 'Failed to load campaign sentiment');
+		}
+	}
+	const sentimentTimeline = await sentimentRes.json();
+	
+	return { campaign, report, sentimentTimeline };
 };

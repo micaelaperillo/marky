@@ -1,213 +1,254 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-
 	import { resolve } from '$app/paths';
-	import { apiFetch } from '$lib/api';
-	import { m } from '$lib/paraglide/messages';
-	import { daysLeft as computeDaysLeft, fmt } from '$lib/utils/date';
-	import DOMPurify from 'dompurify';
-	import { marked } from 'marked';
-
+	import { fmt, daysLeft as computeDaysLeft } from '$lib/utils/date';
+	import SentimentChart from '$lib/components/reports/SentimentChart.svelte';
 	let { data, params }: PageProps = $props();
 
+	const campaign = $derived(data.campaign);
+	const report = $derived(data.report?.report);
+	const timeline = $derived(data.sentimentTimeline ?? []);
+
 	const slug = $derived(params.campaign);
-	const name = $derived(data.campaign?.name || 'Campaign');
-	const topics = $derived<string[]>(data.campaign?.topics ?? []);
-	const start = $derived(data.campaign?.start);
-	const end = $derived(data.campaign?.end);
+	const name = $derived(campaign?.name ?? 'Campaign');
+	const topics = $derived<string[]>(campaign?.topics ?? []);
+
+	const start = $derived(campaign?.start_date ?? campaign?.start);
+	const end = $derived(campaign?.end_date ?? campaign?.end);
 
 	const remaining = $derived(computeDaysLeft(end));
 	const running = $derived(remaining !== null && remaining >= 0);
 
-	let loading = $state(false);
-	let report = $state('');
-	let error = $state('');
+	const sentiment = $derived(report?.sentiment);
+	const mainTopics = $derived(report?.analysis?.main_topics ?? []);
+	const keyComments = $derived(report?.key_comments ?? []);
+	const summary = $derived(report?.analysis?.summary ?? 'No report available yet.');
 
-	const renderedReport = $derived(
-		report ? DOMPurify.sanitize(marked.parse(report, { async: false }) as string) : ''
+	const sentimentLabelClass = $derived(
+		sentiment?.label === 'Positive'
+			? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400'
+			: sentiment?.label === 'Negative'
+				? 'text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400'
+				: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400'
 	);
+	function fmtDateTime(value?: string) {
+	if (!value) return '—';
 
-	async function analyze() {
-		loading = true;
-		error = '';
-		try {
-			const res = await apiFetch(`/api/campaigns/${encodeURIComponent(slug)}/analyze`, {
-				method: 'POST'
-			});
-			let body;
-			try {
-				body = await res.json();
-			} catch {
-				error = 'Analysis service returned an invalid response.';
-				return;
-			}
-			if (!res.ok) {
-				error = body.error || 'Analysis failed.';
-			} else {
-				report = typeof body.report === 'string' ? body.report : '';
-			}
-		} catch {
-			error = 'Unable to connect to analysis service.';
-		} finally {
-			loading = false;
-		}
+		return new Intl.DateTimeFormat('es-AR', {
+			day: '2-digit',
+			month: '2-digit',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit'
+		}).format(new Date(value));
+	}
+
+
+	function nextUpdate(value?: string) {
+		if (!value) return null;
+
+		const next = new Date(value);
+		next.setMinutes(next.getMinutes() + 10);
+
+		return next;
 	}
 </script>
 
 <div class="flex-1">
-	<div class="mx-auto max-w-6xl px-6 py-10 sm:px-10 sm:py-14">
-		<!-- Breadcrumb -->
-		<nav
-			aria-label="Breadcrumb"
-			class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400"
-		>
+	<div class="mx-auto max-w-7xl px-6 py-10 sm:px-10 sm:py-14">
+		<nav class="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
 			<a
 				href={resolve('/list')}
-				class="-mx-1 rounded px-1 py-2 hover:text-slate-900 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:hover:text-white"
+				class="-mx-1 rounded px-1 py-2 hover:text-slate-900 dark:hover:text-white"
 			>
-				{m.campaign_breadcrumb()}
+				Campaigns
 			</a>
 			<span>/</span>
 			<span class="font-medium text-slate-900 dark:text-white">{name}</span>
 		</nav>
 
-		<!-- Header card -->
-		<div
+		<section
 			class="relative mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-linear-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
 		>
-			<div
-				class="absolute -top-20 -right-20 h-64 w-64 rounded-full bg-brand-200/30 blur-3xl dark:bg-brand-700/15"
-			></div>
-			<div class="relative flex flex-wrap items-start justify-between gap-4">
+			<div class="relative flex flex-wrap items-start justify-between gap-6">
 				<div>
 					<p class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400">
-						{m.campaign_eyebrow()}
+						Bluesky campaign
 					</p>
-					<h1
-						class="mt-1 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white"
-					>
+
+					<h1 class="mt-1 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white">
 						{name}
 					</h1>
-					<div
-						class="mt-3 flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400"
-					>
+
+					<div class="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400">
+						<span>{fmt(start)} → {fmt(end)}</span>
+
 						<span class="inline-flex items-center gap-1.5">
-							<svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-								<path
-									fill-rule="evenodd"
-									d="M6 2a1 1 0 00-1 1v1H4a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2h-1V3a1 1 0 10-2 0v1H7V3a1 1 0 00-1-1zm0 5a1 1 0 000 2h8a1 1 0 100-2H6z"
-									clip-rule="evenodd"
-								/>
-							</svg>
-							{fmt(start)} &rarr; {fmt(end)}
+							<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+							{running ? 'Active' : 'Ended'}
 						</span>
-						<span class="inline-flex items-center gap-1.5">
-							<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"
-							></span>
-							{running ? m.campaign_statusActive() : m.campaign_statusEnded()}
+						
+						<span class="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
+							<span class="h-2 w-2 animate-pulse rounded-full bg-brand-500"></span>
+
+							Next update in {
+								report?.generated_at
+									? Math.max(
+											0,
+											10 -
+												Math.floor(
+													(Date.now() - new Date(report.generated_at).getTime()) / 60000
+												)
+										)
+									: '—'
+							} min
 						</span>
 					</div>
 				</div>
-			</div>
-		</div>
 
-		<!-- Topics -->
-		<section class="mt-8">
-			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-				{m.campaign_topicsHeading()}
-			</h2>
-			<div class="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-				{#each topics as topic (topic)}
-					<div
-						class="group flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 transition hover:border-brand-300 hover:shadow-sm dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700"
-					>
-						<div class="flex items-center gap-3">
-							<div
-								class="flex h-10 w-10 items-center justify-center rounded-lg bg-linear-to-br from-brand-100 to-violet-100 text-brand-700 dark:from-brand-950/60 dark:to-violet-950/60 dark:text-brand-300"
-							>
-								<svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-									<path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-									<path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-								</svg>
-							</div>
-							<div>
-								<p class="font-semibold text-slate-900 dark:text-white">{topic}</p>
-								<p class="text-xs text-slate-500 dark:text-slate-400">
-									{m.campaign_topicSubtitle()}
-								</p>
-							</div>
+				{#if sentiment}
+					<div class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900">
+						<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+							Latest sentiment
+						</p>
+
+						<div class="mt-3 flex items-end gap-3">
+							<p class="text-4xl font-black text-slate-900 dark:text-white">
+								{Math.round(sentiment.score * 100)}%
+							</p>
+							<span class="mb-1 rounded-full px-2.5 py-1 text-xs font-semibold {sentimentLabelClass}">
+								{sentiment.label}
+							</span>
 						</div>
-						<span
-							class="text-xs font-medium text-slate-400 group-hover:text-brand-600 dark:group-hover:text-brand-400"
-						>
-							&rarr;
-						</span>
 					</div>
-				{:else}
-					<p class="text-sm text-slate-500 dark:text-slate-400">{m.campaign_noTopics()}</p>
-				{/each}
+				{/if}
 			</div>
 		</section>
 
-		<!-- Analytics -->
-		<section class="mt-10">
-			<div class="flex items-center justify-between">
-				<h2
-					class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400"
-				>
-					{m.campaign_reportsHeading()}
-				</h2>
-				<button
-					type="button"
-					onclick={analyze}
-					disabled={loading || !data.campaign}
-					class="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white transition hover:bg-brand-700 disabled:opacity-50"
-				>
-					{#if loading}
-						<svg class="h-3 w-3 animate-spin" viewBox="0 0 24 24" aria-hidden="true">
-							<circle
-								class="opacity-25"
-								cx="12"
-								cy="12"
-								r="10"
-								stroke="currentColor"
-								stroke-width="4"
-								fill="none"
-							></circle>
-							<path
-								class="opacity-75"
-								fill="currentColor"
-								d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-							></path>
-						</svg>
-						{m.common_loading()}
-					{:else}
-						{m.campaign_generateAnalysis()}
-					{/if}
-				</button>
+		<section class="mt-8 grid grid-cols-1 gap-4 md:grid-cols-4">
+			<div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+				<p class="text-xs font-semibold text-slate-500 uppercase dark:text-slate-400">Posts analyzed</p>
+				<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
+					{report?.posts_analyzed ?? 0}
+				</p>
 			</div>
 
-			<div
-				class="mt-4 min-h-64 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
-			>
-				{#if error}
-					<div
-						role="alert"
-						class="rounded-lg bg-rose-50 p-4 text-sm text-rose-700 dark:bg-rose-950/30 dark:text-rose-400"
-					>
-						{error}
-					</div>
-				{:else if renderedReport}
-					<div class="prose prose-sm dark:prose-invert max-w-none">
-						{@html renderedReport}
-					</div>
-				{:else}
-					<div
-						class="flex h-full min-h-52 items-center justify-center text-sm text-slate-500 dark:text-slate-400"
-					>
-						{m.campaign_reportsPlaceholder()}
+			<div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+				<p class="text-xs font-semibold text-slate-500 uppercase dark:text-slate-400">Key comments</p>
+				<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">{keyComments.length}</p>
+			</div>
+
+			<div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+				<p class="text-xs font-semibold text-slate-500 uppercase dark:text-slate-400">Main topics</p>
+				<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">{mainTopics.length}</p>
+			</div>
+
+			<div class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+	<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+		Report updates
+	</p>
+
+	<div class="mt-3 space-y-2">
+		<div>
+			<p class="text-xs text-slate-500 dark:text-slate-400">
+				Last update
+			</p>
+
+			<p class="text-lg font-black text-slate-900 dark:text-white">
+				{fmtDateTime(report?.generated_at)}
+			</p>
+		</div>
+		
+	</div>
+</div>
+		</section>
+
+		<section class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+			<div class="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2 dark:border-slate-800 dark:bg-slate-900">
+				<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+					Executive summary
+				</h2>
+
+				<p class="mt-4 leading-7 text-slate-700 dark:text-slate-300">
+					{summary}
+				</p>
+
+				{#if topics.length}
+					<div class="mt-6 flex flex-wrap gap-2">
+						{#each topics as topic}
+							<span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 dark:bg-slate-800 dark:text-slate-300">
+								{topic}
+							</span>
+						{/each}
 					</div>
 				{/if}
+			</div>
+
+			<div class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+				<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+					Topic distribution
+				</h2>
+
+				<div class="mt-5 space-y-4">
+					{#each mainTopics as item}
+						<div>
+							<div class="mb-1 flex justify-between text-sm">
+								<span class="font-medium text-slate-800 dark:text-slate-200">{item.topic}</span>
+								<span class="text-slate-500 dark:text-slate-400">{item.percent}%</span>
+							</div>
+
+							<div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+								<div class="h-full rounded-full bg-brand-600" style={`width: ${item.percent}%`}></div>
+							</div>
+						</div>
+					{:else}
+						<p class="text-sm text-slate-500 dark:text-slate-400">No topic data yet.</p>
+					{/each}
+				</div>
+			</div>
+		</section>
+
+		<section class="mt-8 rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900">
+			<div class="flex items-center justify-between">
+				<h2 class="text-lg font-bold text-slate-900 dark:text-white">
+					Sentiment timeline
+				</h2>
+
+				<span class="rounded-lg border border-slate-200 px-3 py-1.5 text-sm text-slate-600 dark:border-slate-700 dark:text-slate-300">
+					Per hour
+				</span>
+			</div>
+
+			<div class="mt-6">
+				<SentimentChart points={timeline} />
+			</div>
+		</section>
+
+		<section class="mt-8">
+			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+				Key Bluesky comments
+			</h2>
+
+			<div class="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+				{#each keyComments as comment}
+					<article class="rounded-2xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+						<p class="leading-6 text-slate-800 dark:text-slate-200">
+							“{comment.text}”
+						</p>
+
+						<div class="mt-4 flex items-center justify-between gap-3 text-sm">
+							<span class="font-medium text-brand-600 dark:text-brand-400">
+								@{comment.author}
+							</span>
+
+							<span class="text-slate-500 dark:text-slate-400">
+								score {comment.score}
+							</span>
+						</div>
+					</article>
+				{:else}
+					<p class="text-sm text-slate-500 dark:text-slate-400">No key comments selected yet.</p>
+				{/each}
 			</div>
 		</section>
 	</div>
