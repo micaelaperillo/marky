@@ -4,7 +4,7 @@ const EnvSchema = z
     .object({
         AWS_REGION: z.string().default("us-east-1"),
         BACKEND_URL: z.url().default("http://127.0.0.1:8000"),
-        S3_BUCKET_NAME: z.url(),
+        S3_BUCKET_NAME: z.string().min(1),
         COGNITO_CLIENT_ID: z.string().min(1),
         COGNITO_USER_POOL_ID: z.string().min(1),
         DYNAMODB_TABLE: z.string().default("reports"),
