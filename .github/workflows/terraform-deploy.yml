@@ -32,6 +32,7 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
+          run_install: false
           version: '10'
 
       - name: Setup Terraform
@@ -47,13 +48,20 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Build
+        working-directory: lambdas
+        run: pnpm i && pnpm -r build
+
       - name: Terraform Init
+        working-directory: terraform
         run: terraform init
 
       - name: Terraform Validate
+        working-directory: terraform
         run: terraform validate
 
       - name: Terraform Apply
+        working-directory: terraform
         run: terraform apply -auto-approve -input=false
 
       - name: Deploy Frontend
