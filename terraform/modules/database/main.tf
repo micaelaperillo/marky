@@ -202,6 +202,11 @@ resource "aws_lambda_function" "migrator" {
   depends_on = [aws_cloudwatch_log_group.migrator]
 }
 
+resource "time_sleep" "wait_for_proxy" {
+  depends_on      = [aws_db_proxy_target.main]
+  create_duration = "8m"
+}
+
 resource "aws_lambda_invocation" "migrate" {
   function_name = aws_lambda_function.migrator.function_name
   input         = jsonencode({ action = "migrate" })
@@ -210,7 +215,7 @@ resource "aws_lambda_invocation" "migrate" {
     rerun = sha256(aws_lambda_function.migrator.source_code_hash)
   }
 
-  depends_on = [aws_db_proxy_target.main]
+  depends_on = [time_sleep.wait_for_proxy]
 }
 
 resource "aws_dynamodb_table" "reports" {
