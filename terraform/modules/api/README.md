@@ -87,12 +87,12 @@ No modules.
 | [archive_file.auth](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.campaigns](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 | [archive_file.reports](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
-| [aws_caller_identity.current](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/data-sources/caller_identity) | data source |
 
 ## Inputs
 
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
+| <a name="input_account_id"></a> [account\_id](#input\_account\_id) | AWS account ID for constructing ARNs. | `string` | n/a | yes |
 | <a name="input_campaign_events_queue_url"></a> [campaign\_events\_queue\_url](#input\_campaign\_events\_queue\_url) | URL of the campaign events FIFO SQS queue. | `string` | n/a | yes |
 | <a name="input_cognito_client_id"></a> [cognito\_client\_id](#input\_cognito\_client\_id) | Cognito App Client ID for JWT validation. | `string` | n/a | yes |
 | <a name="input_cognito_user_pool_id"></a> [cognito\_user\_pool\_id](#input\_cognito\_user\_pool\_id) | Cognito User Pool ID for JWT validation. | `string` | n/a | yes |
