@@ -202,6 +202,12 @@ resource "aws_lambda_function" "migrator" {
   depends_on = [aws_cloudwatch_log_group.migrator]
 }
 
+# RDS Proxy target registration returns before the proxy can actually accept
+# connections (the target lags instance availability by minutes). Without this
+# gate the migrator Lambda's first connection fails with "Connection terminated
+# unexpectedly" on a fresh deploy. 8m covers worst-case proxy warmup. The wait
+# fires only on create (no triggers) and destroys instantly, so it does not tax
+# re-applies or teardown.
 resource "time_sleep" "wait_for_proxy" {
   depends_on      = [aws_db_proxy_target.main]
   create_duration = "8m"
