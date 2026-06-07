@@ -43,7 +43,9 @@ variable "lab_role_arn" {
 
 variable "lambda_dist_base" {
   type        = string
-  description = "Absolute path to the lambdas/apps directory for bundled handler zips."
+  description = "Base path to the Lambda workspace apps directory. Null = use stubs."
+  default     = null
+  nullable    = true
 }
 
 variable "lambda_subnet_ids" {

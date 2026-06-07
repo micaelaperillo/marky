@@ -4,7 +4,7 @@ resource "aws_s3_bucket" "frontend" {
   bucket        = "${var.project}-frontend-${var.suffix}"
   force_destroy = true
 
-  tags = { Name = "${var.project}-frontend-${var.suffix}" }
+  tags = { Name = "${var.project}-frontend" }
 }
 
 resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
@@ -57,7 +57,7 @@ resource "aws_s3_bucket" "posts" {
   bucket        = "${var.project}-posts-${var.suffix}"
   force_destroy = true
 
-  tags = { Name = "${var.project}-posts-${var.suffix}" }
+  tags = { Name = "${var.project}-posts" }
 }
 
 resource "aws_s3_bucket_versioning" "posts" {

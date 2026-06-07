@@ -14,7 +14,7 @@ resource "aws_sqs_queue" "campaign_events_dlq" {
 resource "aws_sqs_queue" "campaign_topics_dlq" {
   name                        = "${var.project}-campaign-topics-dlq.fifo"
   fifo_queue                  = true
-  content_based_deduplication = false
+  content_based_deduplication = true
   message_retention_seconds   = 1209600
   sqs_managed_sse_enabled     = true
   tags                        = { Name = "${var.project}-campaign-topics-dlq" }
@@ -250,6 +250,9 @@ locals {
   stub_handler = "export const handler = async (event) => ({ statusCode: 200, body: JSON.stringify({ message: 'stub' }) });"
   pkg_json_esm = "{\"type\":\"module\"}"
 
+  lambda_runtime = "nodejs22.x"
+  node_env       = "production"
+
   pipeline_apps = {
     orchestrator     = "orchestrator"
     fetcher          = "bluesky-ingest"
@@ -281,7 +284,7 @@ data "archive_file" "orchestrator" {
 resource "aws_lambda_function" "orchestrator" {
   function_name    = "${var.project}-orchestrator"
   role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
+  runtime          = local.lambda_runtime
   handler          = "handler.handler"
   filename         = data.archive_file.orchestrator.output_path
   source_code_hash = data.archive_file.orchestrator.output_base64sha256
@@ -290,7 +293,7 @@ resource "aws_lambda_function" "orchestrator" {
 
   environment {
     variables = {
-      NODE_ENV                  = "production"
+      NODE_ENV                  = local.node_env
       CAMPAIGN_TOPICS_QUEUE_URL = aws_sqs_queue.campaign_topics.url
       SCHEDULE_GROUP_NAME       = aws_scheduler_schedule_group.campaigns.name
       SCHEDULER_ROLE_ARN        = var.lab_role_arn
@@ -298,7 +301,8 @@ resource "aws_lambda_function" "orchestrator" {
     }
   }
 
-  tags = { Name = "${var.project}-orchestrator" }
+  tags       = { Name = "${var.project}-orchestrator" }
+  depends_on = [aws_cloudwatch_log_group.orchestrator]
 }
 
 # --- Fetcher ---
@@ -323,7 +327,7 @@ data "archive_file" "fetcher" {
 resource "aws_lambda_function" "fetcher" {
   function_name    = "${var.project}-fetcher"
   role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
+  runtime          = local.lambda_runtime
   handler          = "handler.handler"
   filename         = data.archive_file.fetcher.output_path
   source_code_hash = data.archive_file.fetcher.output_base64sha256
@@ -333,7 +337,7 @@ resource "aws_lambda_function" "fetcher" {
   environment {
     variables = merge(
       {
-        NODE_ENV      = "production"
+        NODE_ENV      = local.node_env
         SNS_TOPIC_ARN = aws_sns_topic.campaign_posts.arn
       },
       var.bluesky_identifier != null ? { BLUESKY_IDENTIFIER = var.bluesky_identifier } : {},
@@ -341,7 +345,8 @@ resource "aws_lambda_function" "fetcher" {
     )
   }
 
-  tags = { Name = "${var.project}-fetcher" }
+  tags       = { Name = "${var.project}-fetcher" }
+  depends_on = [aws_cloudwatch_log_group.fetcher]
 }
 
 # --- S3 Saver ---
@@ -366,7 +371,7 @@ data "archive_file" "s3_saver" {
 resource "aws_lambda_function" "s3_saver" {
   function_name    = "${var.project}-s3-saver"
   role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
+  runtime          = local.lambda_runtime
   handler          = "handler.handler"
   filename         = data.archive_file.s3_saver.output_path
   source_code_hash = data.archive_file.s3_saver.output_base64sha256
@@ -375,12 +380,13 @@ resource "aws_lambda_function" "s3_saver" {
 
   environment {
     variables = {
-      NODE_ENV       = "production"
+      NODE_ENV       = local.node_env
       S3_BUCKET_NAME = var.posts_bucket_name
     }
   }
 
-  tags = { Name = "${var.project}-s3-saver" }
+  tags       = { Name = "${var.project}-s3-saver" }
+  depends_on = [aws_cloudwatch_log_group.s3_saver]
 }
 
 # --- Report Generator ---
@@ -405,7 +411,7 @@ data "archive_file" "report_generator" {
 resource "aws_lambda_function" "report_generator" {
   function_name    = "${var.project}-report-generator"
   role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
+  runtime          = local.lambda_runtime
   handler          = "handler.handler"
   filename         = data.archive_file.report_generator.output_path
   source_code_hash = data.archive_file.report_generator.output_base64sha256
@@ -414,13 +420,14 @@ resource "aws_lambda_function" "report_generator" {
 
   environment {
     variables = {
-      NODE_ENV                    = "production"
+      NODE_ENV                    = local.node_env
       SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.name
       SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
     }
   }
 
-  tags = { Name = "${var.project}-report-generator" }
+  tags       = { Name = "${var.project}-report-generator" }
+  depends_on = [aws_cloudwatch_log_group.report_generator]
 }
 
 # --- Report Writer ---
@@ -445,7 +452,7 @@ data "archive_file" "report_writer" {
 resource "aws_lambda_function" "report_writer" {
   function_name    = "${var.project}-report-writer"
   role             = var.lab_role_arn
-  runtime          = "nodejs22.x"
+  runtime          = local.lambda_runtime
   handler          = "handler.handler"
   filename         = data.archive_file.report_writer.output_path
   source_code_hash = data.archive_file.report_writer.output_base64sha256
@@ -454,12 +461,13 @@ resource "aws_lambda_function" "report_writer" {
 
   environment {
     variables = {
-      NODE_ENV       = "production"
+      NODE_ENV       = local.node_env
       DYNAMODB_TABLE = var.dynamodb_reports_table_name
     }
   }
 
-  tags = { Name = "${var.project}-report-writer" }
+  tags       = { Name = "${var.project}-report-writer" }
+  depends_on = [aws_cloudwatch_log_group.report_writer]
 }
 
 ################################################################################
@@ -469,26 +477,31 @@ resource "aws_lambda_function" "report_writer" {
 resource "aws_cloudwatch_log_group" "orchestrator" {
   name              = "/aws/lambda/${var.project}-orchestrator"
   retention_in_days = 14
+  tags              = { Name = "${var.project}-orchestrator-logs" }
 }
 
 resource "aws_cloudwatch_log_group" "fetcher" {
   name              = "/aws/lambda/${var.project}-fetcher"
   retention_in_days = 14
+  tags              = { Name = "${var.project}-fetcher-logs" }
 }
 
 resource "aws_cloudwatch_log_group" "s3_saver" {
   name              = "/aws/lambda/${var.project}-s3-saver"
   retention_in_days = 14
+  tags              = { Name = "${var.project}-s3-saver-logs" }
 }
 
 resource "aws_cloudwatch_log_group" "report_generator" {
   name              = "/aws/lambda/${var.project}-report-generator"
   retention_in_days = 14
+  tags              = { Name = "${var.project}-report-generator-logs" }
 }
 
 resource "aws_cloudwatch_log_group" "report_writer" {
   name              = "/aws/lambda/${var.project}-report-writer"
   retention_in_days = 14
+  tags              = { Name = "${var.project}-report-writer-logs" }
 }
 
 ################################################################################
