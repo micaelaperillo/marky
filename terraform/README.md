@@ -1,8 +1,12 @@
 ## Steps to Initialize Terraform Infrastructure
 
-### 0. (Optional) Bootstrap S3 Remote State
+### 0. Bootstrap CI remote state (one-time)
 
-This project uses **local state by default** (the same as the CI workflow) — **skip to Step 1** unless you specifically want remote state. To opt into an S3 backend, first create the state bucket (native S3 locking via `use_lockfile`):
+The GitHub Actions workflows keep Terraform state in an S3 bucket
+(`marky-tfstate`): they pull it before `apply`/`destroy` and push it back
+after, so state survives between runs. Create that bucket once so the
+workflows have somewhere to store it (local runs use local state and don't
+need this):
 
 ```bash
 cd terraform/bootstrap
@@ -10,14 +14,8 @@ terraform init
 terraform apply
 ```
 
-Then return to the main config and migrate:
-
-```bash
-cd terraform/
-terraform init -migrate-state
-```
-
-Answer "yes" when prompted. See `bootstrap/README.md` for teardown order.
+The bucket is private — the workflows reach it with the same lab-account
+credentials. See `bootstrap/README.md` for teardown order.
 
 ### 1. Get AWS Academy Credentials
 

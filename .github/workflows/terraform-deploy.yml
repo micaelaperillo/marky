@@ -52,6 +52,17 @@ jobs:
         working-directory: lambdas
         run: pnpm i && pnpm -r build
 
+      - name: Verify state bucket exists
+        run: |
+          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
+            echo "::error::State bucket 'marky-tfstate' not found. Run the one-time bootstrap first: cd terraform/bootstrap && terraform init && terraform apply"
+            exit 1
+          }
+
+      - name: Pull Terraform state from S3
+        working-directory: terraform
+        run: aws s3 cp "s3://marky-tfstate/terraform.tfstate" terraform.tfstate || echo "No existing state in S3; starting fresh."
+
       - name: Terraform Init
         working-directory: terraform
         run: terraform init
@@ -63,6 +74,16 @@ jobs:
       - name: Terraform Apply
         working-directory: terraform
         run: terraform apply -auto-approve -input=false
+
+      - name: Push Terraform state to S3
+        if: always()
+        working-directory: terraform
+        run: |
+          if [ -f terraform.tfstate ]; then
+            aws s3 cp terraform.tfstate "s3://marky-tfstate/terraform.tfstate"
+          else
+            echo "No local state file to push."
+          fi
 
       - name: Deploy Frontend
         working-directory: .

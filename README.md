@@ -36,6 +36,11 @@ The professor must add the following secrets to the repository settings (Setting
 | `BLUESKY_IDENTIFIER` | Bluesky handle (e.g., handle.bsky.social) |
 | `BLUESKY_APP_PASSWORD` | Bluesky app-specific password |
 
+**One-time:** the workflows keep Terraform state in a private S3 bucket
+(`marky-tfstate`) so it survives between runs. Create it once before the first
+deploy: `cd terraform/bootstrap && terraform init && terraform apply` (see
+`terraform/README.md`).
+
 ### Step 2: Run Deploy Workflow
 
 1. Go to Actions tab
@@ -43,9 +48,10 @@ The professor must add the following secrets to the repository settings (Setting
 3. Click "Run workflow"
 4. Workflow will:
    - Build Lambda functions
-   - Initialize Terraform (local backend, no bootstrap needed)
-   - Apply infrastructure (creates VPC, RDS, Lambda, Cognito, etc.)
+   - Pull Terraform state from the S3 state bucket
+   - Initialize and apply (creates VPC, RDS, Lambda, Cognito, etc.)
    - Store Gemini API key in AWS Secrets Manager
+   - Push the updated state back to S3
    - Build and deploy frontend to S3
 
 Expected runtime: 15-20 minutes (RDS instance creation is slowest)
@@ -119,7 +125,7 @@ This removes all resources created by the deploy workflow, cleaning up costs.
 ## Terraform Configuration
 
 See [terraform/README.md](terraform/README.md) for detailed infrastructure setup, including:
-- State management (local backend)
+- State management (local for dev, S3 state bucket for CI)
 - Variable configuration
 - Post-deployment manual steps
 - Troubleshooting
