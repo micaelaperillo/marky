@@ -1,15 +1,21 @@
 <!-- BEGIN_TF_DOCS -->
 ## Requirements
 
-No requirements.
+| Name | Version |
+|------|---------|
+| <a name="requirement_archive"></a> [archive](#requirement\_archive) | >= 2.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.0 |
+| <a name="requirement_random"></a> [random](#requirement\_random) | >= 3.0 |
+| <a name="requirement_time"></a> [time](#requirement\_time) | >= 0.9 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_archive"></a> [archive](#provider\_archive) | n/a |
-| <a name="provider_aws"></a> [aws](#provider\_aws) | n/a |
-| <a name="provider_random"></a> [random](#provider\_random) | n/a |
+| <a name="provider_archive"></a> [archive](#provider\_archive) | >= 2.0 |
+| <a name="provider_aws"></a> [aws](#provider\_aws) | >= 5.0 |
+| <a name="provider_random"></a> [random](#provider\_random) | >= 3.0 |
+| <a name="provider_time"></a> [time](#provider\_time) | >= 0.9 |
 
 ## Modules
 
@@ -32,6 +38,7 @@ No modules.
 | [aws_secretsmanager_secret.rds_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret) | resource |
 | [aws_secretsmanager_secret_version.rds_credentials](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/secretsmanager_secret_version) | resource |
 | [random_password.rds_master](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
+| [time_sleep.wait_for_proxy](https://registry.terraform.io/providers/hashicorp/time/latest/docs/resources/sleep) | resource |
 | [archive_file.migrator](https://registry.terraform.io/providers/hashicorp/archive/latest/docs/data-sources/file) | data source |
 
 ## Inputs
@@ -42,7 +49,7 @@ No modules.
 | <a name="input_db_name"></a> [db\_name](#input\_db\_name) | Name of the PostgreSQL database to create. | `string` | `"marky"` | no |
 | <a name="input_db_username"></a> [db\_username](#input\_db\_username) | Master username for the RDS instance. | `string` | `"marky_admin"` | no |
 | <a name="input_lab_role_arn"></a> [lab\_role\_arn](#input\_lab\_role\_arn) | ARN of the LabRole IAM role used by all resources. | `string` | n/a | yes |
-| <a name="input_lambda_dist_base"></a> [lambda\_dist\_base](#input\_lambda\_dist\_base) | Absolute path to the lambdas/apps directory for bundled handler zips. | `string` | n/a | yes |
+| <a name="input_lambda_dist_base"></a> [lambda\_dist\_base](#input\_lambda\_dist\_base) | Base path to the Lambda workspace apps directory. Null = use stubs. | `string` | `null` | no |
 | <a name="input_lambda_sg_id"></a> [lambda\_sg\_id](#input\_lambda\_sg\_id) | Security group ID for Lambda VPC configuration. | `string` | n/a | yes |
 | <a name="input_lambda_subnet_ids"></a> [lambda\_subnet\_ids](#input\_lambda\_subnet\_ids) | Subnet IDs for Lambda VPC configuration. | `list(string)` | n/a | yes |
 | <a name="input_project"></a> [project](#input\_project) | Project name prefix for all resource names and tags. | `string` | n/a | yes |
