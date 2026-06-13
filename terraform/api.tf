@@ -3,7 +3,7 @@ module "api" {
 
   project                     = var.project
   region                      = var.region
-  account_id                  = data.aws_caller_identity.current.account_id
+  account_id                  = local.account_id
   lab_role_arn                = local.lab_role_arn
   frontend_bucket_name        = module.storage.frontend_bucket_name
   lambda_subnet_ids           = module.networking.backend_subnet_ids
@@ -13,5 +13,5 @@ module "api" {
   rds_secret_name             = module.database.rds_secret_name
   dynamodb_reports_table_name = module.database.dynamodb_reports_table_name
   campaign_events_queue_url   = module.pipeline.campaign_events_queue_url
-  lambda_dist_base            = "${path.root}/../lambdas/apps"
+  lambda_dist_base            = local.lambda_dist_base
 }

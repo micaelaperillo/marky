@@ -145,62 +145,75 @@ resource "aws_vpc_security_group_ingress_rule" "endpoint_from_rds" {
   referenced_security_group_id = aws_security_group.rds.id
 }
 
-# --- VPC Gateway Endpoints (free) ---
+# --- VPC Endpoints (terraform-aws-modules/vpc/aws//modules/vpc-endpoints) ---
+# Gateway endpoints (S3, DynamoDB) are free; interface endpoints replace a NAT
+# gateway for private Lambda/RDS-Proxy access to AWS APIs.
 
-resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.${var.region}.s3"
-  vpc_endpoint_type = "Gateway"
+module "vpc_endpoints" {
+  source  = "terraform-aws-modules/vpc/aws//modules/vpc-endpoints"
+  version = "~> 5.21.0"
 
-  route_table_ids = [
-    aws_route_table.backend_az1.id,
-    aws_route_table.backend_az2.id,
-  ]
+  vpc_id = aws_vpc.main.id
 
-  tags = { Name = "${var.project}-s3-endpoint" }
+  # Defaults applied to every interface endpoint below (gateway endpoints
+  # ignore subnets/SGs and use route_table_ids instead).
+  create_security_group = false
+  security_group_ids    = [aws_security_group.endpoint.id]
+  subnet_ids            = [aws_subnet.this["backend-az1"].id]
+
+  endpoints = {
+    s3 = {
+      service         = "s3"
+      service_type    = "Gateway"
+      route_table_ids = [aws_route_table.backend_az1.id, aws_route_table.backend_az2.id]
+      tags            = { Name = "${var.project}-s3-endpoint" }
+    }
+    dynamodb = {
+      service         = "dynamodb"
+      service_type    = "Gateway"
+      route_table_ids = [aws_route_table.backend_az1.id, aws_route_table.backend_az2.id]
+      tags            = { Name = "${var.project}-dynamodb-endpoint" }
+    }
+    sqs = {
+      service             = "sqs"
+      private_dns_enabled = true
+      tags                = { Name = "${var.project}-sqs-endpoint" }
+    }
+    secretsmanager = {
+      service             = "secretsmanager"
+      private_dns_enabled = true
+      tags                = { Name = "${var.project}-secretsmanager-endpoint" }
+    }
+    logs = {
+      service             = "logs"
+      private_dns_enabled = true
+      tags                = { Name = "${var.project}-logs-endpoint" }
+    }
+  }
 }
 
-resource "aws_vpc_endpoint" "dynamodb" {
-  vpc_id            = aws_vpc.main.id
-  service_name      = "com.amazonaws.${var.region}.dynamodb"
-  vpc_endpoint_type = "Gateway"
-
-  route_table_ids = [
-    aws_route_table.backend_az1.id,
-    aws_route_table.backend_az2.id,
-  ]
-
-  tags = { Name = "${var.project}-dynamodb-endpoint" }
+# Migrate existing endpoints into the module (no destroy/recreate on apply).
+moved {
+  from = aws_vpc_endpoint.s3
+  to   = module.vpc_endpoints.aws_vpc_endpoint.this["s3"]
 }
 
-# --- VPC Interface Endpoints ---
-
-resource "aws_vpc_endpoint" "sqs" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.region}.sqs"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id]
-  security_group_ids  = [aws_security_group.endpoint.id]
-  tags                = { Name = "${var.project}-sqs-endpoint" }
+moved {
+  from = aws_vpc_endpoint.dynamodb
+  to   = module.vpc_endpoints.aws_vpc_endpoint.this["dynamodb"]
 }
 
-resource "aws_vpc_endpoint" "secretsmanager" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.region}.secretsmanager"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id]
-  security_group_ids  = [aws_security_group.endpoint.id]
-  tags                = { Name = "${var.project}-secretsmanager-endpoint" }
+moved {
+  from = aws_vpc_endpoint.sqs
+  to   = module.vpc_endpoints.aws_vpc_endpoint.this["sqs"]
 }
 
-resource "aws_vpc_endpoint" "logs" {
-  vpc_id              = aws_vpc.main.id
-  service_name        = "com.amazonaws.${var.region}.logs"
-  vpc_endpoint_type   = "Interface"
-  private_dns_enabled = true
-  subnet_ids          = [aws_subnet.this["backend-az1"].id]
-  security_group_ids  = [aws_security_group.endpoint.id]
-  tags                = { Name = "${var.project}-logs-endpoint" }
+moved {
+  from = aws_vpc_endpoint.secretsmanager
+  to   = module.vpc_endpoints.aws_vpc_endpoint.this["secretsmanager"]
+}
+
+moved {
+  from = aws_vpc_endpoint.logs
+  to   = module.vpc_endpoints.aws_vpc_endpoint.this["logs"]
 }

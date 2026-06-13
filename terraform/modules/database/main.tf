@@ -11,6 +11,8 @@ resource "random_password" "rds_master" {
 resource "aws_secretsmanager_secret" "rds_credentials" {
   name                    = "${var.project}-rds-credentials-${var.suffix}"
   recovery_window_in_days = 0
+
+  tags = { Name = "${var.project}-rds-credentials" }
 }
 
 resource "aws_secretsmanager_secret_version" "rds_credentials" {
@@ -29,9 +31,7 @@ resource "aws_db_subnet_group" "main" {
   name       = "${var.project}-db-subnet-group"
   subnet_ids = var.subnet_ids
 
-  tags = {
-    Name = "${var.project}-db-subnet-group"
-  }
+  tags = { Name = "${var.project}-db-subnet-group" }
 }
 
 resource "aws_db_instance" "main" {
@@ -65,9 +65,7 @@ resource "aws_db_instance" "main" {
   performance_insights_enabled          = true
   performance_insights_retention_period = 7
 
-  tags = {
-    Name = "${var.project}-db"
-  }
+  tags = { Name = "${var.project}-db" }
 
   lifecycle {
     ignore_changes = [engine_version]
@@ -122,9 +120,7 @@ resource "aws_db_proxy" "main" {
     secret_arn  = aws_secretsmanager_secret.rds_credentials.arn
   }
 
-  tags = {
-    Name = "${var.project}-db-proxy"
-  }
+  tags = { Name = "${var.project}-db-proxy" }
 }
 
 resource "aws_db_proxy_default_target_group" "main" {
@@ -174,8 +170,11 @@ data "archive_file" "migrator" {
 }
 
 resource "aws_cloudwatch_log_group" "migrator" {
-  name              = "/aws/lambda/${var.project}-migrator"
+  name = "/aws/lambda/${var.project}-migrator"
+  # Shorter retention than the 14d service log groups: the migrator is a one-shot
+  # bootstrap job, so its logs are only useful right after a deploy.
   retention_in_days = 7
+  tags              = { Name = "${var.project}-migrator-logs" }
 }
 
 resource "aws_lambda_function" "migrator" {
@@ -199,9 +198,17 @@ resource "aws_lambda_function" "migrator" {
     }
   }
 
+  tags = { Name = "${var.project}-migrator" }
+
   depends_on = [aws_cloudwatch_log_group.migrator]
 }
 
+# RDS Proxy target registration returns before the proxy can actually accept
+# connections (the target lags instance availability by minutes). Without this
+# gate the migrator Lambda's first connection fails with "Connection terminated
+# unexpectedly" on a fresh deploy. 8m covers worst-case proxy warmup. The wait
+# fires only on create (no triggers) and destroys instantly, so it does not tax
+# re-applies or teardown.
 resource "time_sleep" "wait_for_proxy" {
   depends_on      = [aws_db_proxy_target.main]
   create_duration = "8m"
@@ -242,7 +249,5 @@ resource "aws_dynamodb_table" "reports" {
     enabled = true
   }
 
-  tags = {
-    Name = "${var.project}-reports"
-  }
+  tags = { Name = "${var.project}-reports" }
 }

@@ -17,7 +17,7 @@
 	"common_cancel": "Cancelar",
 	"common_dashboard": "Abrir el panel",
 	"common_home": "Volver al inicio",
-	"common_loading": "Cargando…",
+	"common_loading": "Cargando...",
 	"common_signedIn": "Sesión activa",
 	"common_signIn": "Ingresar",
 	"common_view": "Ver",
@@ -39,8 +39,8 @@
 	"create_intervalHint": [
 		{
 			"match": {
-				"max=*": "El intervalo no puede mayor a {max} días.",
-				"max=1": "El intervalo no puede mayor a 1 día."
+				"max=*": "El intervalo no puede ser mayor a {max} días.",
+				"max=1": "El intervalo no puede ser mayor a 1 día."
 			}
 		}
 	],
@@ -84,10 +84,10 @@
 			}
 		}
 	],
-	"home_badge": "Inteligencia de tópicos en Bluesky",
+	"home_badge": "Inteligencia de temas en Bluesky",
 	"home_titleLine1": "Seguí los temas",
 	"home_titleLine2": "que le importan a tu audiencia",
-	"home_subtitle": "Creá una campaña, definí los tópicos que querés monitorear y Marky encuentra publicaciones relevantes en Bluesky para generar reportes con sentimiento, conversaciones clave y comentarios representativos.",
+	"home_subtitle": "Creá una campaña, definí los temas que querés monitorear y Marky encuentra publicaciones relevantes en Bluesky para generar reportes con sentimiento, conversaciones clave y comentarios representativos.",
 	"home_createCampaign": "Armar campaña",
 	"home_openDashboard": "Abrir el panel",
 	"list_badgeDaysLeft": [
@@ -101,7 +101,7 @@
 	],
 	"list_badgeEnded": "Terminó",
 	"list_badgeEndsToday": "Termina hoy",
-	"list_emptyBody": "Con las campañas podés seguir temas en el tiempo y ver cómo se mueve el sentimiento en los mercados de predicción.",
+	"list_emptyBody": "Con las campañas podés seguir temas en el tiempo y ver cómo se mueve el sentimiento en Bluesky.",
 	"list_emptyCta": "Armá tu primera campaña",
 	"list_emptyLead": "Todavía no armaste ninguna. Dale, arrancá una para ver cómo viene el sentimiento.",
 	"list_emptyTitle": "Acá no hay nada todavía",
@@ -145,7 +145,7 @@
 	"login_errorPasswordMismatch": "Las contraseñas no coinciden.",
 	"login_errorUnknown": "Algo salió mal. Probá de nuevo.",
 	"login_errorUserExists": "Ya existe una cuenta con ese email.",
-	"login_errorWeakPassword": "Contraseña muy débil. Usá 8+ caracteres con mayúsculas, minúsculas y números.",
+	"login_errorWeakPassword": "Contraseña muy débil. Usá 12+ caracteres con mayúsculas, minúsculas y números.",
 	"login_errorWrongPassword": "Email o contraseña incorrectos.",
 	"login_footer": "Al ingresar te comprometés a usar esta data con cabeza.",
 	"login_forgotPassword": "¿Olvidaste tu contraseña?",

@@ -4,10 +4,10 @@ Marky is a cloud-based platform for analyzing social media posts from Bluesky us
 
 ## Architecture Overview
 
-- **Frontend**: SvelteKit application deployed to S3 with CloudFront CDN
-- **Backend API**: Lambda functions (API Gateway + DynamoDB)
+- **Frontend**: SvelteKit application stored in S3, served via API Gateway
+- **Backend API**: Lambda functions behind API Gateway
 - **Authentication**: Amazon Cognito
-- **Data Storage**: S3 + DynamoDB
+- **Data Storage**: RDS PostgreSQL (campaigns), DynamoDB (reports), S3 (frontend + Bluesky posts)
 - **AI Processing**: Google Gemini API for content analysis
 - **Social Media**: Bluesky API integration for post ingestion
 
@@ -36,6 +36,11 @@ The professor must add the following secrets to the repository settings (Setting
 | `BLUESKY_IDENTIFIER` | Bluesky handle (e.g., handle.bsky.social) |
 | `BLUESKY_APP_PASSWORD` | Bluesky app-specific password |
 
+**One-time:** the workflows keep Terraform state in a private S3 bucket
+(`marky-tfstate`) so it survives between runs. Create it once before the first
+deploy: `cd terraform/bootstrap && terraform init && terraform apply` (see
+`terraform/README.md`).
+
 ### Step 2: Run Deploy Workflow
 
 1. Go to Actions tab
@@ -43,9 +48,10 @@ The professor must add the following secrets to the repository settings (Setting
 3. Click "Run workflow"
 4. Workflow will:
    - Build Lambda functions
-   - Initialize Terraform (local backend, no bootstrap needed)
-   - Apply infrastructure (creates VPC, RDS, Lambda, Cognito, etc.)
+   - Pull Terraform state from the S3 state bucket
+   - Initialize and apply (creates VPC, RDS, Lambda, Cognito, etc.)
    - Store Gemini API key in AWS Secrets Manager
+   - Push the updated state back to S3
    - Build and deploy frontend to S3
 
 Expected runtime: 15-20 minutes (RDS instance creation is slowest)
@@ -60,14 +66,14 @@ After workflow succeeds:
 
 Walk-through against the deployed URL from Step 3.
 
-1. **Sign up & sign in.** Open `/login`, click **Sign up**, register with an email + password (≥ 8 chars, including upper, lower, and a digit). Confirm via the emailed code, then sign in.
+1. **Sign up & sign in.** Open `/login`, click **Sign up**, register with an email + password (≥ 12 chars, including upper, lower, and a digit). Confirm via the emailed code, then sign in.
 
 2. **Create a campaign** at `/create`. Sample inputs:
 
    | Field | Sample | Rule |
    |---|---|---|
-   | Name | `fwc_album` | 1–16 chars, lowercase letters + `_` |
-   | Topics | `Panini`, `football`, `World Cup` | 1–6 topics, ≤ 15 chars each, lowercase letters / spaces |
+   | Name | `fwc_album` | 1–16 chars, letters + `_` |
+   | Topics | `Panini`, `football`, `World Cup` | 1–6 topics, ≤ 15 chars each, letters / spaces / `_` |
    | Start date | today | |
    | End date | today + 7 days | window ≤ 30 days |
 
@@ -102,7 +108,7 @@ Walk-through against the deployed URL from Step 3.
 
 To tear down all AWS resources:
 
-1. Go to Actions → "Destroy Infrastructure"
+1. Go to Actions → "Terraform Destroy"
 2. Click "Run workflow"
 3. Enter `destroy` in the confirmation prompt
 4. Workflow will run `terraform destroy -auto-approve`
@@ -111,24 +117,24 @@ This removes all resources created by the deploy workflow, cleaning up costs.
 
 ## AWS Academy Notes
 
-- Credentials are temporary (12-4 hour sessions)
+- Credentials are temporary (1-4 hour sessions)
 - LabRole has limited permissions (focused on compute, storage, networking)
 - Session token is required (AWS Academy enforces MFA-like behavior)
-- RDS Proxy endpoint format: `marky-proxy-<suffix>.proxy-xxxxx.us-east-1.rds.amazonaws.com`
+- RDS Proxy endpoint format: `marky-db-proxy.proxy-xxxxx.us-east-1.rds.amazonaws.com`
 
 ## Terraform Configuration
 
 See [terraform/README.md](terraform/README.md) for detailed infrastructure setup, including:
-- State management (local backend)
+- State management (local for dev, S3 state bucket for CI)
 - Variable configuration
 - Post-deployment manual steps
 - Troubleshooting
 
 ## Local Development
 
-See individual component READMEs for local setup:
+See individual component READMEs for setup:
 - Frontend: `frontend/README.md`
-- Lambdas: `lambdas/README.md`
+- Terraform / infrastructure: `terraform/README.md`
 
 ## Support
 

@@ -44,8 +44,25 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Verify state bucket exists
+        run: |
+          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
+            echo "::error::State bucket 'marky-tfstate' not found — no stored state to destroy."
+            exit 1
+          }
+
+      - name: Pull Terraform state from S3
+        run: aws s3 cp "s3://marky-tfstate/terraform.tfstate" terraform.tfstate || echo "No existing state in S3; nothing to destroy."
+
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve -input=false
+
+      - name: Push Terraform state to S3
+        if: always()
+        run: |
+          if [ -f terraform.tfstate ]; then
+            aws s3 cp terraform.tfstate "s3://marky-tfstate/terraform.tfstate"
+          fi

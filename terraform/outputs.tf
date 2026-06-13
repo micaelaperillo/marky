@@ -59,7 +59,7 @@ output "schedule_group_name" {
 }
 
 output "gemini_secret_arn" {
-  description = "Secrets Manager ARN for Gemini API key (set value manually)"
+  description = "Secrets Manager ARN for the Gemini API key secret."
   value       = module.pipeline.gemini_secret_arn
   sensitive   = true
 }

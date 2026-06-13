@@ -153,7 +153,7 @@
 							type="password"
 							id="new-password"
 							required
-							minlength="8"
+							minlength="12"
 							bind:value={newPassword}
 							placeholder={m.login_passwordPlaceholder()}
 							class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"
@@ -170,7 +170,7 @@
 							type="password"
 							id="confirm-new-password"
 							required
-							minlength="8"
+							minlength="12"
 							bind:value={confirmPassword}
 							placeholder={m.login_passwordPlaceholder()}
 							class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition placeholder:text-slate-400 focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:placeholder:text-slate-500"

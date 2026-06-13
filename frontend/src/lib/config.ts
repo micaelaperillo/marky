@@ -10,7 +10,7 @@ export const formConfig = {
 		pattern: /^[a-z_]+$/i,
 		/** HTML-safe version of the pattern (no anchors) for the `pattern` attribute. */
 		patternHtml: '[A-Za-z_]+',
-		placeholder: 'q2_launch'
+		placeholder: 'product_launch'
 	},
 	range: {
 		/** Maximum interval between start and end date, in days. */

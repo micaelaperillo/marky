@@ -9,5 +9,7 @@ resource "random_string" "suffix" {
 }
 
 locals {
-  lab_role_arn = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
+  lab_role_arn     = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:role/LabRole"
+  lambda_dist_base = "${path.root}/../lambdas/apps"
+  account_id       = data.aws_caller_identity.current.account_id
 }

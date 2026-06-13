@@ -21,39 +21,15 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "tfstate" {
   }
 }
 
+# Keep the state bucket fully private. The GitHub Actions workflows reach it
+# with the same AWS Academy lab account credentials (LabRole), so same-account
+# IAM access is enough — no bucket policy is needed, and a public one would
+# expose the secrets stored in Terraform state.
 resource "aws_s3_bucket_public_access_block" "tfstate" {
   bucket = aws_s3_bucket.tfstate.id
 
   block_public_acls       = true
-  block_public_policy     = false
+  block_public_policy     = true
   ignore_public_acls      = true
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_policy" "tfstate_public" {
-  bucket = aws_s3_bucket.tfstate.id
-
-  depends_on = [aws_s3_bucket_public_access_block.tfstate]
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "AllowAnyAccountTerraformStateAccess"
-        Effect    = "Allow"
-        Principal = "*"
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:DeleteObject",
-          "s3:ListBucket",
-          "s3:GetBucketVersioning"
-        ]
-        Resource = [
-          aws_s3_bucket.tfstate.arn,
-          "${aws_s3_bucket.tfstate.arn}/*"
-        ]
-      }
-    ]
-  })
+  restrict_public_buckets = true
 }
