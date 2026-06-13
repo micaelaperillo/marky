@@ -76,6 +76,10 @@ resource "aws_lambda_function" "auth" {
   timeout          = 10
   memory_size      = 256
 
+  tracing_config {
+    mode = "Active"
+  }
+
   environment {
     variables = {
       COGNITO_USER_POOL_ID = var.cognito_user_pool_id
@@ -98,6 +102,10 @@ resource "aws_lambda_function" "campaigns" {
   source_code_hash = data.archive_file.campaigns.output_base64sha256
   timeout          = 25
   memory_size      = 512
+
+  tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
@@ -126,6 +134,10 @@ resource "aws_lambda_function" "reports" {
   source_code_hash = data.archive_file.reports.output_base64sha256
   timeout          = 25
   memory_size      = 256
+
+  tracing_config {
+    mode = "Active"
+  }
 
   environment {
     variables = {
