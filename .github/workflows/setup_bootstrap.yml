@@ -34,7 +34,7 @@ env:
   TF_VAR_user: ${{ inputs.user }}
 
 jobs:
-  idk:
+  setup:
     name: Configure the Terraform bootstrap
     runs-on: ubuntu-latest
 
