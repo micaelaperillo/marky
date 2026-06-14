@@ -160,7 +160,7 @@ jobs:
       api_url: ${{ needs.deploy_architecture.outputs.api_url }}
 
   deploy_front:
-    name: Deploy the mainframe
+    name: Upload SPA to S3
     runs-on: ubuntu-latest
 
     needs:
@@ -180,7 +180,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: front
-          path: front
+          path: build
 
       - name: Push to S3 bucket
-        run: aws s3 sync front/* s3://${{ needs.deploy_architecture.outputs.api_url }}/ --delete
+        run: aws s3 sync build/ s3://${{ needs.deploy_architecture.outputs.api_url }}/ --delete
