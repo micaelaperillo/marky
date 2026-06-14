@@ -126,7 +126,8 @@ jobs:
         continue-on-error: true
         run: terraform plan -detailed-exitcode -out=tfplan
 
-      - if: steps.plan.outputs.exitcode == '1'
+      - name: Assert Terraform Plan status
+        if: steps.plan.outputs.exitcode == '1'
         run: exit 1
 
       - name: Give me time to reconsider my life actions
