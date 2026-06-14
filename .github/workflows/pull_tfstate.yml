@@ -1,0 +1,46 @@
+name: Pull tfstate
+
+on:
+  workflow_call:
+    inputs:
+      user:
+        type: string
+        description: The user running the action
+        required: true
+      fail_if_missing:
+        type: boolean
+        description: Wheather to fail if the tfstate isn't found
+        default: false
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  pull:
+    name: Retrieve the tfstate file
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - run: mkdir terraform
+
+      - name: Pull Terraform state from S3
+        working-directory: terraform
+        run: aws s3 cp "s3://marky-tfstate-${{ inputs.user }}/terraform.tfstate" terraform.tfstate
+
+      - name: Check if tfstate was found
+        if: ${{ inputs.fail_if_missing }}
+        working-directory: terraform
+        run: |
+          [[ ! -f terraform.tfstate ]] && exit 1
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tfstate
+          path: terraform/terraform.tfstate

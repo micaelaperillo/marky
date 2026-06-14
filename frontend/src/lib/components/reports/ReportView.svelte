@@ -88,15 +88,35 @@
 		}).format(new Date(value));
 	}
 
-	const minutesSinceGenerated = $derived.by(() => {
-		if (!timestamp) return null;
-		return Math.floor((Date.now() - new Date(timestamp).getTime()) / 60000);
-	});
+	const UPDATE_INTERVAL_MINUTES = 30;
 
-	const nextUpdateMinutes = $derived.by(() => {
-		if (minutesSinceGenerated === null) return '—';
-		return Math.max(0, 10 - minutesSinceGenerated);
-	});
+const minutesSinceReport = $derived.by(() => {
+	if (!timestamp) return 0;
+
+	const diff = Math.floor(
+		(Date.now() - new Date(timestamp).getTime()) / 60000
+	);
+
+	return Math.max(0, diff);
+});
+
+
+const nextUpdateMinutes = $derived.by(() => {
+	if (!timestamp) return '—';
+
+	const reportTime = new Date(timestamp).getTime();
+
+	const nextUpdateAt =
+		reportTime + UPDATE_INTERVAL_MINUTES * 60 * 1000;
+
+	const remainingMs = nextUpdateAt - Date.now();
+
+	const remainingMinutes = Math.ceil(
+		remainingMs / (60 * 1000)
+	);
+
+	return Math.max(0, remainingMinutes);
+});
 </script>
 
 <section

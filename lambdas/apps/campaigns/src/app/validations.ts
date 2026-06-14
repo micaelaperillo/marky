@@ -1,10 +1,10 @@
 import z from "zod";
 import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import utc from "dayjs/plugin/utc.js";
 
-dayjs.extend(utc);
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 const CAMPAIGN_RULES = {
     CAMPAIGN_MAX_LENGTH: 100,
@@ -49,14 +49,16 @@ export const CampaignInputSchema = z
             }),
         start: z
             .string()
-            .refine((s) => dayjs(s, "YYYY-MM-DD", true).isValid(), {
-                message: "Start date must be in YYYY-MM-DD format"
-            }),
+            .refine((s) => dayjs(s).isValid(), {
+                message: "Start date is invalid"
+            })
+            .transform((s) => dayjs.utc(s).toISOString()),
         end: z
             .string()
-            .refine((s) => dayjs(s, "YYYY-MM-DD", true).isValid(), {
-                message: "End date must be in YYYY-MM-DD format"
-            }),
+            .refine((s) => dayjs(s).isValid(), {
+                message: "End date is invalid"
+            })
+            .transform((s) => dayjs.utc(s).toISOString()),
         topics: z
             .array(TopicSchema)
             .min(TOPIC_RULES.TOPICS_ARRAY_MIN_SIZE, {
@@ -74,34 +76,26 @@ export const CampaignInputSchema = z
     })
     .refine(
         ({ start }) => {
-            const todayUtc = dayjs.utc().startOf("day");
-            const startDateUtc = dayjs.utc(start).startOf("day");
-
-            return !startDateUtc.isBefore(todayUtc);
+            const now = dayjs.utc();
+            const startDate = dayjs.utc(start);
+            return !startDate.isBefore(now);
         },
         {
             message: "Start date cannot be in the past",
             path: ["start"]
         }
     )
-    // Date range is [start, end) - end date is exclusive
     .refine(
-        ({ start, end }) => {
-            const s = dayjs(start);
-            const e = dayjs(end);
-            return s.isBefore(e);
-        },
+        ({ start, end }) => dayjs.utc(start).isBefore(dayjs.utc(end)),
         {
             message: "End date must be after start date",
             path: ["end"]
         }
     )
     .refine(
-        ({ start, end }) => {
-            const s = dayjs(start);
-            const e = dayjs(end);
-            return e.diff(s, "day") <= DATE_RANGE_RULES.DATE_RANGE_MAX_LENGTH;
-        },
+        ({ start, end }) =>
+            dayjs.utc(end).diff(dayjs.utc(start), "day") <=
+            DATE_RANGE_RULES.DATE_RANGE_MAX_LENGTH,
         {
             message: `Date range cannot exceed ${DATE_RANGE_RULES.DATE_RANGE_MAX_LENGTH} days`,
             path: ["end"]

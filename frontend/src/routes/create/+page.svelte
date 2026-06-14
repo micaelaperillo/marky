@@ -28,14 +28,13 @@
 		topicsError = '';
 	}
 
-	function todayIsoUtc(): string {
-		const d = new Date();
-		return new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate()))
-			.toISOString()
-			.split('T')[0];
+	function toLocalDatetime(date: Date) {
+		const offset = date.getTimezoneOffset();
+		const localDate = new Date(date.getTime() - offset * 60 * 1000);
+		return localDate.toISOString().slice(0, 16);
 	}
 
-	function validateClient(campaign: string, start: string, end: string): boolean {
+	function validateClient(startIso: string, endIso: string, campaign: string): boolean {
 		clearErrors();
 		let ok = true;
 
@@ -56,24 +55,26 @@
 			ok = false;
 		}
 
-		if (!start) {
+		const startMs = startIso ? Date.parse(startIso) : NaN;
+		const endMs = endIso ? Date.parse(endIso) : NaN;
+		const now = Date.now();
+
+		if (!startIso || Number.isNaN(startMs)) {
 			startError = m.create_errorStartPast();
 			ok = false;
-		} else if (start < todayIsoUtc()) {
+		} else if (startMs < now) {
 			startError = m.create_errorStartPast();
 			ok = false;
 		}
 
-		if (!end) {
+		if (!endIso || Number.isNaN(endMs)) {
 			endError = m.create_errorEndBeforeStart();
 			ok = false;
-		} else if (start && end <= start) {
+		} else if (!Number.isNaN(startMs) && endMs <= startMs) {
 			endError = m.create_errorEndBeforeStart();
 			ok = false;
-		} else if (start) {
-			const diffDays = Math.round(
-				(Date.parse(end) - Date.parse(start)) / 86_400_000
-			);
+		} else if (!Number.isNaN(startMs)) {
+			const diffDays = (endMs - startMs) / 86_400_000;
 			if (diffDays > rangeCfg.maxDays) {
 				endError = m.create_errorRangeTooLong({ max: rangeCfg.maxDays });
 				ok = false;
@@ -120,10 +121,12 @@
 		const form = e.currentTarget as HTMLFormElement;
 		const fd = new FormData(form);
 		const campaign = ((fd.get('campaign') as string) ?? '').trim();
-		const start = (fd.get('start') as string) ?? '';
-		const end = (fd.get('end') as string) ?? '';
+		const rawStart = (fd.get('start') as string) ?? '';
+		const rawEnd = (fd.get('end') as string) ?? '';
+		const start = rawStart ? new Date(rawStart).toISOString() : '';
+		const end = rawEnd ? new Date(rawEnd).toISOString() : '';
 
-		if (!validateClient(campaign, start, end)) return;
+		if (!validateClient(start, end, campaign)) return;
 
 		submitting = true;
 		try {
@@ -253,13 +256,13 @@
 						{m.create_startLabel()}
 					</label>
 					<input
-						type="date"
+						type="datetime-local"
 						name="start"
 						id="start"
 						required
 						aria-invalid={startError ? 'true' : undefined}
 						aria-describedby={startError ? 'start-error' : undefined}
-						value={todayIsoUtc()}
+						value={toLocalDatetime(new Date())}
 						class="mt-2 block w-full rounded-lg border bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition focus:ring-2 focus:outline-none dark:bg-slate-950 dark:text-slate-100 dark:scheme-dark {startError
 							? 'border-rose-400 focus:border-rose-500 focus:ring-rose-500/20 dark:border-rose-700'
 							: 'border-slate-300 focus:border-brand-500 focus:ring-brand-500/20 dark:border-slate-700'}"
@@ -275,7 +278,7 @@
 						{m.create_endLabel()}
 					</label>
 					<input
-						type="date"
+						type="datetime-local"
 						name="end"
 						id="end"
 						required

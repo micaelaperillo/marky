@@ -1,40 +1,49 @@
-name: 'Terraform Destroy'
+name: Terraform Destroy
 
 on:
   workflow_dispatch:
     inputs:
-      confirm:
-        description: 'Type "destroy" to confirm'
+      user:
+        description: 'Who are you?'
         required: true
+        type: choice
+        options:
+          - professor-x
+          - agus
+          - uri
+          - manu
+          - mica
+          - tomi
 
 env:
   AWS_REGION: us-east-1
 
-permissions:
-  contents: read
-
 jobs:
+  pull_tfstate:
+    name: Pull tfstate from bucket
+    uses: ./.github/workflows/pull_tfstate.yml
+    with:
+      user: ${{ inputs.user }}
+
   destroy:
     name: 'Destroy Infrastructure'
     runs-on: ubuntu-latest
+
+    needs: pull_tfstate
+
     defaults:
       run:
         working-directory: terraform
 
+    permissions:
+      contents: read
+
     steps:
-      - name: Verify Confirmation
-        if: github.event.inputs.confirm != 'destroy'
-        run: |
-          echo "Confirmation failed. You must type 'destroy' to proceed."
-          exit 1
-
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+      - uses: actions/download-artifact@v8
         with:
-          terraform_wrapper: false
+          name: tfstate
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -44,25 +53,18 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Verify state bucket exists
-        run: |
-          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
-            echo "::error::State bucket 'marky-tfstate' not found — no stored state to destroy."
-            exit 1
-          }
-
-      - name: Pull Terraform state from S3
-        run: aws s3 cp "s3://marky-tfstate/terraform.tfstate" terraform.tfstate || echo "No existing state in S3; nothing to destroy."
-
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Destroy
         run: terraform destroy -auto-approve -input=false
 
-      - name: Push Terraform state to S3
-        if: always()
-        run: |
-          if [ -f terraform.tfstate ]; then
-            aws s3 cp terraform.tfstate "s3://marky-tfstate/terraform.tfstate"
-          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tfstate
+          path: terraform/terraform.tfstate
+
+  push_tfstate:
+    uses: ./.github/workflows/push_tfstate.yml
+    with:
+      user: ${{ inputs.user }}

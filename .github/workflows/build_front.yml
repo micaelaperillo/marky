@@ -1,0 +1,60 @@
+name: Build frontend
+
+on:
+  workflow_call:
+    inputs:
+      cognito_user_pool_id:
+        type: string
+        required: true
+        description: The cognito user pool
+      cognito_client_id:
+        type: string
+        required: true
+        description: The cognito client id
+      api_url:
+        type: string
+        required: true
+        description: The API url
+
+env:
+  VITE_COGNITO_USER_POOL_ID: ${{ inputs.cognito_user_pool_id }}
+  VITE_COGNITO_CLIENT_ID: ${{ inputs.cognito_client_id }}
+  VITE_API_BASE_URL: ${{ inputs.api_url }}/api
+  BASE_PATH: /prod
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+        with:
+          cache: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build
+        run: |
+          pnpm i
+          pnpm build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: front
+          path: frontend/build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: front
+          path: frontend/build

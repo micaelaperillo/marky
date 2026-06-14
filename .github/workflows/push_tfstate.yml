@@ -1,0 +1,35 @@
+name: Push tfstate
+
+on:
+  workflow_call:
+    inputs:
+      user:
+        type: string
+        description: The user running the action
+        required: true
+
+env:
+  AWS_REGION: us-east-1
+
+jobs:
+  push:
+    name: Update the tfstate file
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: terraform
+
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: tfstate
+
+      - name: Push tfstate
+        run: aws s3 cp terraform.tfstate "s3://marky-tfstate-${{ inputs.user }}/terraform.tfstate"

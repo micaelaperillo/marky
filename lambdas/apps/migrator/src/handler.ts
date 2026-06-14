@@ -6,11 +6,14 @@ CREATE TABLE IF NOT EXISTS campaigns (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_sub TEXT NOT NULL,
   name TEXT NOT NULL,
-  start_date DATE NOT NULL,
-  end_date DATE NOT NULL,
+  start_date TIMESTAMPTZ NOT NULL,
+  end_date TIMESTAMPTZ NOT NULL,
   topics TEXT[] NOT NULL,
   CONSTRAINT campaigns_user_name_unique UNIQUE (user_sub, name)
 );
+
+ALTER TABLE campaigns ALTER COLUMN start_date TYPE TIMESTAMPTZ USING start_date::TIMESTAMPTZ;
+ALTER TABLE campaigns ALTER COLUMN end_date TYPE TIMESTAMPTZ USING end_date::TIMESTAMPTZ;
 `;
 
 export const handler = async () => {

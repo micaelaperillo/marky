@@ -1,7 +1,31 @@
-name: 'Deploy Infrastructure'
+name: Deploy Infrastructure
 
 on:
   workflow_dispatch:
+    inputs:
+      user:
+        description: 'Who are you?'
+        required: true
+        type: choice
+        default: nobody
+        options:
+          - professor-x
+          - agus
+          - uri
+          - manu
+          - mica
+          - tomi
+          - nobody
+      has_bucket:
+        description: 'Do you own a tfstate bucket to use?'
+        required: true
+        type: boolean
+        default: true
+      create_bucket:
+        description: 'Would you like to own a tfstate bucket?'
+        required: true
+        type: boolean
+        default: false
 
 env:
   AWS_REGION: us-east-1
@@ -9,82 +33,143 @@ env:
   TF_VAR_bluesky_identifier: ${{ secrets.BLUESKY_IDENTIFIER }}
   TF_VAR_bluesky_app_password: ${{ secrets.BLUESKY_APP_PASSWORD }}
 
-permissions:
-  contents: read
-
 jobs:
-  terraform:
-    name: 'Terraform'
+  form:
+    name: Validate form data
     runs-on: ubuntu-latest
+
+    steps:
+      - name: Nobody can't create a bucket
+        if: ${{ inputs.user == 'nobody' && inputs.create_bucket }}
+        run: |
+          echo "You are nobody, you don't deserve to own a bucket"
+          exit 1
+
+      - name: Nobody can't use a bucket
+        if: ${{ inputs.user == 'nobody' && inputs.has_bucket }}
+        run: |
+          echo "You are nobody, you don't deserve to use a bucket"
+          exit 1
+
+      - name: Don't create bucket if already have one
+        if: ${{ inputs.create_bucket && inputs.has_bucket }}
+        run: |
+          echo "If you already have a bucket, why did you ask me to create one?"
+          exit 1
+
+  build_lambdas:
+    needs: form
+    uses: ./.github/workflows/build_lambdas.yml
+
+  setup_bootstrap:
+    needs: form
+    if: ${{ inputs.user != 'nobody' }}
+    uses: ./.github/workflows/setup_bootstrap.yml
+    with:
+      user: ${{ inputs.user }}
+      create: ${{ inputs.create_bucket }}
+
+  pull_tfstate:
+    if: ${{ inputs.has_bucket }}
+    needs: setup_bootstrap
+    uses: ./.github/workflows/pull_tfstate.yml
+    with:
+      user: ${{ inputs.user }}
+      fail_if_missing: false
+
+  deploy_architecture:
+    name: Deploy the mainframe
+    runs-on: ubuntu-latest
+
+    needs:
+      - build_lambdas
+      - setup_bootstrap
+      - pull_tfstate
+    if: always() && needs.build_lambdas.result != 'failure' && needs.setup_bootstrap.result != 'failure' && needs.pull_tfstate.result != 'failure'
+
     defaults:
       run:
         working-directory: terraform
 
+    permissions:
+      contents: read
+
+    outputs:
+      cognito_user_pool_id: ${{ steps.vars.outputs.cognito_user_pool_id }}
+      cognito_client_id: ${{ steps.vars.outputs.cognito_client_id }}
+      frontend_bucket_name: ${{ steps.vars.outputs.frontend_bucket_name }}
+      api_url: ${{ steps.vars.outputs.api_url }}
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v6
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          run_install: false
-          version: '10'
-
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v4
-        with:
-          terraform_wrapper: false
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
+      - uses: actions/checkout@v6
+      - uses: hashicorp/setup-terraform@v4
+      - uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Build
-        working-directory: lambdas
-        run: pnpm i && pnpm -r build
-
-      - name: Verify state bucket exists
-        run: |
-          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
-            echo "::error::State bucket 'marky-tfstate' not found. Run the one-time bootstrap first: cd terraform/bootstrap && terraform init && terraform apply"
-            exit 1
-          }
-
-      - name: Pull Terraform state from S3
-        working-directory: terraform
-        run: aws s3 cp "s3://marky-tfstate/terraform.tfstate" terraform.tfstate || echo "No existing state in S3; starting fresh."
+      - uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          name: tfstate
 
       - name: Terraform Init
-        working-directory: terraform
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: terraform
         run: terraform validate
 
       - name: Terraform Apply
-        working-directory: terraform
         run: terraform apply -auto-approve -input=false
 
-      - name: Push Terraform state to S3
-        if: always()
-        working-directory: terraform
+      - name: Capture output variables
+        id: vars
         run: |
-          if [ -f terraform.tfstate ]; then
-            aws s3 cp terraform.tfstate "s3://marky-tfstate/terraform.tfstate"
-          else
-            echo "No local state file to push."
-          fi
+          echo cognito_user_pool_id=$(terraform output -raw cognito_user_pool_id) >> "$GITHUB_OUTPUT"
+          echo cognito_client_id=$(terraform output -raw cognito_client_id) >> "$GITHUB_OUTPUT"
+          echo frontend_bucket_name=$(terraform output -raw frontend_bucket_name) >> "$GITHUB_OUTPUT"
+          echo api_url=$(terraform output -raw api_url) >> "$GITHUB_OUTPUT"
 
-      - name: Deploy Frontend
-        working-directory: .
-        run: make deploy-frontend
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tfstate
+          path: terraform/terraform.tfstate
+
+  push_tfstate:
+    if: ${{ inputs.has_bucket || inputs.create_bucket }}
+    needs: deploy_architecture
+    uses: ./.github/workflows/push_tfstate.yml
+    with:
+      user: ${{ inputs.user }}
+
+  build_front:
+    needs: deploy_architecture
+    uses: ./.github/workflows/build_front.yml
+    with:
+      cognito_user_pool_id: ${{ needs.deploy_architecture.outputs.cognito_user_pool_id }}
+      cognito_client_id: ${{ needs.deploy_architecture.outputs.cognito_client_id }}
+      api_url: ${{ needs.deploy_architecture.outputs.api_url }}
+
+  deploy_front:
+    name: Deploy the mainframe
+    runs-on: ubuntu-latest
+
+    needs:
+      - deploy_architecture
+      - build_front
+
+    steps:
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: front
+          path: front
+
+      - name: Push to S3 bucket
+        run: aws s3 sync front/ s3://${{ needs.deploy_architecture.outputs.api_url }}/ --delete

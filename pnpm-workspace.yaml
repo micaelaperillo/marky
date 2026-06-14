@@ -1,0 +1,6 @@
+packages:
+  - frontend
+  - lambdas/apps/*
+
+onlyBuiltDependencies:
+  - esbuild

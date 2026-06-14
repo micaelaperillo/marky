@@ -1,0 +1,37 @@
+name: Build lambdas
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: lambdas
+
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+        with:
+          cache: true
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Build
+        run: |
+          pnpm i
+          pnpm -r build
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: lambdas
+          path: lambdas/apps/**/dist/
