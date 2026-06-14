@@ -35,8 +35,8 @@ export const CampaignInputSchema = z
             .regex(CAMPAIGN_RULES.CAMPAIGN_NAME_PATTERN)
             .min(CAMPAIGN_RULES.CAMPAIGN_MIN_LENGTH)
             .max(CAMPAIGN_RULES.CAMPAIGN_MAX_LENGTH),
-        start: z.string().refine((s) => dayjs(s, "YYYY-MM-DD", true).isValid()),
-        end: z.string().refine((s) => dayjs(s, "YYYY-MM-DD", true).isValid()),
+        start: z.string().refine((s) => dayjs(s).isValid()),
+        end: z.string().refine((s) => dayjs(s).isValid()),
         topics: z
             .array(TopicSchema)
             .min(TOPIC_RULES.TOPICS_ARRAY_MIN_SIZE)
@@ -51,10 +51,10 @@ export const CampaignInputSchema = z
     
     .refine(
         ({ start }) => {
-            const today = dayjs().startOf("day");
+            const now = dayjs();
             const startDate = dayjs(start);
 
-            return startDate.isSame(today) || startDate.isAfter(today);
+            return startDate.isAfter(now) || startDate.isSame(now);
         },
         {
             message: "Start date cannot be in the past",
