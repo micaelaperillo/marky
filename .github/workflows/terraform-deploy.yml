@@ -190,4 +190,4 @@ jobs:
           path: build
 
       - name: Push to S3 bucket
-        run: aws s3 sync build/ s3://${{ needs.deploy_architecture.outputs.api_url }}/ --delete
+        run: aws s3 sync build/ s3://${{ needs.deploy_architecture.outputs.frontend_bucket_name }}/ --delete
