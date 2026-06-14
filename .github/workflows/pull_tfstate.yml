@@ -38,16 +38,13 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - run: mkdir terraform
-
       - name: Pull Terraform state from S3
         id: pull
         continue-on-error: ${{ !inputs.fail_if_missing }}
-        working-directory: terraform
         run: aws s3 cp "s3://marky-tfstate-${{ inputs.user }}/terraform.tfstate" terraform.tfstate
 
       - uses: actions/upload-artifact@v7
         if: ${{ steps.pull.outcome == 'success' }}
         with:
           name: tfstate
-          path: terraform/terraform.tfstate
+          path: terraform.tfstate
