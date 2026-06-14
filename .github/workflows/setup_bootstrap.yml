@@ -31,6 +31,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  TF_VAR_user: ${{ inputs.user }}
 
 jobs:
   idk:
