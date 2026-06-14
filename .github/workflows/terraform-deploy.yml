@@ -68,7 +68,10 @@ jobs:
     with:
       user: ${{ inputs.user }}
       create: ${{ inputs.create_bucket }}
-    secrets: inherit
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   pull_tfstate:
     if: ${{ inputs.has_bucket }}
@@ -77,7 +80,10 @@ jobs:
     with:
       user: ${{ inputs.user }}
       fail_if_missing: false
-    secrets: inherit
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   deploy_architecture:
     name: Deploy the mainframe
@@ -145,7 +151,10 @@ jobs:
     uses: ./.github/workflows/push_tfstate.yml
     with:
       user: ${{ inputs.user }}
-    secrets: inherit
+    secrets:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_SESSION_TOKEN: ${{ secrets.AWS_SESSION_TOKEN }}
 
   build_front:
     needs: deploy_architecture
