@@ -36,6 +36,7 @@ jobs:
 
       - name: Check if tfstate was found
         if: ${{ inputs.fail_if_missing }}
+        working-directory: terraform
         run: |
           [[ ! -f terraform.tfstate ]] && exit 1
 
