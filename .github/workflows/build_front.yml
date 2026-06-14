@@ -53,8 +53,3 @@ jobs:
         with:
           name: front
           path: frontend/build
-
-      - uses: actions/upload-artifact@v7
-        with:
-          name: front
-          path: frontend/build
