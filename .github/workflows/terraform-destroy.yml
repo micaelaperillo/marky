@@ -45,6 +45,7 @@ jobs:
       - uses: actions/download-artifact@v8
         with:
           name: tfstate
+          path: terraform
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
