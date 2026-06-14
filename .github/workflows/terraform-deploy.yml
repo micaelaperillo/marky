@@ -122,12 +122,19 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
+        id: plan
+        continue-on-error: true
+        run: terraform plan -detailed-exitcode -out=tfplan
+
+      - if: steps.plan.outputs.exitcode == '1'
+        run: exit 1
 
       - name: Give me time to reconsider my life actions
+        if: steps.plan.outputs.exitcode == '2'
         run: sleep 60
 
       - name: Terraform Apply
+        if: steps.plan.outputs.exitcode == '2'
         run: terraform apply -auto-approve -input=false tfplan
 
       - name: Capture output variables
