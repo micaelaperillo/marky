@@ -83,9 +83,7 @@ jobs:
 
     needs:
       - build_lambdas
-      - setup_bootstrap
       - pull_tfstate
-    if: always() && needs.build_lambdas.result != 'failure' && needs.setup_bootstrap.result != 'failure' && needs.pull_tfstate.result != 'failure'
 
     defaults:
       run:
