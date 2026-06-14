@@ -1,5 +1,11 @@
+variable "user" {
+  description = "The user running the action"
+  type    = string
+  ephemeral = true
+}
+
 resource "aws_s3_bucket" "tfstate" {
-  bucket        = "marky-tfstate"
+  bucket        = "marky-tfstate-${var.user}"
   force_destroy = true
 }
 
