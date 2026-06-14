@@ -45,6 +45,7 @@ export const CampaignInputSchema = z
             .string()
             .refine((s) => dayjs(s).isValid())
             .transform((s) => dayjs.utc(s).toISOString()),
+        frequencyMin: z.number().int().min(5).max(60),
         topics: z
             .array(TopicSchema)
             .min(TOPIC_RULES.TOPICS_ARRAY_MIN_SIZE)
@@ -97,5 +98,6 @@ export const CampaignSchema = z.object({
     end: z.string(),
     name: z.string(),
     start: z.string(),
+    frequencyMin: z.number(),
     topics: z.array(z.string())
 });

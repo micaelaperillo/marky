@@ -8,6 +8,7 @@ type CampaignRow = {
     name: string;
     start_date: Date;
     end_date: Date;
+    frequency_min: number;
     topics: string[];
 };
 
@@ -15,7 +16,7 @@ export class RdsCampaignRepository {
     async findAll(userId: string): Promise<Campaign[]> {
         const result = await pool.query<CampaignRow>(
             `
-                SELECT id, user_sub, name, start_date, end_date, topics
+                SELECT id, user_sub, name, start_date, end_date, frequency_min, topics
                 FROM campaigns
                 WHERE user_sub = $1
                 ORDER BY start_date DESC
@@ -29,7 +30,7 @@ export class RdsCampaignRepository {
     async findOne(userId: string, name: string): Promise<Campaign | null> {
         const result = await pool.query<CampaignRow>(
             `
-                SELECT id, user_sub, name, start_date, end_date, topics
+                SELECT id, user_sub, name, start_date, end_date, frequency_min, topics
                 FROM campaigns
                 WHERE user_sub = $1 AND name = $2
                 LIMIT 1
@@ -50,18 +51,26 @@ export class RdsCampaignRepository {
                     name,
                     topics,
                     start_date,
-                    end_date
+                    end_date,
+                    frequency_min
                 )
-                VALUES ($1, $2, $3, $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
             `,
-            [input.userId, input.campaign, input.topics, input.start, input.end]
+            [
+                input.userId,
+                input.campaign,
+                input.topics,
+                input.start,
+                input.end,
+                input.frequencyMin
+            ]
         );
 
         if (result.rowCount === 0)
             throw new Error("Unexpected lack of campaign id");
 
-        return result.rows[0];
+        return result.rows[0].id;
     }
 
     private toDomain(row: CampaignRow): Campaign {
@@ -71,7 +80,8 @@ export class RdsCampaignRepository {
             name: row.name,
             topics: row.topics,
             start: row.start_date.toISOString(),
-            end: row.end_date.toISOString()
+            end: row.end_date.toISOString(),
+            frequencyMin: row.frequency_min
         };
     }
 }

@@ -10,5 +10,5 @@ export type CampaignEvent = {
     topics: string[];
     startDate: string;
     endDate: string;
-    rateMinutes?: number;
+    frequencyMin: number;
 };

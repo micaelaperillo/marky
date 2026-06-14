@@ -3,4 +3,5 @@ export interface Campaign {
 	topics: string[];
 	start: string;
 	end: string;
+	frequencyMin: number;
 }

@@ -43,6 +43,7 @@ app.route("/")
                     action: "create",
                     startDate: input.start,
                     endDate: input.end,
+                    frequencyMin: input.frequencyMin,
                     topics: input.topics
                 } satisfies CampaignEvent),
                 QueueUrl: env.sqs.campaigns
