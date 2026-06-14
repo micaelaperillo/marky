@@ -110,6 +110,10 @@ jobs:
           aws-session-token: ${{ secrets.AWS_SESSION_TOKEN }}
           aws-region: ${{ env.AWS_REGION }}
       - uses: actions/download-artifact@v8
+        with:
+          name: lambdas
+          path: lambdas/apps
+      - uses: actions/download-artifact@v8
         continue-on-error: true
         with:
           name: tfstate
