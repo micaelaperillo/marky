@@ -4,10 +4,12 @@ export function fmt(d?: string): string {
 	if (!d) return '—';
 	const parsed = dayjs(d);
 	if (!parsed.isValid()) return d;
-	return parsed.toDate().toLocaleDateString(undefined, {
+	return parsed.toDate().toLocaleString(undefined, {
 		day: 'numeric',
 		month: 'short',
-		year: 'numeric'
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit'
 	});
 }
 
