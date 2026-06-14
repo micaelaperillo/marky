@@ -84,11 +84,11 @@
 			}
 		}
 	],
-	"home_badge": "Inteligencia de temas en Bluesky",
+	"home_badge": "Inteligencia de tópicos en Bluesky",
 	"home_titleLine1": "Seguí los temas",
 	"home_titleLine2": "que le importan a tu audiencia",
-	"home_subtitle": "Creá una campaña, definí los temas que querés monitorear y Marky encuentra publicaciones relevantes en Bluesky para generar reportes con sentimiento, conversaciones clave y comentarios representativos.",
-	"home_createCampaign": "Armar campaña",
+	"home_subtitle": "Creá una campaña, definí los tópicos que querés monitorear y Marky encuentra publicaciones relevantes en Bluesky para generar reportes con sentimiento, conversaciones clave y comentarios representativos.",
+	"home_createCampaign": "Crear campaña",
 	"home_openDashboard": "Abrir el panel",
 	"list_badgeDaysLeft": [
 		{
