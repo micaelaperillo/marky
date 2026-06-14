@@ -19,6 +19,13 @@ on:
         description: Wheater to create the bucket, otherwise only checks availability
         required: true
   workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
+        required: true
     inputs:
       user:
         type: string
