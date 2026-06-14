@@ -3,6 +3,7 @@
 	import { resolve } from '$app/paths';
 	import { goto } from '$app/navigation';
 	import DateRangeFilter from '$lib/components/reports/DateRangeFilter.svelte';
+	import SentimentPill from '$lib/components/SentimentPill.svelte';
 
 	let { data, params }: PageProps = $props();
 
@@ -41,21 +42,6 @@
 			hour: '2-digit',
 			minute: '2-digit'
 		}).format(new Date(value));
-	}
-
-	function classifyScore(score: number, providedLabel?: string): string {
-		if (providedLabel) return providedLabel;
-		if (score >= 0.15) return 'Positive';
-		if (score <= -0.15) return 'Negative';
-		return 'Neutral';
-	}
-
-	function badgeClass(label: string): string {
-		if (label === 'Positive')
-			return 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400';
-		if (label === 'Negative')
-			return 'text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400';
-		return 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400';
 	}
 
 	function applyRange(range: { start: string; end: string }) {
@@ -115,7 +101,6 @@
 			{:else}
 				<ul class="space-y-3">
 					{#each items as item (item.timestamp)}
-						{@const label = classifyScore(item.score, item.label)}
 						<li>
 							<a
 								href={resolve('/list/[campaign]/reports/[timestamp]', {
@@ -140,12 +125,8 @@
 										<span class="text-2xl font-black text-slate-900 dark:text-white">
 											{Math.round(item.score * 100)}%
 										</span>
-										<span
-											class="mt-1 rounded-full px-2.5 py-1 text-xs font-semibold {badgeClass(
-												label
-											)}"
-										>
-											{label}
+										<span class="mt-1">
+											<SentimentPill score={item.score} />
 										</span>
 									</div>
 

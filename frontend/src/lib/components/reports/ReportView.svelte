@@ -1,6 +1,11 @@
 <script lang="ts">
-	import { fmt, daysLeft as computeDaysLeft } from '$lib/utils/date';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { fmt, campaignStatus, daysUntilStart } from '$lib/utils/date';
 	import SentimentChart from '$lib/components/reports/SentimentChart.svelte';
+	import SentimentPill from '$lib/components/SentimentPill.svelte';
+	import SentimentPie from '$lib/components/reports/SentimentPie.svelte';
+	import { m } from '$lib/paraglide/messages';
 
 	type Sentiment = {
 		label?: string;
@@ -30,6 +35,7 @@
 	};
 
 	type CampaignLike = {
+		id?: string;
 		name?: string;
 		topics?: string[];
 		start?: string;
@@ -60,8 +66,8 @@
 	const topics = $derived<string[]>(campaign?.topics ?? []);
 	const start = $derived(campaign?.start_date ?? campaign?.start);
 	const end = $derived(campaign?.end_date ?? campaign?.end);
-	const remaining = $derived(computeDaysLeft(end));
-	const running = $derived(remaining !== null && remaining >= 0);
+	const status = $derived(campaignStatus({ start, end }));
+	const untilStart = $derived(daysUntilStart(start));
 
 	const sentiment = $derived(report?.sentiment);
 	const mainTopics = $derived<MainTopic[]>(report?.analysis?.main_topics ?? []);
@@ -69,14 +75,6 @@
 	const summary = $derived(report?.analysis?.summary ?? 'No report available yet.');
 
 	const sentimentPanelLabel = $derived(variant === 'latest' ? 'Latest sentiment' : 'Sentiment');
-
-	const sentimentLabelClass = $derived(
-		sentiment?.label === 'Positive'
-			? 'text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 dark:text-emerald-400'
-			: sentiment?.label === 'Negative'
-				? 'text-rose-600 bg-rose-50 dark:bg-rose-950/30 dark:text-rose-400'
-				: 'text-amber-600 bg-amber-50 dark:bg-amber-950/30 dark:text-amber-400'
-	);
 
 	function fmtDateTime(value?: string) {
 		if (!value) return '—';
@@ -122,12 +120,28 @@
 				<span>{fmt(start)} → {fmt(end)}</span>
 
 				<span class="inline-flex items-center gap-1.5">
-					<span class="h-1.5 w-1.5 rounded-full {running ? 'bg-emerald-500' : 'bg-slate-400'}"
+					<span
+						class="h-1.5 w-1.5 rounded-full {status === 'active'
+							? 'bg-emerald-500'
+							: status === 'pending'
+								? 'bg-amber-500'
+								: 'bg-slate-400'}"
 					></span>
-					{running ? 'Active' : 'Ended'}
+					{status === 'active'
+						? m.campaign_statusActive()
+						: status === 'pending'
+							? m.campaign_statusPending()
+							: m.campaign_statusEnded()}
 				</span>
 
-				{#if variant === 'latest'}
+				{#if status === 'pending'}
+					<span class="inline-flex items-center gap-1.5 text-amber-600 dark:text-amber-400">
+						<span class="h-2 w-2 rounded-full bg-amber-500"></span>
+						{untilStart === 0
+							? m.list_badgeStartsToday()
+							: m.list_badgeStartsIn({ days: untilStart ?? 0 })}
+					</span>
+				{:else if variant === 'latest' && status === 'active'}
 					<span class="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
 						<span class="h-2 w-2 animate-pulse rounded-full bg-brand-500"></span>
 
@@ -149,8 +163,8 @@
 					<p class="text-4xl font-black text-slate-900 dark:text-white">
 						{Math.round((sentiment.score ?? 0) * 100)}%
 					</p>
-					<span class="mb-1 rounded-full px-2.5 py-1 text-xs font-semibold {sentimentLabelClass}">
-						{sentiment.label}
+					<span class="mb-1">
+						<SentimentPill score={sentiment.score ?? 0} />
 					</span>
 				</div>
 			</div>
@@ -201,7 +215,7 @@
 	</div>
 </section>
 
-<section class="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-3">
+<section class="mt-8 grid grid-cols-1 items-start gap-6 lg:grid-cols-3">
 	<div
 		class="rounded-2xl border border-slate-200 bg-white p-6 lg:col-span-2 dark:border-slate-800 dark:bg-slate-900"
 	>
@@ -226,29 +240,44 @@
 		{/if}
 	</div>
 
-	<div
-		class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
-	>
-		<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
-			Topic distribution
-		</h2>
+	<div class="space-y-6">
+		<div
+			class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+		>
+			<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+				Topic distribution
+			</h2>
 
-		<div class="mt-5 space-y-4">
-			{#each mainTopics as item (item.topic)}
-				<div>
-					<div class="mb-1 flex justify-between text-sm">
-						<span class="font-medium text-slate-800 dark:text-slate-200">{item.topic}</span>
-						<span class="text-slate-500 dark:text-slate-400">{item.percent}%</span>
-					</div>
+			<div class="mt-5 space-y-4">
+				{#each mainTopics as item (item.topic)}
+					<div>
+						<div class="mb-1 flex justify-between text-sm">
+							<span class="font-medium text-slate-800 dark:text-slate-200">{item.topic}</span>
+							<span class="text-slate-500 dark:text-slate-400">{item.percent}%</span>
+						</div>
 
-					<div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
-						<div class="h-full rounded-full bg-brand-600" style={`width: ${item.percent}%`}></div>
+						<div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-slate-800">
+							<div class="h-full rounded-full bg-brand-600" style={`width: ${item.percent}%`}></div>
+						</div>
 					</div>
-				</div>
-			{:else}
-				<p class="text-sm text-slate-500 dark:text-slate-400">No topic data yet.</p>
-			{/each}
+				{:else}
+					<p class="text-sm text-slate-500 dark:text-slate-400">No topic data yet.</p>
+				{/each}
+			</div>
 		</div>
+
+		{#if keyComments.length > 0}
+			<div
+				class="rounded-2xl border border-slate-200 bg-white p-6 dark:border-slate-800 dark:bg-slate-900"
+			>
+				<h2 class="text-sm font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
+					{m.sentiment_pieTitle()}
+				</h2>
+				<div class="mt-6">
+					<SentimentPie comments={keyComments} />
+				</div>
+			</div>
+		{/if}
 	</div>
 </section>
 
@@ -265,7 +294,18 @@
 			</div>
 
 			<div class="mt-6">
-				<SentimentChart points={timeline} />
+				<SentimentChart
+					points={timeline}
+					onPointClick={campaign?.id
+						? (ts) =>
+								goto(
+									resolve('/list/[campaign]/reports/[timestamp]', {
+										campaign: campaign.id as string,
+										timestamp: encodeURIComponent(ts)
+									})
+								)
+						: undefined}
+				/>
 			</div>
 		</section>
 {/if}
@@ -289,9 +329,7 @@
 						@{comment.author}
 					</span>
 
-					<span class="text-slate-500 dark:text-slate-400">
-						score {comment.score}
-					</span>
+					<SentimentPill score={comment.score} size="sm" />
 				</div>
 			</article>
 		{:else}
