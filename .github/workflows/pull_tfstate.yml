@@ -1,4 +1,4 @@
-name: Build lambdas
+name: Pull tfstate
 
 on:
   workflow_call:
