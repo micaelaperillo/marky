@@ -16,12 +16,21 @@
 	let start = $state('');
 	let end = $state('');
 
+	function toLocalISO(dateStr: string) {
+		if (!dateStr) return '';
+		const date = new Date(dateStr);
+		if (isNaN(date.getTime())) return '';
+		const offset = date.getTimezoneOffset();
+		const localDate = new Date(date.getTime() - offset * 60 * 1000);
+		return localDate.toISOString().slice(0, 16);
+	}
+
 	$effect(() => {
-		start = initialStart;
+		start = toLocalISO(initialStart);
 	});
 
 	$effect(() => {
-		end = initialEnd;
+		end = toLocalISO(initialEnd);
 	});
 
 	const maxDays = formConfig.range.maxDays;
@@ -43,8 +52,8 @@
 		event.preventDefault();
 		if (!canApply) return;
 		onApply({
-			start: `${start}T00:00:00.000Z`,
-			end: `${end}T23:59:59.999Z`
+			start: new Date(start).toISOString(),
+			end: new Date(end).toISOString()
 		});
 	}
 
@@ -68,7 +77,7 @@
 		</label>
 		<input
 			id="range-start"
-			type="date"
+			type="datetime-local"
 			bind:value={start}
 			class="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
 		/>
@@ -83,7 +92,7 @@
 		</label>
 		<input
 			id="range-end"
-			type="date"
+			type="datetime-local"
 			bind:value={end}
 			class="mt-1 rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-900 dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100"
 		/>

@@ -16,6 +16,12 @@
 	let submitting = $state(false);
 	let tagInput!: TagInput;
 
+	function toLocalISO(date: Date) {
+		const offset = date.getTimezoneOffset();
+		const localDate = new Date(date.getTime() - offset * 60 * 1000);
+		return localDate.toISOString().slice(0, 16);
+	}
+
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		tagInput.flush();
@@ -23,8 +29,10 @@
 		const form = e.currentTarget as HTMLFormElement;
 		const fd = new FormData(form);
 		const campaign = fd.get('campaign') as string;
-		const start = fd.get('start') as string;
-		const end = fd.get('end') as string;
+		let start = fd.get('start') as string;
+		start = new Date(start).toISOString();
+		let end = fd.get('end') as string;
+		end = new Date(end).toISOString();
 
 		if (!campaign || !start || !end || topics.length === 0) return;
 
@@ -145,11 +153,11 @@
 						{m.create_startLabel()}
 					</label>
 					<input
-						type="date"
+						type="datetime-local"
 						name="start"
 						id="start"
 						required
-						value={new Date().toISOString().split('T')[0]}
+						value={toLocalISO(new Date())}
 						class="mt-2 block w-full rounded-lg border border-slate-300 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition focus:border-brand-500 focus:ring-2 focus:ring-brand-500/20 focus:outline-none dark:border-slate-700 dark:bg-slate-950 dark:text-slate-100 dark:scheme-dark"
 					/>
 				</div>
@@ -158,7 +166,7 @@
 						{m.create_endLabel()}
 					</label>
 					<input
-						type="date"
+						type="datetime-local"
 						name="end"
 						id="end"
 						required
