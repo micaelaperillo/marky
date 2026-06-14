@@ -121,13 +121,13 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -out=tfplan
 
       - name: Give me time to reconsider my life actions
         run: sleep 60
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply tfplan -auto-approve -input=false
 
       - name: Capture output variables
         id: vars
