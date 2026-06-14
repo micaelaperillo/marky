@@ -70,7 +70,7 @@ jobs:
 
       - name: Verify state bucket exists
         run: |
-          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
+          aws s3api head-bucket --bucket marky-tfstate-${{ inputs.user }} 2>/dev/null || {
             echo "You swore to me you had a bucket, but it ain't there..."
             echo "How dare you?"
             echo
