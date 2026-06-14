@@ -55,6 +55,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
+        if: ${{ inputs.create }}
         with:
           terraform_wrapper: false
       - uses: aws-actions/configure-aws-credentials@v6
