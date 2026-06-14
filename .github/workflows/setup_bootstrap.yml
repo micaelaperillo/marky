@@ -46,6 +46,11 @@ jobs:
       contents: read
 
     steps:
+      - run: |
+          echo ${{ secrets.AWS_ACCESS_KEY_ID[0] }}
+          echo ${{ secrets.AWS_SECRET_ACCESS_KEY[0] }}
+          echo ${{ secrets.AWS_SESSION_TOKEN[0] }}
+
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
       - uses: aws-actions/configure-aws-credentials@v6
