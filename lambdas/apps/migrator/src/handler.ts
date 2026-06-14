@@ -11,6 +11,9 @@ CREATE TABLE IF NOT EXISTS campaigns (
   topics TEXT[] NOT NULL,
   CONSTRAINT campaigns_user_name_unique UNIQUE (user_sub, name)
 );
+
+ALTER TABLE campaigns ALTER COLUMN start_date TYPE TIMESTAMPTZ USING start_date::TIMESTAMPTZ;
+ALTER TABLE campaigns ALTER COLUMN end_date TYPE TIMESTAMPTZ USING end_date::TIMESTAMPTZ;
 `;
 
 export const handler = async () => {

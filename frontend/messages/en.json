@@ -11,6 +11,18 @@
 	"campaign_reportsPlaceholder": "Sentiment reports will appear here once ingestion runs.",
 	"campaign_statusActive": "Active",
 	"campaign_statusEnded": "Ended",
+	"sentiment_veryNegative": "Very negative",
+	"sentiment_reasonablyNegative": "Reasonably negative",
+	"sentiment_slightlyNegative": "Slightly negative",
+	"sentiment_neutral": "Neutral",
+	"sentiment_slightlyPositive": "Slightly positive",
+	"sentiment_reasonablyPositive": "Reasonably positive",
+	"sentiment_veryPositive": "Very positive",
+	"sentiment_pieTitle": "Comment sentiment",
+	"sentiment_pieEmpty": "Not enough comments to chart.",
+	"sentiment_pieLegendPositive": "Positive",
+	"sentiment_pieLegendNeutral": "Neutral",
+	"sentiment_pieLegendNegative": "Negative",
 	"campaign_topicSubtitle": "Sentiment tracked daily",
 	"campaign_topicsHeading": "Tracked topics",
 	"common_back": "Go back",
@@ -44,7 +56,13 @@
 			}
 		}
 	],
-	"create_nameHint": "Up to {max} characters. Letters and underscores only.",
+	"create_nameHint": "Type freely — spaces become hyphens. Max {max} chars after conversion.",
+	"create_errorNameInvalid": "Use only letters, digits, hyphens and underscores. No spaces.",
+	"create_errorNameLength": "Name must be {min}-{max} characters.",
+	"create_errorStartPast": "Start date cannot be in the past.",
+	"create_errorEndBeforeStart": "End date must be after start.",
+	"create_errorRangeTooLong": "Date range cannot exceed {max} days.",
+	"create_errorTopicsRequired": "Add at least one topic.",
 	"create_nameLabel": "Campaign name",
 	"create_removeTopic": "Remove {topic}",
 	"create_startLabel": "Start date",
@@ -101,6 +119,16 @@
 	],
 	"list_badgeEnded": "Ended",
 	"list_badgeEndsToday": "Ends today",
+	"list_badgeStartsIn": [
+		{
+			"match": {
+				"days=*": "Starts in {days} days",
+				"days=1": "Starts tomorrow"
+			}
+		}
+	],
+	"list_badgeStartsToday": "Starts today",
+	"campaign_statusPending": "Pending",
 	"list_emptyBody": "Campaigns let you track topics over time and measure sentiment across Bluesky.",
 	"list_emptyCta": "Create your first campaign",
 	"list_emptyLead": "No campaigns yet — kick one off to start tracking sentiment.",
