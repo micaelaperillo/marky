@@ -120,6 +120,9 @@ jobs:
       - name: Terraform Validate
         run: terraform validate
 
+      - name: Give me time to reconsider my life actions
+        run: sleep 60
+
       - name: Terraform Apply
         run: terraform apply -auto-approve -input=false
 
