@@ -4,9 +4,16 @@ on:
   workflow_dispatch:
     inputs:
       user:
-        type: string
+        type: choice
         description: The user running the action
         required: true
+        options:
+          - professor-x
+          - agus
+          - uri
+          - manu
+          - mica
+          - tomi
       create:
         type: boolean
         description: Wheater to create the bucket, otherwise only checks availability
