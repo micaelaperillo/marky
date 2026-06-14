@@ -1,8 +1,10 @@
 import z from "zod";
 import dayjs from "dayjs";
 import customParseFormat from "dayjs/plugin/customParseFormat.js";
+import utc from "dayjs/plugin/utc.js";
 
 dayjs.extend(customParseFormat);
+dayjs.extend(utc);
 
 const CAMPAIGN_RULES = {
     CAMPAIGN_MAX_LENGTH: 16,
@@ -35,8 +37,14 @@ export const CampaignInputSchema = z
             .regex(CAMPAIGN_RULES.CAMPAIGN_NAME_PATTERN)
             .min(CAMPAIGN_RULES.CAMPAIGN_MIN_LENGTH)
             .max(CAMPAIGN_RULES.CAMPAIGN_MAX_LENGTH),
-        start: z.string().refine((s) => dayjs(s).isValid()),
-        end: z.string().refine((s) => dayjs(s).isValid()),
+        start: z
+            .string()
+            .refine((s) => dayjs(s).isValid())
+            .transform((s) => dayjs.utc(s).toISOString()),
+        end: z
+            .string()
+            .refine((s) => dayjs(s).isValid())
+            .transform((s) => dayjs.utc(s).toISOString()),
         topics: z
             .array(TopicSchema)
             .min(TOPIC_RULES.TOPICS_ARRAY_MIN_SIZE)
@@ -51,8 +59,8 @@ export const CampaignInputSchema = z
     
     .refine(
         ({ start }) => {
-            const now = dayjs();
-            const startDate = dayjs(start);
+            const now = dayjs.utc();
+            const startDate = dayjs.utc(start);
 
             return startDate.isAfter(now) || startDate.isSame(now);
         },
@@ -65,8 +73,8 @@ export const CampaignInputSchema = z
     // Date range is [start, end) - end date is exclusive
     .refine(
         ({ start, end }) => {
-            const s = dayjs(start);
-            const e = dayjs(end);
+            const s = dayjs.utc(start);
+            const e = dayjs.utc(end);
             return (
                 s.isBefore(e) &&
                 e.diff(s, "day") <= DATE_RANGE_RULES.DATE_RANGE_MAX_LENGTH
