@@ -87,6 +87,8 @@ jobs:
       - build_lambdas
       - pull_tfstate
 
+    if: always() && (needs.build_lambdas.result == 'success')
+
     defaults:
       run:
         working-directory: terraform
