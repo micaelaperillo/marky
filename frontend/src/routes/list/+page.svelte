@@ -153,25 +153,43 @@
 							</span>
 						</div>
 
-						{#if item.topics.length > 0}
-							<div class="mt-4 flex flex-wrap gap-1.5">
-								{#each item.topics.slice(0, 5) as tag (tag)}
+						<div class="mt-4 flex flex-wrap items-center gap-1.5">
+							<span
+								class="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold tracking-tight text-amber-700 ring-1 ring-amber-400/20 ring-inset dark:bg-amber-900/30 dark:text-amber-300"
+							>
+								<svg
+									class="mr-1 h-3 w-3"
+									viewBox="0 0 24 24"
+									fill="none"
+									stroke="currentColor"
+									stroke-width="2.5"
+									stroke-linecap="round"
+									stroke-linejoin="round"
+								>
+									<circle cx="12" cy="12" r="10" />
+									<polyline points="12 6 12 12 16 14" />
+								</svg>
+								EVERY {item.frequencyMin}M
+							</span>
+
+							{#if item.topics.length > 0}
+								{#each item.topics.slice(0, 3) as tag (tag)}
 									<span
 										class="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-medium text-brand-700 dark:bg-brand-950/50 dark:text-brand-300"
 									>
 										{tag}
 									</span>
 								{/each}
-								{#if item.topics.length > 5}
+								{#if item.topics.length > 3}
 									<span
 										class="rounded-md bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-										aria-label="{item.topics.length - 5} more topics"
+										aria-label="{item.topics.length - 3} more topics"
 									>
-										+{item.topics.length - 5}
+										+{item.topics.length - 3}
 									</span>
 								{/if}
-							</div>
-						{/if}
+							{/if}
+						</div>
 
 						<div
 							class="mt-5 flex items-center justify-between border-t border-slate-100 pt-4 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400"

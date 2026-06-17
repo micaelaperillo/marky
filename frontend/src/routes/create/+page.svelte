@@ -17,6 +17,7 @@
 	let startError = $state('');
 	let endError = $state('');
 	let topicsError = $state('');
+	let frequencyMin = $state(60);
 	let submitting = $state(false);
 	let tagInput!: TagInput;
 
@@ -133,7 +134,7 @@
 			const res = await apiFetch('/campaigns', {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify({ campaign, start, end, topics })
+				body: JSON.stringify({ campaign, start, end, topics, frequencyMin })
 			});
 			if (res.ok) {
 				goto(resolve('/list'));
@@ -295,6 +296,33 @@
 					{/if}
 				</div>
 			</div>
+
+			<!-- Frequency -->
+			<div>
+				<label
+					for="frequencyMin"
+					class="block text-sm font-semibold text-slate-900 dark:text-slate-100"
+				>
+					Report frequency: <span class="text-brand-600 dark:text-brand-400">{frequencyMin} minutes</span>
+				</label>
+				<input
+					type="range"
+					id="frequencyMin"
+					min="5"
+					max="60"
+					step="5"
+					bind:value={frequencyMin}
+					class="mt-4 h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 dark:bg-slate-700"
+				/>
+				<div class="mt-2 flex justify-between text-xs text-slate-500 dark:text-slate-400">
+					<span>5m</span>
+					<span>15m</span>
+					<span>30m</span>
+					<span>45m</span>
+					<span>60m</span>
+				</div>
+			</div>
+
 			<p class="text-xs text-slate-500 dark:text-slate-400">
 				{m.create_intervalHint({ max: rangeCfg.maxDays })}
 			</p>

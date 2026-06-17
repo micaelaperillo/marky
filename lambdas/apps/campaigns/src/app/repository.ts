@@ -7,6 +7,7 @@ type CampaignRow = {
 	name: string;
 	start_date: Date;
 	end_date: Date;
+	frequency_min: number;
 	topics: string[];
 };
 
@@ -20,7 +21,7 @@ export class RdsCampaignRepository {
 		const pool = await getPool();
 		const result = await pool.query<CampaignRow>(
 			`
-                SELECT id, user_sub, name, start_date, end_date, topics
+                SELECT id, user_sub, name, start_date, end_date, frequency_min, topics
                 FROM campaigns
                 WHERE user_sub = $1
                 ORDER BY start_date DESC
@@ -35,7 +36,7 @@ export class RdsCampaignRepository {
 		const pool = await getPool();
 		const result = await pool.query<CampaignRow>(
 			`
-                SELECT id, user_sub, name, start_date, end_date, topics
+                SELECT id, user_sub, name, start_date, end_date, frequency_min, topics
                 FROM campaigns
                 WHERE user_sub = $1 AND id = $2
                 LIMIT 1
@@ -57,12 +58,13 @@ export class RdsCampaignRepository {
                     name,
                     topics,
                     start_date,
-                    end_date
+                    end_date,
+                    frequency_min
                 )
-                VALUES ($1, $2, $3, $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
             `,
-			[input.userId, input.name, input.topics, input.start, input.end],
+			[input.userId, input.name, input.topics, input.start, input.end, input.frequencyMin],
 		);
 
 		if (result.rowCount === 0)
@@ -79,12 +81,13 @@ export class RdsCampaignRepository {
                     name,
                     topics,
                     start_date,
-                    end_date
+                    end_date,
+                    frequency_min
                 )
-                VALUES ($1, $2, $3, $4, $5)
+                VALUES ($1, $2, $3, $4, $5, $6)
                 RETURNING id
             `,
-			[input.userId, input.name, input.topics, input.start, input.end],
+			[input.userId, input.name, input.topics, input.start, input.end, input.frequencyMin],
 		);
 
 		if (result.rowCount === 0)
@@ -110,6 +113,7 @@ export class RdsCampaignRepository {
 			start: row.start_date.toISOString(),
 			topics: row.topics,
 			userId: row.user_sub,
+			frequencyMin: row.frequency_min
 		};
 	}
 }

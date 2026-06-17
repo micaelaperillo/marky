@@ -74,6 +74,7 @@ app
 					endDate: input.end,
 					startDate: input.start,
 					topics: input.topics,
+					frequencyMin: input.frequencyMin,
 				} satisfies CampaignEvent),
 				MessageDeduplicationId: `create-${id}`,
 				MessageGroupId: id,

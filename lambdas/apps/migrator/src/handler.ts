@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS campaigns (
   CONSTRAINT campaigns_user_name_unique UNIQUE (user_sub, name)
 );
 
+ALTER TABLE campaigns ADD COLUMN IF NOT EXISTS frequency_min INTEGER NOT NULL DEFAULT 5;
 `;
 
 export const handler = async () => {

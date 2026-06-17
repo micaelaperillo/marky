@@ -42,6 +42,7 @@
 		end?: string;
 		start_date?: string;
 		end_date?: string;
+		frequencyMin?: number;
 	};
 
 	type TimelinePoint = {
@@ -88,56 +89,91 @@
 		}).format(new Date(value));
 	}
 
-	const UPDATE_INTERVAL_MINUTES = 30;
-
-const minutesSinceReport = $derived.by(() => {
-	if (!timestamp) return 0;
-
-	const diff = Math.floor(
-		(Date.now() - new Date(timestamp).getTime()) / 60000
-	);
-
-	return Math.max(0, diff);
-});
-
+	const updateInterval = $derived(campaign?.frequencyMin ?? 60);
+	
+	let now = $state(Date.now());
+	$effect(() => {
+		const interval = setInterval(() => {
+			now = Date.now();
+		}, 10000); // Update every 10 seconds for smoothness
+		return () => clearInterval(interval);
+	});
 
 const nextUpdateMinutes = $derived.by(() => {
-	if (!timestamp) return '—';
+	if (!timestamp) return null;
 
 	const reportTime = new Date(timestamp).getTime();
-
-	const nextUpdateAt =
-		reportTime + UPDATE_INTERVAL_MINUTES * 60 * 1000;
-
-	const remainingMs = nextUpdateAt - Date.now();
-
-	const remainingMinutes = Math.ceil(
-		remainingMs / (60 * 1000)
-	);
-
-	return Math.max(0, remainingMinutes);
+	const nextUpdateAt = reportTime + updateInterval * 60 * 1000;
+	const remainingMs = nextUpdateAt - now;
+	
+	return Math.ceil(remainingMs / (60 * 1000));
 });
+
+const isNewReportLikelyReady = $derived(nextUpdateMinutes !== null && nextUpdateMinutes <= 0);
+
 </script>
 
+{#if isNewReportLikelyReady && variant === 'latest'}
+	<div class="mt-8 mb-10 flex items-center justify-between gap-4 rounded-2xl border border-brand-200 bg-brand-50 px-6 py-4 text-brand-800 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 dark:border-brand-900/50 dark:bg-brand-950/30 dark:text-brand-300">
+		<div class="flex items-center gap-3">
+			<div class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/50">
+				<svg class="h-4 w-4 animate-spin-[3s_linear_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+					<path d="M21 12a9 9 0 1 1-6.219-8.56" />
+					<polyline points="21 3 21 9 12 9" />
+				</svg>
+			</div>
+			<p class="text-sm font-medium">A new report should be ready! Refresh to see the latest data.</p>
+		</div>
+		<button 
+			onclick={() => window.location.reload()}
+			class="rounded-lg bg-brand-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-700 active:scale-95 dark:bg-brand-500"
+		>
+			REFRESH NOW
+		</button>
+	</div>
+{/if}
+
 <section
-	class="relative mt-4 overflow-hidden rounded-3xl border border-slate-200 bg-linear-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
+	class="relative mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-linear-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
 >
 	<div class="relative flex flex-wrap items-start justify-between gap-6">
-		<div>
-			<p class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400">
-				Bluesky campaign
-			</p>
+		<div class="flex-1 min-w-0">
+			<div class="flex items-center justify-between gap-4">
+				<p class="text-xs font-medium tracking-wide text-brand-600 uppercase dark:text-brand-400">
+					Bluesky campaign
+				</p>
+				
+				{#if campaign?.frequencyMin}
+					<span
+						class="inline-flex items-center rounded-md bg-amber-50 px-2.5 py-1 text-[10px] font-bold tracking-tight text-amber-700 ring-1 ring-amber-400/20 ring-inset dark:bg-amber-900/30 dark:text-amber-300"
+					>
+						<svg
+							class="mr-1.5 h-3.5 w-3.5"
+							viewBox="0 0 24 24"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="2.5"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+						>
+							<circle cx="12" cy="12" r="10" />
+							<polyline points="12 6 12 12 16 14" />
+						</svg>
+						EVERY {campaign.frequencyMin}M
+					</span>
+				{/if}
+			</div>
 
 			<h1
-				class="mt-1 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white"
+				class="mt-2 text-4xl font-black tracking-tight text-slate-900 sm:text-5xl dark:text-white truncate"
 			>
 				{campaign?.name ?? 'Campaign'}
 			</h1>
 
 			<div
-				class="mt-4 flex flex-wrap items-center gap-4 text-sm text-slate-600 dark:text-slate-400"
+				class="mt-6 flex flex-wrap items-center gap-6 text-sm text-slate-600 dark:text-slate-400"
 			>
-				<span>{fmt(start)} → {fmt(end)}</span>
+				<span class="font-medium text-slate-900 dark:text-slate-200">{fmt(start)} → {fmt(end)}</span>
 
 				<span class="inline-flex items-center gap-1.5">
 					<span
@@ -164,7 +200,6 @@ const nextUpdateMinutes = $derived.by(() => {
 				{:else if variant === 'latest' && status === 'active'}
 					<span class="inline-flex items-center gap-1.5 text-brand-600 dark:text-brand-400">
 						<span class="h-2 w-2 animate-pulse rounded-full bg-brand-500"></span>
-
 						Next update in {nextUpdateMinutes} min
 					</span>
 				{/if}
@@ -173,7 +208,7 @@ const nextUpdateMinutes = $derived.by(() => {
 
 		{#if sentiment}
 			<div
-				class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
+				class="rounded-2xl border border-slate-200 bg-white p-6 shadow-xs dark:border-slate-800 dark:bg-slate-900"
 			>
 				<p class="text-xs font-semibold tracking-wide text-slate-500 uppercase dark:text-slate-400">
 					{sentimentPanelLabel}
