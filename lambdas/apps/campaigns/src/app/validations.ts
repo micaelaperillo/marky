@@ -107,6 +107,10 @@ export const CampaignParamsSchema = z.object({
     id: z.string().uuid({ message: "Invalid campaign identifier" })
 });
 
+export const CampaignQuerySchema = z.object({
+    status: z.enum(["all", "active", "pending", "ended"]).optional().default("all")
+});
+
 export const CampaignSchema = z.object({
     id: z.string(),
     userId: z.string(),

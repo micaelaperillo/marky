@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import type { Campaign } from '$lib/types';
@@ -8,7 +8,31 @@
 
 	let { data }: PageProps = $props();
 
+	let statusFilter = $state(data.status);
+
+	$effect(() => {
+		statusFilter = data.status;
+	});
+
 	const campaigns = $derived((data.campaigns ?? []) as Campaign[]);
+	const stats = $derived(data.stats ?? { total: 0, active: 0, topics: 0 });
+
+	const filters = [
+		{ id: 'all', label: m.list_filterAll() },
+		{ id: 'active', label: m.list_filterActive() },
+		{ id: 'pending', label: m.list_filterUpcoming() },
+		{ id: 'ended', label: m.list_filterEnded() }
+	] as const;
+
+	async function handleFilterChange(id: string) {
+		const url = new URL(window.location.href);
+		if (id === 'all') {
+			url.searchParams.delete('status');
+		} else {
+			url.searchParams.set('status', id);
+		}
+		await goto(url.toString(), { replaceState: true, noScroll: true, keepFocus: true });
+	}
 </script>
 
 <div class="flex-1">
@@ -23,9 +47,7 @@
 					{m.list_title()}
 				</h1>
 				<p class="mt-2 text-slate-600 dark:text-slate-400">
-					{campaigns.length === 0
-						? m.list_emptyLead()
-						: m.list_summary({ count: campaigns.length })}
+					{stats.total === 0 ? m.list_emptyLead() : m.list_summary({ count: stats.active })}
 				</p>
 			</div>
 			<a
@@ -44,7 +66,7 @@
 		</div>
 
 		<!-- Stats strip -->
-		{#if campaigns.length > 0}
+		{#if stats.total > 0}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<div
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
@@ -53,7 +75,7 @@
 						{m.list_statCampaigns()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{campaigns.length}
+						{stats.total}
 					</p>
 				</div>
 				<div
@@ -63,7 +85,7 @@
 						{m.list_statTopics()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{campaigns.reduce((n, c) => n + c.topics.length, 0)}
+						{stats.topics}
 					</p>
 				</div>
 				<div
@@ -73,16 +95,33 @@
 						{m.list_statRunning()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{campaigns.filter((c) => campaignStatus(c) === 'active').length}
+						{stats.active}
 					</p>
 				</div>
+			</div>
+		{/if}
+
+		<!-- Filters -->
+		{#if stats.total > 0}
+			<div class="mt-10 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
+				{#each filters as f}
+					<button
+						onclick={() => handleFilterChange(f.id)}
+						class="shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {statusFilter ===
+						f.id
+							? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300'
+							: 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800'}"
+					>
+						{f.label}
+					</button>
+				{/each}
 			</div>
 		{/if}
 
 		<!-- Grid / Empty state -->
 		{#if campaigns.length === 0}
 			<div
-				class="mt-10 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-800 dark:bg-slate-900"
+				class="mt-6 flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-white px-6 py-20 text-center dark:border-slate-800 dark:bg-slate-900"
 			>
 				<div
 					class="flex h-16 w-16 items-center justify-center rounded-2xl bg-linear-to-br from-brand-100 to-violet-100 dark:from-brand-950/60 dark:to-violet-950/60"
@@ -101,20 +140,24 @@
 					</svg>
 				</div>
 				<h2 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">
-					{m.list_emptyTitle()}
+					{stats.total === 0 ? m.list_emptyTitle() : 'No campaigns found'}
 				</h2>
 				<p class="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
-					{m.list_emptyBody()}
+					{stats.total === 0
+						? m.list_emptyBody()
+						: 'Try changing the filter to see more campaigns.'}
 				</p>
-				<a
-					href={resolve('/create')}
-					class="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-brand-500 dark:hover:bg-brand-400"
-				>
-					{m.list_emptyCta()}
-				</a>
+				{#if stats.total === 0}
+					<a
+						href={resolve('/create')}
+						class="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-brand-500 dark:hover:bg-brand-400"
+					>
+						{m.list_emptyCta()}
+					</a>
+				{/if}
 			</div>
 		{:else}
-			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+			<div class="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
 				{#each campaigns as item (item.id)}
 					{@const status = campaignStatus(item)}
 					{@const left = daysLeft(item.end)}
@@ -158,7 +201,7 @@
 								class="inline-flex items-center rounded-md bg-amber-50 px-2 py-0.5 text-[10px] font-bold tracking-tight text-amber-700 ring-1 ring-amber-400/20 ring-inset dark:bg-amber-900/30 dark:text-amber-300"
 							>
 								<svg
-									class="mr-1 h-3 w-3"
+									class="mr-1.5 h-3 w-3"
 									viewBox="0 0 24 24"
 									fill="none"
 									stroke="currentColor"
