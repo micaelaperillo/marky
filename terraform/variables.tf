@@ -47,6 +47,12 @@ variable "gemini_ai_model" {
   default     = "gemini-2.5-flash"
 }
 
+variable "gemini_retry_attempts" {
+  type        = number
+  description = "Max Gemini API attempts (incl. the initial call) on transient 5xx/429 errors. 1 disables retries."
+  default     = 4
+}
+
 variable "bluesky_identifier" {
   type        = string
   description = "BlueSky handle (e.g. user.bsky.social)"

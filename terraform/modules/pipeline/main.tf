@@ -424,6 +424,7 @@ resource "aws_lambda_function" "report_generator" {
       SM_GEMINI_API_KEY_SECRET_ID = aws_secretsmanager_secret.gemini_api_key.name
       SQS_OUTPUT_REPORTS_URL      = aws_sqs_queue.reports.url
       GEMINI_AI_MODEL             = var.gemini_ai_model
+      GEMINI_RETRY_ATTEMPTS       = tostring(var.gemini_retry_attempts)
     }
   }
 

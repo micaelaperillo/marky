@@ -96,6 +96,11 @@ variable "gemini_ai_model" {
   description = "Google Gemini AI model for report generation."
 }
 
+variable "gemini_retry_attempts" {
+  type        = number
+  description = "Max Gemini API attempts (incl. the initial call) on transient 5xx/429 errors. 1 disables retries."
+}
+
 variable "bluesky_identifier" {
   type        = string
   description = "Bluesky account identifier for the fetcher Lambda."

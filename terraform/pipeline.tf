@@ -9,6 +9,7 @@ module "pipeline" {
   lambda_dist_base            = local.lambda_dist_base
   gemini_api_key              = var.gemini_api_key
   gemini_ai_model             = var.gemini_ai_model
+  gemini_retry_attempts       = var.gemini_retry_attempts
   bluesky_identifier          = var.bluesky_identifier
   bluesky_app_password        = var.bluesky_app_password
 }
