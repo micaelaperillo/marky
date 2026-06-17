@@ -36,17 +36,16 @@ The professor must add the following secrets to the repository settings (Setting
 | `BLUESKY_IDENTIFIER` | Bluesky handle (e.g., handle.bsky.social) |
 | `BLUESKY_APP_PASSWORD` | Bluesky app-specific password |
 
-**One-time:** the workflows keep Terraform state in a private S3 bucket
-(`marky-tfstate`) so it survives between runs. Create it once before the first
-deploy: `cd terraform/bootstrap && terraform init && terraform apply` (see
-`terraform/README.md`).
-
 ### Step 2: Run Deploy Workflow
 
 1. Go to Actions tab
 2. Select "Deploy Infrastructure"
 3. Click "Run workflow"
-4. Workflow will:
+4. Fill the form:
+   - Who are you?: Your profile, to which the tfstate will be associated. If nobody, no tfstate will be used.
+   - Do you own a tfstate bucket to use?: Whether you own a tfstate bucket. If yes and not found, exits early.
+   - Do you want to own a tfstate bucket?: Whether to create a tfstate bucket. This option can't be used with the previous one.
+5. Workflow will:
    - Build Lambda functions
    - Pull Terraform state from the S3 state bucket
    - Initialize and apply (creates VPC, RDS, Lambda, Cognito, etc.)
@@ -54,13 +53,13 @@ deploy: `cd terraform/bootstrap && terraform init && terraform apply` (see
    - Push the updated state back to S3
    - Build and deploy frontend to S3
 
-Expected runtime: 15-20 minutes (RDS instance creation is slowest)
+Expected runtime: 15-20 minutes (RDS instance creation is the slowest)
 
 ### Step 3: Access Deployed Application
 
 After workflow succeeds:
 - Frontend accessible at: `https://<api-id>.execute-api.us-east-1.amazonaws.com/prod/`
-- The API URL is output by `terraform output api_url` during the workflow
+- The API URL is displayed by the workflow
 
 ## Demo: Create a Campaign & View Reports
 

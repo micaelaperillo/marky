@@ -34,7 +34,7 @@ app
 	.route("/")
 	.get(async (req, res, next) => {
 		try {
-			const { status } = req.query as any;
+			const { status } = CampaignQuerySchema.parse(req.query);
 			const [campaigns, stats] = await Promise.all([
 				repo.findAll(res.locals.userId, status),
 				repo.getStats(res.locals.userId),
