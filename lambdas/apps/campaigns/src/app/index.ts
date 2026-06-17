@@ -9,7 +9,11 @@ const env = SqsCampaignsEnvSchema.parse(process.env);
 
 import { RdsCampaignRepository } from "./repository";
 import type { CampaignEvent, CampaignInput } from "./types";
-import { CampaignInputSchema, CampaignParamsSchema } from "./validations";
+import {
+	CampaignInputSchema,
+	CampaignParamsSchema,
+	CampaignQuerySchema,
+} from "./validations";
 
 const repo = new RdsCampaignRepository();
 
@@ -28,10 +32,14 @@ app.use((req, res, next) => {
 
 app
 	.route("/")
-	.get(async (_req, res, next) => {
+	.get(validate.query(CampaignQuerySchema), async (req, res, next) => {
 		try {
-			const campaigns = await repo.findAll(res.locals.userId);
-			res.json(campaigns);
+			const { status } = req.query as any;
+			const [campaigns, stats] = await Promise.all([
+				repo.findAll(res.locals.userId, status),
+				repo.getStats(res.locals.userId),
+			]);
+			res.json({ campaigns, stats });
 		} catch (err) {
 			next(err);
 		}

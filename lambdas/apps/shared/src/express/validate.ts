@@ -14,3 +14,10 @@ export function params(schema: z.ZodSchema) {
         next();
     };
 }
+
+export function query(schema: z.ZodSchema) {
+    return (req: Request, _res: Response, next: NextFunction) => {
+        req.query = schema.parse(req.query) as typeof req.query;
+        next();
+    };
+}

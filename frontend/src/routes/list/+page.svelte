@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { PageProps } from './$types';
-
+	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import type { Campaign } from '$lib/types';
@@ -8,14 +8,14 @@
 
 	let { data }: PageProps = $props();
 
-	let statusFilter = $state<'all' | 'active' | 'pending' | 'ended'>('all');
+	let statusFilter = $state(data.status);
 
-	const allCampaigns = $derived((data.campaigns ?? []) as Campaign[]);
-	const campaigns = $derived(
-		statusFilter === 'all'
-			? allCampaigns
-			: allCampaigns.filter((c) => campaignStatus(c) === statusFilter)
-	);
+	$effect(() => {
+		statusFilter = data.status;
+	});
+
+	const campaigns = $derived((data.campaigns ?? []) as Campaign[]);
+	const stats = $derived(data.stats ?? { total: 0, active: 0, topics: 0 });
 
 	const filters = [
 		{ id: 'all', label: m.list_filterAll() },
@@ -23,6 +23,16 @@
 		{ id: 'pending', label: m.list_filterUpcoming() },
 		{ id: 'ended', label: m.list_filterEnded() }
 	] as const;
+
+	async function handleFilterChange(id: string) {
+		const url = new URL(window.location.href);
+		if (id === 'all') {
+			url.searchParams.delete('status');
+		} else {
+			url.searchParams.set('status', id);
+		}
+		await goto(url.toString(), { replaceState: true, noScroll: true, keepFocus: true });
+	}
 </script>
 
 <div class="flex-1">
@@ -37,9 +47,7 @@
 					{m.list_title()}
 				</h1>
 				<p class="mt-2 text-slate-600 dark:text-slate-400">
-					{allCampaigns.length === 0
-						? m.list_emptyLead()
-						: m.list_summary({ count: allCampaigns.length })}
+					{stats.total === 0 ? m.list_emptyLead() : m.list_summary({ count: stats.active })}
 				</p>
 			</div>
 			<a
@@ -58,7 +66,7 @@
 		</div>
 
 		<!-- Stats strip -->
-		{#if allCampaigns.length > 0}
+		{#if stats.total > 0}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
 				<div
 					class="rounded-2xl border border-slate-200 bg-white p-5 shadow-xs dark:border-slate-800 dark:bg-slate-900"
@@ -67,7 +75,7 @@
 						{m.list_statCampaigns()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{allCampaigns.length}
+						{stats.total}
 					</p>
 				</div>
 				<div
@@ -77,7 +85,7 @@
 						{m.list_statTopics()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{allCampaigns.reduce((n, c) => n + c.topics.length, 0)}
+						{stats.topics}
 					</p>
 				</div>
 				<div
@@ -87,18 +95,18 @@
 						{m.list_statRunning()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{allCampaigns.filter((c) => campaignStatus(c) === 'active').length}
+						{stats.active}
 					</p>
 				</div>
 			</div>
 		{/if}
 
 		<!-- Filters -->
-		{#if allCampaigns.length > 0}
+		{#if stats.total > 0}
 			<div class="mt-10 flex items-center gap-1 overflow-x-auto pb-1 scrollbar-none">
 				{#each filters as f}
 					<button
-						onclick={() => (statusFilter = f.id)}
+						onclick={() => handleFilterChange(f.id)}
 						class="shrink-0 rounded-full px-4 py-1.5 text-sm font-semibold transition-colors {statusFilter ===
 						f.id
 							? 'bg-brand-100 text-brand-700 dark:bg-brand-900/40 dark:text-brand-300'
@@ -132,14 +140,14 @@
 					</svg>
 				</div>
 				<h2 class="mt-6 text-xl font-bold text-slate-900 dark:text-white">
-					{allCampaigns.length === 0 ? m.list_emptyTitle() : 'No campaigns found'}
+					{stats.total === 0 ? m.list_emptyTitle() : 'No campaigns found'}
 				</h2>
 				<p class="mt-2 max-w-sm text-sm text-slate-600 dark:text-slate-400">
-					{allCampaigns.length === 0
+					{stats.total === 0
 						? m.list_emptyBody()
 						: 'Try changing the filter to see more campaigns.'}
 				</p>
-				{#if allCampaigns.length === 0}
+				{#if stats.total === 0}
 					<a
 						href={resolve('/create')}
 						class="mt-6 inline-flex items-center gap-2 rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-semibold text-white shadow-md shadow-brand-600/30 transition hover:bg-brand-700 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:bg-brand-500 dark:hover:bg-brand-400"

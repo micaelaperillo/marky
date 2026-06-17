@@ -17,19 +17,42 @@ type SaveInput = CampaignInput & {
 };
 
 export class RdsCampaignRepository {
-	async findAll(userId: string): Promise<Campaign[]> {
+	async findAll(userId: string, status: string = "all"): Promise<Campaign[]> {
 		const pool = await getPool();
 		const result = await pool.query<CampaignRow>(
 			`
                 SELECT id, user_sub, name, start_date, end_date, frequency_min, topics
                 FROM campaigns
                 WHERE user_sub = $1
+                AND (
+                    ($2 = 'all') OR
+                    ($2 = 'active' AND CURRENT_TIMESTAMP >= start_date AND CURRENT_TIMESTAMP <= end_date) OR
+                    ($2 = 'pending' AND start_date > CURRENT_TIMESTAMP) OR
+                    ($2 = 'ended' AND end_date < CURRENT_TIMESTAMP)
+                )
                 ORDER BY start_date DESC
+            `,
+			[userId, status],
+		);
+
+		return result.rows.map(this.toDomain);
+	}
+
+	async getStats(userId: string): Promise<{ total: number; active: number; topics: number }> {
+		const pool = await getPool();
+		const result = await pool.query(
+			`
+                SELECT 
+                    COUNT(*)::int as total,
+                    COUNT(*) FILTER (WHERE CURRENT_TIMESTAMP >= start_date AND CURRENT_TIMESTAMP <= end_date)::int as active,
+                    COALESCE(SUM(cardinality(topics)), 0)::int as topics
+                FROM campaigns
+                WHERE user_sub = $1
             `,
 			[userId],
 		);
 
-		return result.rows.map(this.toDomain);
+		return result.rows[0];
 	}
 
 	async findById(userId: string, id: string): Promise<Campaign | null> {
