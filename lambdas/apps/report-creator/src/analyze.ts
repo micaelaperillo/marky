@@ -93,7 +93,7 @@ export async function analyze(
 			responseMimeType: "application/json",
 			responseSchema,
 		},
-		model: "gemini-2.5-flash",
+		model: process.env.GEMINI_AI_MODEL!,
 	});
 
 	const postsBlock = input.posts.map((p) => JSON.stringify(p)).join("\n");

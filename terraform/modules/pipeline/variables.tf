@@ -91,6 +91,11 @@ variable "gemini_api_key" {
   sensitive   = true
 }
 
+variable "gemini_ai_model" {
+  type        = string
+  description = "Google Gemini API key for report generation."
+}
+
 variable "bluesky_identifier" {
   type        = string
   description = "Bluesky account identifier for the fetcher Lambda."

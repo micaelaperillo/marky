@@ -41,6 +41,12 @@ variable "gemini_api_key" {
   sensitive   = true
 }
 
+variable "gemini_ai_model" {
+  type        = string
+  description = "Google Gemini AI model for report generation."
+  default     = "gemini-2.5-flash"
+}
+
 variable "bluesky_identifier" {
   type        = string
   description = "BlueSky handle (e.g. user.bsky.social)"
