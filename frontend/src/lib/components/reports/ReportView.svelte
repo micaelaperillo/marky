@@ -113,26 +113,6 @@ const isNewReportLikelyReady = $derived(nextUpdateMinutes !== null && nextUpdate
 
 </script>
 
-{#if isNewReportLikelyReady && variant === 'latest'}
-	<div class="mt-8 mb-10 flex items-center justify-between gap-4 rounded-2xl border border-brand-200 bg-brand-50 px-6 py-4 text-brand-800 shadow-sm animate-in fade-in slide-in-from-top-4 duration-500 dark:border-brand-900/50 dark:bg-brand-950/30 dark:text-brand-300">
-		<div class="flex items-center gap-3">
-			<div class="flex h-8 w-8 items-center justify-center rounded-full bg-brand-100 dark:bg-brand-900/50">
-				<svg class="h-4 w-4 animate-spin-[3s_linear_infinite]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-					<path d="M21 12a9 9 0 1 1-6.219-8.56" />
-					<polyline points="21 3 21 9 12 9" />
-				</svg>
-			</div>
-			<p class="text-sm font-medium">A new report should be ready! Refresh to see the latest data.</p>
-		</div>
-		<button 
-			onclick={() => window.location.reload()}
-			class="rounded-lg bg-brand-600 px-4 py-2 text-xs font-bold text-white transition hover:bg-brand-700 active:scale-95 dark:bg-brand-500"
-		>
-			REFRESH NOW
-		</button>
-	</div>
-{/if}
-
 <section
 	class="relative mt-8 overflow-hidden rounded-3xl border border-slate-200 bg-linear-to-br from-white via-brand-50/40 to-violet-50/40 p-8 shadow-xs dark:border-slate-800 dark:from-slate-900 dark:via-brand-950/20 dark:to-violet-950/20"
 >
