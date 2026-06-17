@@ -23,6 +23,12 @@ await build({
     target: "node20",
     external: ["@aws-sdk/*"],
     tsconfig: "./tsconfig.json",
+    // @google/genai (via google-auth-library) does a dynamic require() at import
+    // time. esbuild's ESM output shims dynamic require to throw unless a real
+    // `require` is in scope, so recreate one from import.meta.url.
+    banner: {
+        js: "import { createRequire as __createRequire } from 'module'; const require = __createRequire(import.meta.url);"
+    },
     define
 });
 
