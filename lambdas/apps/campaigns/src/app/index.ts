@@ -32,7 +32,7 @@ app.use((req, res, next) => {
 
 app
 	.route("/")
-	.get(validate.query(CampaignQuerySchema), async (req, res, next) => {
+	.get(async (req, res, next) => {
 		try {
 			const { status } = req.query as any;
 			const [campaigns, stats] = await Promise.all([
