@@ -59,11 +59,12 @@
 		const startMs = startIso ? Date.parse(startIso) : NaN;
 		const endMs = endIso ? Date.parse(endIso) : NaN;
 		const now = Date.now();
+		const minFutureMs = 2 * 60 * 1000;
 
 		if (!startIso || Number.isNaN(startMs)) {
 			startError = m.create_errorStartPast();
 			ok = false;
-		} else if (startMs < now) {
+		} else if (startMs < now + minFutureMs) {
 			startError = m.create_errorStartPast();
 			ok = false;
 		}

@@ -59,7 +59,7 @@
 	"create_nameHint": "Type freely — spaces become hyphens. Max {max} chars after conversion.",
 	"create_errorNameInvalid": "Use only letters, digits, hyphens and underscores. No spaces.",
 	"create_errorNameLength": "Name must be {min}-{max} characters.",
-	"create_errorStartPast": "Start date cannot be in the past.",
+	"create_errorStartPast": "Start date must be at least 2 minutes in the future.",
 	"create_errorEndBeforeStart": "End date must be after start.",
 	"create_errorRangeTooLong": "Date range cannot exceed {max} days.",
 	"create_errorTopicsRequired": "Add at least one topic.",
