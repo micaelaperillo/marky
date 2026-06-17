@@ -21,7 +21,7 @@
     },
     "dependencies": {
         "@aws-lambda-powertools/parameters": "^2.33.0",
-        "@google/generative-ai": "^0.21.0",
+        "@google/genai": "^2.8.0",
         "zod": "^4.4.3"
     }
 }

@@ -1,6 +1,13 @@
-import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
+import { GoogleGenAI, Type } from "@google/genai";
+import { GeminiEnvSchema } from "@shared/config";
 
 import type { GeminiAnalysis, InputMessage, OutputReport } from "./types.js";
+
+// Gemini frequently returns 503 (model overloaded). The new SDK retries the
+// transient status codes (408/429/500/502/503/504) with exponential backoff
+// internally; GEMINI_RETRY_ATTEMPTS tunes how many attempts (see GeminiEnvSchema
+// for the bound rationale).
+const env = GeminiEnvSchema.parse(process.env);
 
 const responseSchema = {
 	properties: {
@@ -10,54 +17,54 @@ const responseSchema = {
 					description: "Top 3 main topics, percent must sum to 100",
 					items: {
 						properties: {
-							percent: { type: SchemaType.INTEGER },
-							topic: { type: SchemaType.STRING },
+							percent: { type: Type.INTEGER },
+							topic: { type: Type.STRING },
 						},
 						required: ["topic", "percent"] as string[],
-						type: SchemaType.OBJECT,
+						type: Type.OBJECT,
 					},
 					maxItems: 3,
 					minItems: 3,
-					type: SchemaType.ARRAY,
+					type: Type.ARRAY,
 				},
 				summary: {
 					description: "Comprehensive summary of the conversation",
-					type: SchemaType.STRING,
+					type: Type.STRING,
 				},
 			},
 			required: ["summary", "main_topics"] as string[],
-			type: SchemaType.OBJECT,
+			type: Type.OBJECT,
 		},
 		key_comments: {
 			description: "Top 5 most relevant comments",
 			items: {
 				properties: {
-					author: { type: SchemaType.STRING },
-					created_at: { type: SchemaType.STRING },
-					score: { type: SchemaType.NUMBER },
-					text: { type: SchemaType.STRING },
+					author: { type: Type.STRING },
+					created_at: { type: Type.STRING },
+					score: { type: Type.NUMBER },
+					text: { type: Type.STRING },
 				},
 				required: ["text", "author", "score", "created_at"] as string[],
-				type: SchemaType.OBJECT,
+				type: Type.OBJECT,
 			},
 			maxItems: 5,
 			minItems: 1,
-			type: SchemaType.ARRAY,
+			type: Type.ARRAY,
 		},
 		sentiment: {
 			properties: {
 				label: {
 					enum: ["Positive", "Neutral", "Negative"] as string[],
-					type: SchemaType.STRING,
+					type: Type.STRING,
 				},
-				score: { type: SchemaType.NUMBER },
+				score: { type: Type.NUMBER },
 			},
 			required: ["label", "score"] as string[],
-			type: SchemaType.OBJECT,
+			type: Type.OBJECT,
 		},
 	},
 	required: ["analysis", "sentiment", "key_comments"] as string[],
-	type: SchemaType.OBJECT,
+	type: Type.OBJECT,
 } as const;
 
 function buildPrompt(topics: string[], postsBlock: string): string {
@@ -87,22 +94,27 @@ export async function analyze(
 		throw new Error("InputMessage.posts is empty");
 	}
 
-	const genAI = new GoogleGenerativeAI(apiKey);
-	const model = genAI.getGenerativeModel({
-		generationConfig: {
-			responseMimeType: "application/json",
-			responseSchema,
-		},
-		model: process.env.GEMINI_AI_MODEL!,
+	const ai = new GoogleGenAI({
+		apiKey,
+		httpOptions: { retryOptions: { attempts: env.gemini.retryAttempts } },
 	});
 
 	const postsBlock = input.posts.map((p) => JSON.stringify(p)).join("\n");
 
-	const result = await model.generateContent(
-		buildPrompt(input.topics, postsBlock),
-	);
+	const response = await ai.models.generateContent({
+		config: {
+			responseMimeType: "application/json",
+			responseSchema,
+		},
+		contents: buildPrompt(input.topics, postsBlock),
+		model: env.gemini.model,
+	});
 
-	const text = result.response.text();
+	const text = response.text;
+	if (text === undefined) {
+		throw new Error("Gemini returned no text (response blocked or empty)");
+	}
+
 	let parsed: GeminiAnalysis;
 	try {
 		parsed = JSON.parse(text) as GeminiAnalysis;

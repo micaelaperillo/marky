@@ -46,6 +46,19 @@ export const SecretsEnvSchema = BaseEnvSchema.extend({
 	sm: { gemini: e.SM_GEMINI_API_KEY_SECRET_ID },
 }));
 
+export const GeminiEnvSchema = BaseEnvSchema.extend({
+	GEMINI_AI_MODEL: z.string().min(1).default("gemini-2.5-flash"),
+	// SDK attempts include the initial call (1 = no retries). Bounded so the
+	// retry backoff can't blow the report-generator Lambda's 300s timeout, since
+	// its SQS batch (size 5) is processed sequentially and delays compound.
+	GEMINI_RETRY_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(4),
+}).transform((e) => ({
+	gemini: {
+		model: e.GEMINI_AI_MODEL,
+		retryAttempts: e.GEMINI_RETRY_ATTEMPTS,
+	},
+}));
+
 export const SqsCampaignsEnvSchema = BaseEnvSchema.extend({
 	SQS_CAMPAIGNS_EVENTS_URL: z.url(),
 }).transform((e) => ({
