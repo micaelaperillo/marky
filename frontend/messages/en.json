@@ -151,6 +151,10 @@
 		}
 	],
 	"list_title": "Your campaigns",
+	"list_filterAll": "All",
+	"list_filterActive": "Active",
+	"list_filterUpcoming": "Upcoming",
+	"list_filterEnded": "Ended",
 	"list_topicCount": [
 		{
 			"match": {
