@@ -15,13 +15,14 @@ const {
 	SCHEDULER_LAMBDA_ARN,
 } = process.env;
 
+
 interface CampaignEvent {
 	action: "create" | "delete";
 	campaignId: string;
 	topics: string[];
 	startDate: string;
 	endDate: string;
-	rateMinutes?: number;
+	frequencyMin?: number;
 }
 
 export const handler: SQSHandler = async (event) => {
@@ -54,9 +55,9 @@ async function createSchedule({
 	topics,
 	startDate,
 	endDate,
-	rateMinutes,
+	frequencyMin,
 }: CampaignEvent): Promise<void> {
-	const rate = Math.max(5, Math.min(60, rateMinutes ?? 5));
+	const rate = Math.max(5, Math.min(60, frequencyMin ?? 5));
 	const schedulerInput = JSON.stringify({ id: campaignId, topics });
 
 	await scheduler.send(
