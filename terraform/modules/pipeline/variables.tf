@@ -93,7 +93,7 @@ variable "gemini_api_key" {
 
 variable "gemini_ai_model" {
   type        = string
-  description = "Google Gemini API key for report generation."
+  description = "Google Gemini AI model for report generation."
 }
 
 variable "bluesky_identifier" {
