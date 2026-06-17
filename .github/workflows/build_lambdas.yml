@@ -1,7 +1,6 @@
 name: Build lambdas
 
 on:
-  workflow_dispatch:
   workflow_call:
 
 jobs:
@@ -18,18 +17,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v5
+        with:
+          cache: true
       - uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: pnpm
-      - uses: pnpm/action-setup@v5
-        with:
-          version: 11
-          cache: true
-          run_install: true
 
       - name: Build
-        run: pnpm -r build
+        run: |
+          pnpm i
+          pnpm -r build
 
       - uses: actions/upload-artifact@v7
         with:

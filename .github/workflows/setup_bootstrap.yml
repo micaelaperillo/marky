@@ -4,14 +4,28 @@ on:
   workflow_dispatch:
     inputs:
       user:
-        type: string
+        type: choice
         description: The user running the action
         required: true
+        options:
+          - professor-x
+          - agus
+          - uri
+          - manu
+          - mica
+          - tomi
       create:
         type: boolean
         description: Wheater to create the bucket, otherwise only checks availability
         required: true
   workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
+        required: true
     inputs:
       user:
         type: string
@@ -24,9 +38,10 @@ on:
 
 env:
   AWS_REGION: us-east-1
+  TF_VAR_user: ${{ inputs.user }}
 
 jobs:
-  idk:
+  setup:
     name: Configure the Terraform bootstrap
     runs-on: ubuntu-latest
 
@@ -40,6 +55,9 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
+        if: ${{ inputs.create }}
+        with:
+          terraform_wrapper: false
       - uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -51,11 +69,11 @@ jobs:
         if: ${{ inputs.create }}
         run: |
           terraform init
-          terraform apply
+          terraform apply -auto-approve -input=false
 
       - name: Verify state bucket exists
         run: |
-          aws s3api head-bucket --bucket marky-tfstate 2>/dev/null || {
+          aws s3api head-bucket --bucket marky-tfstate-${{ inputs.user }} 2>/dev/null || {
             echo "You swore to me you had a bucket, but it ain't there..."
             echo "How dare you?"
             echo

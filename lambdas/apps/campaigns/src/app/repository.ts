@@ -10,6 +10,11 @@ type CampaignRow = {
 	topics: string[];
 };
 
+type SaveInput = CampaignInput & {
+	userId: string;
+	name: string;
+};
+
 export class RdsCampaignRepository {
 	async findAll(userId: string): Promise<Campaign[]> {
 		const pool = await getPool();
@@ -26,16 +31,16 @@ export class RdsCampaignRepository {
 		return result.rows.map(this.toDomain);
 	}
 
-	async findOne(userId: string, name: string): Promise<Campaign | null> {
+	async findById(userId: string, id: string): Promise<Campaign | null> {
 		const pool = await getPool();
 		const result = await pool.query<CampaignRow>(
 			`
                 SELECT id, user_sub, name, start_date, end_date, topics
                 FROM campaigns
-                WHERE user_sub = $1 AND name = $2
+                WHERE user_sub = $1 AND id = $2
                 LIMIT 1
             `,
-			[userId, name],
+			[userId, id],
 		);
 
 		if (result.rowCount === 0) return null;
@@ -43,7 +48,7 @@ export class RdsCampaignRepository {
 		return this.toDomain(result.rows[0]);
 	}
 
-	async save(input: CampaignInput & { userId: string }): Promise<string> {
+	async save(input: SaveInput): Promise<string> {
 		const pool = await getPool();
 		const result = await pool.query(
 			`
@@ -57,7 +62,7 @@ export class RdsCampaignRepository {
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
             `,
-			[input.userId, input.campaign, input.topics, input.start, input.end],
+			[input.userId, input.name, input.topics, input.start, input.end],
 		);
 
 		if (result.rowCount === 0)
@@ -66,10 +71,7 @@ export class RdsCampaignRepository {
 		return result.rows[0].id;
 	}
 
-	async saveWithClient(
-		client: PoolClient,
-		input: CampaignInput & { userId: string },
-	): Promise<string> {
+	async saveWithClient(client: PoolClient, input: SaveInput): Promise<string> {
 		const result = await client.query(
 			`
                 INSERT INTO campaigns (
@@ -82,7 +84,7 @@ export class RdsCampaignRepository {
                 VALUES ($1, $2, $3, $4, $5)
                 RETURNING id
             `,
-			[input.userId, input.campaign, input.topics, input.start, input.end],
+			[input.userId, input.name, input.topics, input.start, input.end],
 		);
 
 		if (result.rowCount === 0)
@@ -91,11 +93,11 @@ export class RdsCampaignRepository {
 		return result.rows[0].id;
 	}
 
-	async delete(userId: string, name: string): Promise<boolean> {
+	async delete(userId: string, id: string): Promise<boolean> {
 		const pool = await getPool();
 		const result = await pool.query(
-			"DELETE FROM campaigns WHERE user_sub = $1 AND name = $2",
-			[userId, name],
+			"DELETE FROM campaigns WHERE user_sub = $1 AND id = $2",
+			[userId, id],
 		);
 		return (result.rowCount ?? 0) > 0;
 	}

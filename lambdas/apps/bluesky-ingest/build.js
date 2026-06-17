@@ -6,11 +6,12 @@ import { build } from "esbuild";
 
 import defaults from "../../defaults.build.js";
 
+const VALID_IDENTIFIER = /^[A-Za-z_$][\w$]*$/;
+
 const define = Object.fromEntries(
-    Object.entries(process.env).map(([key, value]) => [
-        `process.env.${key}`,
-        JSON.stringify(value)
-    ])
+    Object.entries(process.env)
+        .filter(([key]) => VALID_IDENTIFIER.test(key))
+        .map(([key, value]) => [`process.env.${key}`, JSON.stringify(value)])
 );
 
 await build({

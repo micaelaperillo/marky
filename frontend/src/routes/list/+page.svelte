@@ -4,7 +4,7 @@
 	import { resolve } from '$app/paths';
 	import { m } from '$lib/paraglide/messages';
 	import type { Campaign } from '$lib/types';
-	import { daysLeft, fmt } from '$lib/utils/date';
+	import { campaignStatus, daysLeft, daysUntilStart, fmt } from '$lib/utils/date';
 
 	let { data }: PageProps = $props();
 
@@ -73,10 +73,7 @@
 						{m.list_statRunning()}
 					</p>
 					<p class="mt-2 text-3xl font-black text-slate-900 dark:text-white">
-						{campaigns.filter((c) => {
-							const d = daysLeft(c.end);
-							return d !== null && d >= 0;
-						}).length}
+						{campaigns.filter((c) => campaignStatus(c) === 'active').length}
 					</p>
 				</div>
 			</div>
@@ -118,11 +115,12 @@
 			</div>
 		{:else}
 			<div class="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-				{#each campaigns as item (item.name)}
+				{#each campaigns as item (item.id)}
+					{@const status = campaignStatus(item)}
 					{@const left = daysLeft(item.end)}
-					{@const running = left !== null && left >= 0}
+					{@const until = daysUntilStart(item.start)}
 					<a
-						href={resolve('/list/[campaign]', { campaign: item.name })}
+						href={resolve('/list/[campaign]', { campaign: item.id })}
 						class="group relative flex flex-col rounded-2xl border border-slate-200 bg-white p-5 shadow-xs transition hover:-translate-y-0.5 hover:border-brand-300 hover:shadow-lg hover:shadow-brand-500/10 focus-visible:ring-2 focus-visible:ring-brand-500/40 focus-visible:outline-none dark:border-slate-800 dark:bg-slate-900 dark:hover:border-brand-700 dark:hover:shadow-brand-500/5"
 					>
 						<div class="flex items-start justify-between gap-2">
@@ -137,11 +135,21 @@
 								</p>
 							</div>
 							<span
-								class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {running
+								class="shrink-0 rounded-full px-2 py-0.5 text-xs font-medium {status === 'active'
 									? 'bg-emerald-50 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300'
-									: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}"
+									: status === 'pending'
+										? 'bg-amber-50 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300'
+										: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'}"
 							>
-								{running ? m.list_badgeDaysLeft({ days: left ?? 0 }) : m.list_badgeEnded()}
+								{#if status === 'pending'}
+									{until === 0
+										? m.list_badgeStartsToday()
+										: m.list_badgeStartsIn({ days: until ?? 0 })}
+								{:else if status === 'active'}
+									{m.list_badgeDaysLeft({ days: left ?? 0 })}
+								{:else}
+									{m.list_badgeEnded()}
+								{/if}
 							</span>
 						</div>
 

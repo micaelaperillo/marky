@@ -2,6 +2,13 @@ name: Pull tfstate
 
 on:
   workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
+        required: true
     inputs:
       user:
         type: string
@@ -20,13 +27,10 @@ jobs:
     name: Retrieve the tfstate file
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: terraform
+    permissions:
+      contents: read
 
     steps:
-      - uses: actions/checkout@v6
-      - uses: hashicorp/setup-terraform@v4
       - uses: aws-actions/configure-aws-credentials@v6
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -35,14 +39,12 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Pull Terraform state from S3
+        id: pull
+        continue-on-error: ${{ !inputs.fail_if_missing }}
         run: aws s3 cp "s3://marky-tfstate-${{ inputs.user }}/terraform.tfstate" terraform.tfstate
 
-      - name: Check if tfstate was found
-        if: ${{ inputs.fail_if_missing }}
-        run: |
-          [[ ! -f terraform.tfstate ]] && exit 1
-
       - uses: actions/upload-artifact@v7
+        if: ${{ steps.pull.outcome == 'success' }}
         with:
           name: tfstate
-          path: terraform/terraform.tfstate
+          path: terraform.tfstate

@@ -41,13 +41,31 @@ app
 		const client = await pool.connect();
 		try {
 			const input = req.body as CampaignInput;
+			const name = input.campaign.trim();
 
 			await client.query("BEGIN");
 
-			const id = await repo.saveWithClient(client, {
-				...input,
-				userId: res.locals.userId,
-			});
+			let id: string;
+			try {
+				id = await repo.saveWithClient(client, {
+					...input,
+					name,
+					userId: res.locals.userId,
+				});
+			} catch (err: unknown) {
+				await client.query("ROLLBACK");
+				if (
+					typeof err === "object" &&
+					err !== null &&
+					(err as { code?: string }).code === "23505"
+				) {
+					res.status(409).json({
+						error: "You already have a campaign with that name",
+					});
+					return;
+				}
+				throw err;
+			}
 
 			await sqs.send({
 				MessageBody: JSON.stringify({
@@ -63,9 +81,13 @@ app
 			});
 
 			await client.query("COMMIT");
-			res.status(201).json({ id });
+			res.status(201).json({ id, name });
 		} catch (err) {
-			await client.query("ROLLBACK");
+			try {
+				await client.query("ROLLBACK");
+			} catch {
+				// already rolled back
+			}
 			next(err);
 		} finally {
 			client.release();
@@ -73,10 +95,10 @@ app
 	});
 
 app
-	.route("/:name")
+	.route("/:id")
 	.get(validate.params(CampaignParamsSchema), async (req, res, next) => {
 		try {
-			const campaign = await repo.findOne(res.locals.userId, req.params.name);
+			const campaign = await repo.findById(res.locals.userId, req.params.id);
 
 			if (!campaign) {
 				return res.status(404).json({ message: "Campaign not found" });
@@ -89,13 +111,13 @@ app
 	})
 	.delete(validate.params(CampaignParamsSchema), async (req, res, next) => {
 		try {
-			const campaign = await repo.findOne(res.locals.userId, req.params.name);
+			const campaign = await repo.findById(res.locals.userId, req.params.id);
 
 			if (!campaign) {
 				return res.status(404).json({ message: "Campaign not found" });
 			}
 
-			await repo.delete(res.locals.userId, req.params.name);
+			await repo.delete(res.locals.userId, req.params.id);
 
 			await sqs.send({
 				MessageBody: JSON.stringify({

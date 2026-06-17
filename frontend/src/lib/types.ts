@@ -1,4 +1,5 @@
 export interface Campaign {
+	id: string;
 	name: string;
 	topics: string[];
 	start: string;

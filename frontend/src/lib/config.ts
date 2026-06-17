@@ -4,13 +4,13 @@
  */
 export const formConfig = {
 	campaign: {
-		maxLength: 16,
+		maxLength: 32,
 		minLength: 1,
 		/** Regex used on the server for validation. */
-		pattern: /^[a-z_]+$/i,
+		pattern: /^[A-Za-z0-9_-]+$/,
 		/** HTML-safe version of the pattern (no anchors) for the `pattern` attribute. */
-		patternHtml: '[A-Za-z_]+',
-		placeholder: 'product_launch'
+		patternHtml: '[A-Za-z0-9_\\-]+',
+		placeholder: 'product-launch'
 	},
 	range: {
 		/** Maximum interval between start and end date, in days. */
@@ -18,14 +18,14 @@ export const formConfig = {
 	},
 	topics: {
 		/** Maximum number of topics allowed per campaign. */
-		max: 6,
+		max: 10,
 		/** Minimum number of topics the user must provide. */
 		min: 1,
 		topic: {
-			maxLength: 15,
+			maxLength: 40,
 			minLength: 1
 		},
-		pattern: /^[a-z _]+$/i
+		pattern: /^[\p{L}\p{N} _-]+$/u
 	}
 } as const;
 

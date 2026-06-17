@@ -24,6 +24,7 @@ jobs:
     uses: ./.github/workflows/pull_tfstate.yml
     with:
       user: ${{ inputs.user }}
+    secrets: inherit
 
   destroy:
     name: 'Destroy Infrastructure'
@@ -41,9 +42,12 @@ jobs:
     steps:
       - uses: actions/checkout@v6
       - uses: hashicorp/setup-terraform@v4
+        with:
+          terraform_wrapper: false
       - uses: actions/download-artifact@v8
         with:
           name: tfstate
+          path: terraform
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v6
@@ -68,3 +72,4 @@ jobs:
     uses: ./.github/workflows/push_tfstate.yml
     with:
       user: ${{ inputs.user }}
+    secrets: inherit

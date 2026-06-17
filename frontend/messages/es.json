@@ -11,6 +11,18 @@
 	"campaign_reportsPlaceholder": "Acá van a aparecer los reportes cuando corra la ingesta.",
 	"campaign_statusActive": "Activa",
 	"campaign_statusEnded": "Terminó",
+	"sentiment_veryNegative": "Muy negativo",
+	"sentiment_reasonablyNegative": "Bastante negativo",
+	"sentiment_slightlyNegative": "Levemente negativo",
+	"sentiment_neutral": "Neutro",
+	"sentiment_slightlyPositive": "Levemente positivo",
+	"sentiment_reasonablyPositive": "Bastante positivo",
+	"sentiment_veryPositive": "Muy positivo",
+	"sentiment_pieTitle": "Sentimiento de comentarios",
+	"sentiment_pieEmpty": "No hay comentarios suficientes para el gráfico.",
+	"sentiment_pieLegendPositive": "Positivos",
+	"sentiment_pieLegendNeutral": "Neutros",
+	"sentiment_pieLegendNegative": "Negativos",
 	"campaign_topicSubtitle": "Sentimiento medido todos los días",
 	"campaign_topicsHeading": "Temas en seguimiento",
 	"common_back": "Volver",
@@ -44,7 +56,13 @@
 			}
 		}
 	],
-	"create_nameHint": "Hasta {max} caracteres. Solo letras y guión bajo, nada raro.",
+	"create_nameHint": "Escribí tranqui — los espacios se convierten en guiones. Hasta {max} caracteres tras la conversión.",
+	"create_errorNameInvalid": "Usá solo letras, números, guiones y guión bajo. Sin espacios.",
+	"create_errorNameLength": "El nombre tiene que tener entre {min} y {max} caracteres.",
+	"create_errorStartPast": "La fecha de inicio no puede estar en el pasado.",
+	"create_errorEndBeforeStart": "La fecha de fin tiene que ser después de la de inicio.",
+	"create_errorRangeTooLong": "El rango no puede superar los {max} días.",
+	"create_errorTopicsRequired": "Agregá al menos un tema.",
 	"create_nameLabel": "Nombre de la campaña",
 	"create_removeTopic": "Sacar {topic}",
 	"create_startLabel": "Desde",
@@ -101,6 +119,16 @@
 	],
 	"list_badgeEnded": "Terminó",
 	"list_badgeEndsToday": "Termina hoy",
+	"list_badgeStartsIn": [
+		{
+			"match": {
+				"days=*": "Arranca en {days} días",
+				"days=1": "Arranca mañana"
+			}
+		}
+	],
+	"list_badgeStartsToday": "Arranca hoy",
+	"campaign_statusPending": "Pendiente",
 	"list_emptyBody": "Con las campañas podés seguir temas en el tiempo y ver cómo se mueve el sentimiento en Bluesky.",
 	"list_emptyCta": "Armá tu primera campaña",
 	"list_emptyLead": "Todavía no armaste ninguna. Dale, arrancá una para ver cómo viene el sentimiento.",

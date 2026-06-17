@@ -2,6 +2,13 @@ name: Push tfstate
 
 on:
   workflow_call:
+    secrets:
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+        required: true
+      AWS_SESSION_TOKEN:
+        required: true
     inputs:
       user:
         type: string
@@ -16,9 +23,8 @@ jobs:
     name: Update the tfstate file
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: terraform
+    permissions:
+      contents: read
 
     steps:
       - uses: aws-actions/configure-aws-credentials@v6
