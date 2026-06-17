@@ -79,10 +79,10 @@ export const CampaignInputSchema = z
         ({ start }) => {
             const now = dayjs.utc();
             const startDate = dayjs.utc(start);
-            return !startDate.isBefore(now);
+            return !startDate.isBefore(now.add(2, "minute"));
         },
         {
-            message: "Start date cannot be in the past",
+            message: "Start date must be at least 2 minutes in the future",
             path: ["start"]
         }
     )
