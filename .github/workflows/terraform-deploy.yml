@@ -103,7 +103,7 @@ jobs:
       api_url: ${{ steps.vars.outputs.api_url }}
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: hashicorp/setup-terraform@v4
       - uses: aws-actions/configure-aws-credentials@v6
         with:
