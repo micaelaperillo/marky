@@ -73,7 +73,9 @@ No modules.
 | <a name="input_bluesky_identifier"></a> [bluesky\_identifier](#input\_bluesky\_identifier) | Bluesky account identifier for the fetcher Lambda. | `string` | `null` | no |
 | <a name="input_dynamodb_reports_table_name"></a> [dynamodb\_reports\_table\_name](#input\_dynamodb\_reports\_table\_name) | Name of the DynamoDB table for storing analysis reports. | `string` | n/a | yes |
 | <a name="input_fetcher_max_concurrency"></a> [fetcher\_max\_concurrency](#input\_fetcher\_max\_concurrency) | Maximum concurrent Lambda invocations for the fetcher ESM. | `number` | `5` | no |
+| <a name="input_gemini_ai_model"></a> [gemini\_ai\_model](#input\_gemini\_ai\_model) | Google Gemini AI model for report generation. | `string` | n/a | yes |
 | <a name="input_gemini_api_key"></a> [gemini\_api\_key](#input\_gemini\_api\_key) | Google Gemini API key for report generation. | `string` | n/a | yes |
+| <a name="input_gemini_retry_attempts"></a> [gemini\_retry\_attempts](#input\_gemini\_retry\_attempts) | Max Gemini API attempts (incl. the initial call) on transient 5xx/429 errors. 1 disables retries. | `number` | n/a | yes |
 | <a name="input_lab_role_arn"></a> [lab\_role\_arn](#input\_lab\_role\_arn) | ARN of the LabRole IAM role used by all resources. | `string` | n/a | yes |
 | <a name="input_lambda_dist_base"></a> [lambda\_dist\_base](#input\_lambda\_dist\_base) | Base path to the Lambda workspace apps directory. Null = use stubs. | `string` | `null` | no |
 | <a name="input_orchestrator_max_concurrency"></a> [orchestrator\_max\_concurrency](#input\_orchestrator\_max\_concurrency) | Maximum concurrent Lambda invocations for the orchestrator ESM. | `number` | `5` | no |
